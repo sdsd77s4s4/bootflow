@@ -124,7 +124,7 @@ export const useUsers = () => {
       if (error) {
         setError(error.message);
       } else {
-        setUsers(users.filter(user => user.id !== id));
+    setUsers(users.filter(user => user.id !== id));
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao deletar usuário');
