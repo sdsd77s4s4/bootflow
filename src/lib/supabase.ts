@@ -2,7 +2,7 @@ import { createClient } from '@supabase/supabase-js';
 import type { Database } from '@/integrations/supabase/types';
 import { useState, useEffect } from 'react';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "https://zluggifavplgsxzbupiq.supabase.co";
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "https://tgffflpfilsxikqhnkuj.supabase.co";
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRnZmZmbHBmaWxzeGlrcWhua3VqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM1NzQ5OTcsImV4cCI6MjA2OTE1MDk5N30.qMzjJOJkPeW2hN9jD_uCW1MTlJgzstSyxm78ia0IdIM";
 
 // Cliente principal do Supabase
