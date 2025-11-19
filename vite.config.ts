@@ -9,11 +9,15 @@ export default defineConfig(({ mode }) => ({
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
+    dedupe: ['react', 'react-dom'],
   },
   server: {
     port: 3000,
     host: true,
     open: true,
+    hmr: {
+      clientPort: 3000,
+    },
   },
   build: {
     outDir: 'dist',
