@@ -42,7 +42,7 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import { AdminSidebar } from "@/components/sidebars/AdminSidebar";
 import { AIModalManager } from "@/components/modals/AIModalManager";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { Dialog, DialogContent, DialogTrigger, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogTrigger, DialogTitle, DialogDescription, DialogHeader } from '@/components/ui/dialog';
 import { DndContext, closestCenter } from '@dnd-kit/core';
 import { arrayMove, SortableContext, useSortable, rectSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -438,14 +438,8 @@ const AdminDashboard = () => {
     }, 1000);
   }, [fetchRevendas]);
 
-  // Atualizar estatísticas quando os dados mudarem
-  useEffect(() => {
-    // Usando refreshStats para atualizar as estatísticas
-    refreshStats();
-    
-    // Se precisar atualizar estatísticas locais, use o estado existente
-    // ou adicione um estado local se necessário
-  }, [clientes, revendas, refreshStats]);
+  // Removido useEffect que causava loop infinito
+  // O useDashboardData já recalcula automaticamente quando os dados mudam
 
   // Efeito para lidar com erros nas estatísticas
   useEffect(() => {
@@ -908,6 +902,17 @@ const AdminDashboard = () => {
         // Fechar modal
         setResellerModal(false);
         
+        // Navegar para a página de Gerenciamento de Revendedores
+        setCurrentPage("resellers");
+        
+        // Marcar que deve rolar até a lista de revendedores
+        localStorage.setItem('scroll-to-lista-revendedores', 'true');
+        
+        // Disparar evento com flag de scroll
+        window.dispatchEvent(new CustomEvent('refresh-dashboard', { 
+          detail: { source: 'resellers', action: 'create', scrollToList: true } 
+        }));
+        
         // Atualizar dados
         refreshResellers();
         
@@ -1314,6 +1319,10 @@ const AdminDashboard = () => {
                     </Button>
                   </DialogTrigger>
                   <DialogContent className="bg-[#1f2937] text-white max-w-4xl w-full p-0 rounded-xl shadow-xl border border-gray-700 flex flex-col max-h-[90vh] overflow-y-auto scrollbar-hide">
+                    <DialogHeader className="sr-only">
+                      <DialogTitle>Adicionar um Cliente</DialogTitle>
+                      <DialogDescription>Preencha os dados do novo cliente</DialogDescription>
+                    </DialogHeader>
                     <div className="p-6 w-full flex flex-col">
                       <div className="flex items-center justify-between mb-6">
                         <h2 className="text-2xl font-bold">Adicionar um Cliente</h2>
@@ -1656,6 +1665,10 @@ const AdminDashboard = () => {
                     </Button>
                   </DialogTrigger>
                   <DialogContent className="bg-[#1f2937] text-white max-w-4xl w-full p-0 rounded-xl shadow-xl border border-gray-700 flex flex-col max-h-[90vh] overflow-y-auto scrollbar-hide">
+                    <DialogHeader className="sr-only">
+                      <DialogTitle>Adicionar um Revenda</DialogTitle>
+                      <DialogDescription>Preencha os dados do novo revendedor</DialogDescription>
+                    </DialogHeader>
                     <div className="p-6 w-full flex flex-col">
                       <div className="flex items-center justify-between mb-6">
                         <h2 className="text-2xl font-bold">Adicionar um Revenda</h2>
@@ -1681,6 +1694,10 @@ const AdminDashboard = () => {
                             // Fechar modal após criar revendedor com sucesso
                             setTimeout(() => {
                               setResellerModal(false);
+                              // Navegar para a página de Gerenciamento de Revendedores
+                              setCurrentPage("resellers");
+                              // Marcar que deve rolar até a lista de revendedores
+                              localStorage.setItem('scroll-to-lista-revendedores', 'true');
                               // Forçar atualização dos dados
                               console.log('🔄 [AdminDashboard] Chamando fetchRevendas...');
                               if (fetchRevendas) {
@@ -1689,13 +1706,21 @@ const AdminDashboard = () => {
                                   // Aguardar um pouco antes de atualizar stats para garantir que os dados foram atualizados
                                   setTimeout(() => {
                                     if (refreshResellers) refreshResellers();
-                                    if (refreshStats) refreshStats();
+                                    // Disparar evento com flag de scroll
+                                    window.dispatchEvent(new CustomEvent('refresh-dashboard', { 
+                                      detail: { source: 'resellers', action: 'create', scrollToList: true } 
+                                    }));
+                                    // O useDashboardData já escuta eventos e atualiza automaticamente
                                     console.log('✅ [AdminDashboard] Dados atualizados');
                                   }, 500);
                                 });
                               } else {
                                 if (refreshResellers) refreshResellers();
-                                if (refreshStats) refreshStats();
+                                // Disparar evento com flag de scroll
+                                window.dispatchEvent(new CustomEvent('refresh-dashboard', { 
+                                  detail: { source: 'resellers', action: 'create', scrollToList: true } 
+                                }));
+                                // O useDashboardData já escuta eventos e atualiza automaticamente
                               }
                             }, 1000);
                           }}
@@ -2046,28 +2071,22 @@ const AdminDashboard = () => {
   }, [refreshTrigger]); // Apenas depender de refreshTrigger
 
   // Listener para atualização instantânea
+  // Listener para eventos de atualização (otimizado - useDashboardData gerencia refreshStats)
   useEffect(() => {
     const handleRefresh = (event: CustomEvent) => {
-      console.log('🔄 Dashboard: Evento refresh-dashboard recebido, atualizando dados...');
+      console.log('🔄 [AdminDashboard] Evento refresh-dashboard recebido, atualizando dados...');
       
-      // Atualizar dados baseado na fonte sem disparar refreshTrigger novamente
+      // Atualizar dados baseado na fonte
+      // O useDashboardData já escuta esses eventos e atualiza as estatísticas automaticamente
       if (event.detail?.source === 'users' || !event.detail?.source) {
-        console.log('🔄 Atualizando dados de usuários...');
+        console.log('🔄 [AdminDashboard] Atualizando dados de usuários...');
         refreshUsers();
-        // Forçar atualização das estatísticas do dashboard (receita total)
-        if (refreshStats) {
-          console.log('🔄 Atualizando estatísticas do dashboard (receita)...');
-          refreshStats();
-        }
+        // Não precisa chamar refreshStats - o useDashboardData já gerencia
       }
       if (event.detail?.source === 'resellers' || !event.detail?.source) {
-        console.log('🔄 Atualizando dados de revendedores...');
+        console.log('🔄 [AdminDashboard] Atualizando dados de revendedores...');
         if (refreshResellers) refreshResellers();
-        // Forçar atualização das estatísticas do dashboard
-        if (refreshStats) {
-          console.log('🔄 Atualizando estatísticas do dashboard (receita)...');
-          refreshStats();
-        }
+        // Não precisa chamar refreshStats - o useDashboardData já gerencia
       }
       
       // Apenas atualiza o trigger se realmente necessário
@@ -2080,35 +2099,29 @@ const AdminDashboard = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Não depender de refreshUsers/refreshResellers para evitar loops
 
-  // Listener para localStorage (comunicação entre páginas)
+  // Listener para localStorage (comunicação entre páginas) - otimizado
   useEffect(() => {
     const handleStorageChange = (e: StorageEvent) => {
       if (e.key === 'dashboard-refresh') {
-        console.log('🔄 Dashboard: localStorage change detectado, atualizando dados...');
+        console.log('🔄 [AdminDashboard] localStorage change detectado, atualizando dados...');
         // Chama diretamente sem atualizar o trigger para evitar loops
+        // O useDashboardData já escuta eventos e atualiza automaticamente
         refreshUsers();
         if (refreshResellers) refreshResellers();
-        // Forçar atualização das estatísticas do dashboard (receita total)
-        if (refreshStats) {
-          console.log('🔄 Atualizando estatísticas do dashboard (receita)...');
-          refreshStats();
-        }
+        // Não precisa chamar refreshStats aqui - o useDashboardData já gerencia
       }
     };
     
     const checkForRefresh = () => {
       const refreshFlag = localStorage.getItem('dashboard-refresh');
       if (refreshFlag) {
-        console.log('🔄 Dashboard: Flag de refresh encontrada, atualizando dados...');
+        console.log('🔄 [AdminDashboard] Flag de refresh encontrada, atualizando dados...');
         localStorage.removeItem('dashboard-refresh');
         // Chama diretamente sem atualizar o trigger para evitar loops
+        // O useDashboardData já escuta eventos e atualiza automaticamente
         refreshUsers();
         if (refreshResellers) refreshResellers();
-        // Forçar atualização das estatísticas do dashboard (receita total)
-        if (refreshStats) {
-          console.log('🔄 Atualizando estatísticas do dashboard (receita)...');
-          refreshStats();
-        }
+        // Não precisa chamar refreshStats aqui - o useDashboardData já gerencia
       }
     };
     
@@ -2153,6 +2166,10 @@ const AdminDashboard = () => {
                         </Button>
                       </DialogTrigger>
                       <DialogContent className="bg-[#1f2937] text-white max-w-4xl w-full p-0 rounded-xl shadow-xl border border-gray-700 flex flex-col max-h-[90vh] overflow-y-auto scrollbar-hide">
+                        <DialogHeader className="sr-only">
+                          <DialogTitle>Adicionar um Cliente</DialogTitle>
+                          <DialogDescription>Preencha os dados do novo cliente</DialogDescription>
+                        </DialogHeader>
                         <div className="p-6 w-full flex flex-col">
                           <div className="flex items-center justify-between mb-6">
                             <h2 className="text-2xl font-bold">Adicionar um Cliente</h2>
@@ -2495,6 +2512,10 @@ const AdminDashboard = () => {
                         </Button>
                       </DialogTrigger>
                       <DialogContent className="bg-[#1f2937] text-white max-w-4xl w-full p-0 rounded-xl shadow-xl border border-gray-700 flex flex-col max-h-[90vh] overflow-y-auto scrollbar-hide">
+                        <DialogHeader className="sr-only">
+                          <DialogTitle>Adicionar um Revenda</DialogTitle>
+                          <DialogDescription>Preencha os dados do novo revendedor</DialogDescription>
+                        </DialogHeader>
                         <div className="p-6 w-full flex flex-col">
                           <div className="flex items-center justify-between mb-6">
                             <h2 className="text-2xl font-bold">Adicionar um Revenda</h2>
@@ -3097,6 +3118,10 @@ const AdminDashboard = () => {
         {/* Modal Customizar Marca */}
         <Dialog open={brandingModal} onOpenChange={setBrandingModal}>
           <DialogContent className="max-w-4xl bg-[#232a36] border border-purple-700 text-white p-0">
+            <DialogHeader className="sr-only">
+              <DialogTitle>Customizar Marca</DialogTitle>
+              <DialogDescription>Personalize a identidade visual da plataforma</DialogDescription>
+            </DialogHeader>
             <div className="overflow-y-auto max-h-[80vh]">
               <AdminBranding />
             </div>
@@ -3106,37 +3131,55 @@ const AdminDashboard = () => {
         {/* Modais dos cards Kanban */}
         <Dialog open={activeModal === 'iptv_management'} onOpenChange={handleModalClose}>
           <DialogContent className="max-w-2xl bg-[#232a36] text-white">
-            <div className="font-bold text-xl mb-2">Gestão de IPTV</div>
+            <DialogHeader>
+              <DialogTitle>Gestão de IPTV</DialogTitle>
+              <DialogDescription>Gerencie canais, servidores e configurações do IPTV</DialogDescription>
+            </DialogHeader>
             <AdminIPTV />
           </DialogContent>
         </Dialog>
         <Dialog open={activeModal === 'ecommerce_management'} onOpenChange={handleModalClose}>
           <DialogContent className="max-w-2xl bg-[#232a36] text-white">
-            <div className="font-bold text-xl mb-2">Gestão de E-commerce</div>
+            <DialogHeader>
+              <DialogTitle>Gestão de E-commerce</DialogTitle>
+              <DialogDescription>Gerencie produtos, vendas e configurações da loja</DialogDescription>
+            </DialogHeader>
             <AdminEcommerce />
           </DialogContent>
         </Dialog>
         <Dialog open={activeModal === 'gamification_management'} onOpenChange={handleModalClose}>
           <DialogContent className="max-w-2xl bg-[#232a36] text-white">
-            <div className="font-bold text-xl mb-2">Gestão de Gamificação</div>
+            <DialogHeader>
+              <DialogTitle>Gestão de Gamificação</DialogTitle>
+              <DialogDescription>Configure sistema de pontos, badges e recompensas</DialogDescription>
+            </DialogHeader>
             <AdminGames />
           </DialogContent>
         </Dialog>
         <Dialog open={activeModal === 'analytics_management'} onOpenChange={handleModalClose}>
           <DialogContent className="max-w-2xl bg-[#232a36] text-white">
-            <div className="font-bold text-xl mb-2">Resumo de Analytics</div>
+            <DialogHeader>
+              <DialogTitle>Resumo de Analytics</DialogTitle>
+              <DialogDescription>Visualize métricas e estatísticas do sistema</DialogDescription>
+            </DialogHeader>
             <AdminAnalytics />
           </DialogContent>
         </Dialog>
         <Dialog open={activeModal === 'ai_voice_config'} onOpenChange={handleModalClose}>
           <DialogContent className="max-w-2xl bg-[#232a36] text-white">
-            <div className="font-bold text-xl mb-2">Configurações de IA + Voz</div>
+            <DialogHeader>
+              <DialogTitle>Configurações de IA + Voz</DialogTitle>
+              <DialogDescription>Configure assistente de voz e inteligência artificial</DialogDescription>
+            </DialogHeader>
             <AdminAI />
           </DialogContent>
         </Dialog>
         <Dialog open={activeModal === 'branding_management'} onOpenChange={handleModalClose}>
           <DialogContent className="max-w-2xl bg-[#232a36] text-white">
-            <div className="font-bold text-xl mb-2">Customizar Marca</div>
+            <DialogHeader>
+              <DialogTitle>Customizar Marca</DialogTitle>
+              <DialogDescription>Personalize a identidade visual da plataforma</DialogDescription>
+            </DialogHeader>
             <AdminBranding />
           </DialogContent>
         </Dialog>
@@ -3144,6 +3187,10 @@ const AdminDashboard = () => {
         {/* Modais para cada card */}
         <Dialog open={activeModal === 'iptv'} onOpenChange={() => setActiveModal(null)}>
           <DialogContent className="bg-[#1f2937] text-white max-w-2xl w-full p-0 rounded-xl shadow-xl border border-gray-700 flex flex-col items-center justify-center max-h-[80vh] overflow-y-auto scrollbar-hide">
+            <DialogHeader className="sr-only">
+              <DialogTitle>Sistema IPTV</DialogTitle>
+              <DialogDescription>Gerencie canais, servidores e configurações do IPTV</DialogDescription>
+            </DialogHeader>
             <div className="p-6 w-full flex flex-col items-center">
               <h2 className="text-2xl font-bold mb-2 text-center">Sistema IPTV</h2>
               <p className="text-gray-400 mb-4 text-center">Gerencie canais, servidores e configurações do IPTV.</p>
@@ -3202,6 +3249,10 @@ const AdminDashboard = () => {
         </Dialog>
         <Dialog open={activeModal === 'branding'} onOpenChange={() => setActiveModal(null)}>
           <DialogContent className="bg-[#1f2937] text-white max-w-2xl w-full p-0 rounded-xl shadow-xl border border-gray-700 flex flex-col items-center justify-center max-h-[80vh] overflow-y-auto scrollbar-hide">
+            <DialogHeader className="sr-only">
+              <DialogTitle>Customizar Marca</DialogTitle>
+              <DialogDescription>Personalize a aparência, identidade visual e configurações white label da sua plataforma</DialogDescription>
+            </DialogHeader>
             <div className="p-6 w-full flex flex-col items-center">
               <h2 className="text-2xl font-bold mb-2 text-center">Customizar Marca</h2>
               <p className="text-gray-400 mb-4 text-center">Personalize a aparência, identidade visual e configurações white label da sua plataforma.</p>
@@ -3243,6 +3294,10 @@ const AdminDashboard = () => {
         </Dialog>
         <Dialog open={activeModal === 'ecommerce'} onOpenChange={() => setActiveModal(null)}>
           <DialogContent className="bg-[#1f2937] text-white max-w-2xl w-full p-0 rounded-xl shadow-xl border border-gray-700 flex flex-col items-center justify-center max-h-[80vh] overflow-y-auto scrollbar-hide">
+            <DialogHeader className="sr-only">
+              <DialogTitle>E-commerce</DialogTitle>
+              <DialogDescription>Gerencie produtos, vendas e configurações da loja</DialogDescription>
+            </DialogHeader>
             <div className="p-6 w-full flex flex-col items-center">
               <h2 className="text-2xl font-bold mb-2 text-center">E-commerce</h2>
               <p className="text-gray-400 mb-4 text-center">Gerencie produtos, vendas e configurações da loja.</p>

@@ -128,14 +128,27 @@ export function useRevendas() {
     try {
       setError(null);
       
+      // Validar campos obrigatórios
+      if (!revenda.username || !revenda.username.trim()) {
+        setError('Username é obrigatório');
+        console.error('❌ [useRevendas] Username não fornecido');
+        return false;
+      }
+      
+      if (!revenda.permission) {
+        setError('Permissão é obrigatória');
+        console.error('❌ [useRevendas] Permissão não fornecida');
+        return false;
+      }
+      
       // Preparar dados para inserção, garantindo tipos corretos
       const revendaData: any = {
-        username: revenda.username,
-        email: revenda.email || `${revenda.username}@revenda.local`, // Email obrigatório - usar padrão se não fornecido
-        password: revenda.password,
+        username: revenda.username.trim(),
+        email: revenda.email?.trim() || `${revenda.username.trim()}@revenda.local`, // Email obrigatório - usar padrão se não fornecido
+        password: revenda.password || null, // Permitir null se não fornecido
         permission: revenda.permission,
         credits: revenda.credits ?? 10,
-        personal_name: revenda.personal_name,
+        personal_name: revenda.personal_name?.trim() || null,
         status: revenda.status || 'Ativo',
         force_password_change: typeof revenda.force_password_change === 'string' 
           ? revenda.force_password_change === 'true' 
@@ -145,11 +158,11 @@ export function useRevendas() {
       };
       
       // Adicionar campos opcionais apenas se tiverem valor
-      if (revenda.servers) revendaData.servers = revenda.servers;
-      if (revenda.master_reseller) revendaData.master_reseller = revenda.master_reseller;
-      if (revenda.telegram) revendaData.telegram = revenda.telegram;
-      if (revenda.whatsapp) revendaData.whatsapp = revenda.whatsapp;
-      if (revenda.observations) revendaData.observations = revenda.observations;
+      if (revenda.servers?.trim()) revendaData.servers = revenda.servers.trim();
+      if (revenda.master_reseller?.trim()) revendaData.master_reseller = revenda.master_reseller.trim();
+      if (revenda.telegram?.trim()) revendaData.telegram = revenda.telegram.trim();
+      if (revenda.whatsapp?.trim()) revendaData.whatsapp = revenda.whatsapp.trim();
+      if (revenda.observations?.trim()) revendaData.observations = revenda.observations.trim();
       
       console.log('🔄 [useRevendas] Tentando adicionar revendedor:', revendaData);
       console.log('🔄 [useRevendas] JSON serializado:', JSON.stringify(revendaData, null, 2));
@@ -257,17 +270,25 @@ export function useRevendas() {
         
         console.error('❌ [useRevendas] Erro do Supabase:', errorObj);
         console.error('❌ [useRevendas] Status:', response.status);
+        console.error('❌ [useRevendas] Response Text completo:', responseText);
+        console.error('❌ [useRevendas] Dados enviados:', JSON.stringify(revendaData, null, 2));
         
         // Verificar tipo de erro
+        let errorMessage = '';
         if (response.status === 401 || errorObj.message?.includes('401') || errorObj.message?.includes('Unauthorized')) {
-          setError('Erro de autenticação: Sua sessão expirou. Por favor, faça login novamente.');
-        } else if (errorObj.message?.includes('row-level security policy') || errorObj.message?.includes('new row violates row-level security')) {
-          setError('Erro de permissão: As políticas de segurança estão bloqueando a inserção. Verifique se você está autenticado e se as políticas RLS estão configuradas corretamente.');
-        } else if (response.status === 409 || errorObj.message?.includes('duplicate key')) {
-          setError('Erro: Já existe um revendedor com este username ou email.');
+          errorMessage = 'Erro de autenticação: Sua sessão expirou. Por favor, faça login novamente.';
+        } else if (errorObj.message?.includes('row-level security policy') || errorObj.message?.includes('new row violates row-level security') || errorObj.message?.includes('permission denied')) {
+          errorMessage = 'Erro de permissão: As políticas de segurança (RLS) estão bloqueando a inserção. Verifique se você está autenticado e se as políticas RLS estão configuradas corretamente no Supabase.';
+        } else if (response.status === 409 || errorObj.message?.includes('duplicate key') || errorObj.message?.includes('unique constraint')) {
+          errorMessage = 'Erro: Já existe um revendedor com este username ou email.';
+        } else if (response.status === 400 || errorObj.message?.includes('violates check constraint')) {
+          errorMessage = `Erro de validação: ${errorObj.message || errorObj.details || 'Os dados fornecidos não atendem aos requisitos do banco de dados.'}`;
         } else {
-          setError(`Erro ao adicionar revendedor: ${errorObj.message || errorObj.details || 'Erro desconhecido'} (Status: ${response.status})`);
+          errorMessage = `Erro ao adicionar revendedor: ${errorObj.message || errorObj.details || 'Erro desconhecido'} (Status: ${response.status})`;
         }
+        
+        setError(errorMessage);
+        console.error('❌ [useRevendas] Mensagem de erro definida:', errorMessage);
         return false;
       }
       

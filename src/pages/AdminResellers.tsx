@@ -51,12 +51,26 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
     revenda.email?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  // Função para rolar até a lista de revendedores
+  const scrollToListaRevendedores = () => {
+    setTimeout(() => {
+      const listaElement = document.getElementById('lista-revendedores');
+      if (listaElement) {
+        listaElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        console.log('✅ [AdminResellers] Rolou até a Lista de Revendedores');
+      }
+    }, 500); // Aguarda um pouco para garantir que a página foi renderizada
+  };
+
   // Listener para atualizar a lista quando um revendedor é criado em outro lugar (ex: modal do Dashboard)
   useEffect(() => {
     const handleResellerCreated = () => {
       console.log('🔄 [AdminResellers] Evento reseller-created recebido, atualizando lista...');
       if (fetchRevendas) {
-        fetchRevendas();
+        fetchRevendas().then(() => {
+          // Rolar até a lista após atualizar
+          scrollToListaRevendedores();
+        });
       }
     };
 
@@ -65,7 +79,12 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
       if (event.detail?.source === 'resellers' || !event.detail?.source) {
         console.log('🔄 [AdminResellers] Evento refresh-dashboard recebido, atualizando lista...');
         if (fetchRevendas) {
-          fetchRevendas();
+          fetchRevendas().then(() => {
+            // Se veio do Dashboard após criar revendedor, rolar até a lista
+            if (event.detail?.action === 'create' || event.detail?.scrollToList) {
+              scrollToListaRevendedores();
+            }
+          });
         }
       }
     };
@@ -74,8 +93,13 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
       if (e.key === 'dashboard-refresh') {
         console.log('🔄 [AdminResellers] localStorage change detectado, atualizando lista...');
         if (fetchRevendas) {
-          fetchRevendas();
+          fetchRevendas().then(() => {
+            scrollToListaRevendedores();
+          });
         }
+      } else if (e.key === 'scroll-to-lista-revendedores') {
+        // Se a flag de scroll mudou, rolar até a lista
+        scrollToListaRevendedores();
       }
     };
 
@@ -86,12 +110,22 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
 
     // Verificar localStorage ao montar
     const refreshFlag = localStorage.getItem('dashboard-refresh');
+    const scrollToList = localStorage.getItem('scroll-to-lista-revendedores');
     if (refreshFlag) {
       console.log('🔄 [AdminResellers] Flag de refresh encontrada ao montar, atualizando lista...');
       localStorage.removeItem('dashboard-refresh');
       if (fetchRevendas) {
-        fetchRevendas();
+        fetchRevendas().then(() => {
+          if (scrollToList) {
+            localStorage.removeItem('scroll-to-lista-revendedores');
+            scrollToListaRevendedores();
+          }
+        });
       }
+    } else if (scrollToList) {
+      // Se só tem a flag de scroll (sem refresh), apenas rola
+      localStorage.removeItem('scroll-to-lista-revendedores');
+      scrollToListaRevendedores();
     }
 
     return () => {
@@ -101,6 +135,20 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Não depender de fetchRevendas para evitar loops
+
+  // Verificar flag de scroll quando a lista de revendedores é atualizada
+  useEffect(() => {
+    const scrollToList = localStorage.getItem('scroll-to-lista-revendedores');
+    if (scrollToList && revendas.length > 0) {
+      // Aguardar um pouco para garantir que o DOM foi atualizado
+      const timeoutId = setTimeout(() => {
+        localStorage.removeItem('scroll-to-lista-revendedores');
+        scrollToListaRevendedores();
+      }, 800);
+      
+      return () => clearTimeout(timeoutId);
+    }
+  }, [revendas.length]); // Quando a lista de revendedores é atualizada
 
   const handleAddRevenda = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -149,9 +197,13 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
       });
       
       console.log('🔄 [AdminResellers] addRevenda retornou:', success);
+      console.log('🔄 [AdminResellers] Erro atual do hook:', error);
       
       if (!success) {
         console.error('❌ [AdminResellers] Falha ao adicionar revendedor. Verifique o console para detalhes.');
+        // Mostrar erro ao usuário se houver
+        const errorMessage = error || 'Erro desconhecido ao adicionar revendedor. Verifique o console para mais detalhes.';
+        alert(`❌ Erro ao adicionar revendedor:\n\n${errorMessage}\n\nVerifique:\n- Se você está autenticado\n- Se as políticas RLS estão configuradas\n- Se os campos obrigatórios estão preenchidos\n- Console do navegador para mais detalhes`);
         setIsAddingReseller(false);
         return;
       }
@@ -1122,7 +1174,7 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
       </div>
 
       {/* Tabela de revendedores */}
-      <Card className="bg-[#1f2937] border-gray-700">
+      <Card id="lista-revendedores" className="bg-[#1f2937] border-gray-700">
         <CardHeader>
           <CardTitle className="text-white">Lista de Revendedores</CardTitle>
           <CardDescription className="text-gray-400">

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRealtime } from './useRealtime';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
@@ -237,16 +237,49 @@ function useDashboardData() {
     }
   }, [clientes, revendas, user?.id, setError, setLoading, setStats]);
 
-  // Atualiza as estatísticas quando os dados mudam
+  // Atualiza as estatísticas quando os dados mudam (com debounce para evitar chamadas excessivas)
   useEffect(() => {
-    if (clientes.length > 0 || revendas.length > 0 || clientes.length === 0) {
-      calculateStats();
-    }
+    // Debounce: aguarda 300ms antes de recalcular
+    const timeoutId = setTimeout(() => {
+      if (clientes.length > 0 || revendas.length > 0 || clientes.length === 0) {
+        calculateStats();
+      }
+    }, 300);
+    
+    return () => clearTimeout(timeoutId);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [clientes.length, revendas.length, user?.id]); // Removido calculateStats para evitar loop infinito
 
-  // Função de refresh que atualiza os dados e recalcula as estatísticas
+  // Ref para controlar chamadas de refresh (throttle)
+  const lastRefreshRef = useRef<number>(0);
+  const isRefreshingRef = useRef<boolean>(false);
+  const refreshTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const THROTTLE_MS = 1000; // Aguarda 1 segundo entre refreshes
+
+  // Função de refresh que atualiza os dados e recalcula as estatísticas (com throttle)
   const refresh = useCallback(async () => {
+    const now = Date.now();
+    
+    // Throttle: ignora chamadas muito próximas
+    if (isRefreshingRef.current) {
+      console.log('🔄 [useDashboardData] Refresh ignorado (já em execução)');
+      return;
+    }
+    
+    // Throttle: ignora chamadas muito próximas (dentro do período de throttle)
+    if (now - lastRefreshRef.current < THROTTLE_MS) {
+      console.log('🔄 [useDashboardData] Refresh ignorado (throttle - muito recente)');
+      return;
+    }
+    
+    // Limpar timeout anterior se existir
+    if (refreshTimeoutRef.current) {
+      clearTimeout(refreshTimeoutRef.current);
+    }
+    
+    isRefreshingRef.current = true;
+    lastRefreshRef.current = now;
+    
     console.log('🔄 [useDashboardData] Refresh manual chamado');
     try {
       // Forçar atualização dos dados do useRealtime
@@ -260,68 +293,54 @@ function useDashboardData() {
       }
       // Aguardar um pouco para os dados serem atualizados e então recalcular
       // Usar um delay maior para garantir que o Supabase atualizou
-      setTimeout(async () => {
+      refreshTimeoutRef.current = setTimeout(async () => {
         console.log('🔄 [useDashboardData] Recalculando estatísticas após refresh...');
         await calculateStats();
+        isRefreshingRef.current = false;
+        refreshTimeoutRef.current = null;
       }, 300);
     } catch (error) {
       console.error('❌ [useDashboardData] Erro no refresh:', error);
       // Mesmo com erro, tenta recalcular com os dados atuais
       calculateStats();
+      isRefreshingRef.current = false;
+      refreshTimeoutRef.current = null;
     }
   }, [refreshClientes, refreshRevendas, calculateStats]);
 
-  // Listener para eventos de atualização
+  // Ref para controlar eventos de refresh (debounce)
+  const eventTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const EVENT_DEBOUNCE_MS = 500; // Aguarda 500ms antes de processar eventos
+
+  // Listener para eventos de atualização (com debounce)
   useEffect(() => {
     const handleRefreshEvent = (event: CustomEvent) => {
-      console.log('🔄 [useDashboardData] Evento refresh-dashboard recebido:', event.detail);
-      if (event.detail?.field === 'pago' || event.detail?.forceRefresh || event.detail?.source === 'users') {
-        console.log('🔄 [useDashboardData] Evento de pagamento detectado, atualizando receita...');
-        console.log('🔄 [useDashboardData] Detalhes:', {
-          userId: event.detail?.userId,
-          pago: event.detail?.pago,
-          price: event.detail?.price
-        });
-        
-        // Primeiro, forçar atualização dos dados do useRealtime
-        const updateData = async () => {
-          try {
-            // Forçar refresh dos clientes
-            if (refreshClientes) {
-              console.log('🔄 [useDashboardData] Forçando refresh dos clientes...');
-              await refreshClientes();
-            }
-            
-            // Aguardar um pouco para os dados serem atualizados
-            await new Promise(resolve => setTimeout(resolve, 600));
-            
-            // Recalcular estatísticas
-            console.log('🔄 [useDashboardData] Recalculando estatísticas após refresh...');
-            await calculateStats();
-            
-            // Se ainda não atualizou, tentar novamente
-            setTimeout(async () => {
-              if (refreshClientes) {
-                await refreshClientes();
-              }
-              await calculateStats();
-            }, 1000);
-          } catch (error) {
-            console.error('❌ [useDashboardData] Erro ao atualizar:', error);
-            // Em caso de erro, tentar recalcular com os dados atuais
-            calculateStats();
-          }
-        };
-        
-        updateData();
+      // Debounce: agrupa eventos próximos em um único refresh
+      if (eventTimeoutRef.current) {
+        clearTimeout(eventTimeoutRef.current);
       }
+      
+      eventTimeoutRef.current = setTimeout(() => {
+        console.log('🔄 [useDashboardData] Evento refresh-dashboard recebido (após debounce):', event.detail);
+        
+        // Só processa eventos relevantes
+        if (event.detail?.field === 'pago' || event.detail?.forceRefresh || event.detail?.source === 'users' || event.detail?.source === 'resellers') {
+          console.log('🔄 [useDashboardData] Evento relevante detectado, chamando refresh...');
+          
+          // Usa a função refresh que já tem throttle
+          refresh();
+        }
+      }, EVENT_DEBOUNCE_MS);
     };
 
     window.addEventListener('refresh-dashboard', handleRefreshEvent as EventListener);
     return () => {
       window.removeEventListener('refresh-dashboard', handleRefreshEvent as EventListener);
+      if (eventTimeoutRef.current) {
+        clearTimeout(eventTimeoutRef.current);
+      }
     };
-  }, [refresh, refreshClientes, calculateStats]);
+  }, [refresh]);
 
   return {
     stats,
