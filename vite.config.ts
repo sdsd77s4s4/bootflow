@@ -9,16 +9,29 @@ export default defineConfig(({ mode }) => ({
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
+    dedupe: ['react', 'react-dom'],
+  },
+  optimizeDeps: {
+    include: ['react', 'react-dom'],
   },
   server: {
     port: 3000,
     host: true,
     open: true,
+    hmr: {
+      protocol: 'ws',
+      host: 'localhost',
+      port: 3000,
+    },
   },
   build: {
     outDir: 'dist',
     sourcemap: true,
     chunkSizeWarningLimit: 1000, // Aumenta o limite de aviso para 1000 kB
+    commonjsOptions: {
+      include: [/node_modules/],
+      transformMixedEsModules: true,
+    },
     rollupOptions: {
       output: {
         manualChunks: {

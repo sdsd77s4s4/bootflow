@@ -16,7 +16,7 @@ import { Plus, Send, MessageSquare, CheckCircle2, XCircle, TrendingUp, Users, Up
 import { useClientes } from '@/hooks/useClientes';
 import { useRevendas } from '@/hooks/useRevendas';
 import { toast } from 'sonner';
-import { useWhatsAppStatus } from './AdminWhatsApp';
+import { useWhatsAppStatus } from '@/contexts/WhatsAppStatusContext';
 
 // Definindo os tipos de status como constantes para melhor tipagem
 export const TEMPLATE_STATUS = {

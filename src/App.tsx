@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
@@ -38,7 +37,6 @@ import Channels from "./pages/Channels";
 import VoiceCampaigns from "./pages/VoiceCampaigns";
 import AIConfiguration from "./pages/AIConfiguration";
 import AdminResellers from "./pages/AdminResellers";
-import { WhatsAppStatusContext } from './pages/AdminWhatsApp';
 
 const queryClient = new QueryClient();
 
@@ -49,17 +47,13 @@ const AuthProviderWithNavigation = ({ children }: { children: React.ReactNode })
 };
 
 const App = () => {
-  const [isConnected, setIsConnected] = useState(false);
-  const [connectionStatus, setConnectionStatus] = useState('disconnected');
-  
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider defaultTheme="system" storageKey="bootflow-ui-theme">
         <TooltipProvider>
           <BrowserRouter>
             <AuthProviderWithNavigation>
-              <WhatsAppStatusContext.Provider value={{ isConnected, setIsConnected, connectionStatus, setConnectionStatus }}>
-                <Routes>
+              <Routes>
                 {/* Rotas públicas */}
                 <Route path="/" element={<Landing />} />
                 <Route path="/preco" element={<Landing />} />
@@ -91,11 +85,10 @@ const App = () => {
                 {/* Rota 404 */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
-            </WhatsAppStatusContext.Provider>
-          </AuthProviderWithNavigation>
-        </BrowserRouter>
-      </TooltipProvider>
-    </ThemeProvider>
+            </AuthProviderWithNavigation>
+          </BrowserRouter>
+        </TooltipProvider>
+      </ThemeProvider>
     </QueryClientProvider>
   );
 };

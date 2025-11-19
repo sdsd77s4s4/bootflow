@@ -1,4 +1,4 @@
-import React, { useState, createContext, useContext, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -12,6 +12,7 @@ import { toast } from 'sonner';
 import { CheckCircle, MessageSquare, Clock, FileText, Zap, Settings, Trash2, Edit, Plus, Eye, EyeOff, Download, Upload, Users, Loader2 } from 'lucide-react';
 import { APIBrasilRealtimeSection } from '@/components/APIBrasilRealtimeSection';
 import { checkConnectionStatus, MOCK_CREDENTIALS } from '@/services/apiBrasilService';
+import { WhatsAppStatusContext, useWhatsAppStatus } from '@/contexts/WhatsAppStatusContext';
 
 const templatesMock = [
   {
@@ -61,17 +62,6 @@ const templatesMock = [
 ];
 
 const initialForm = { id: null, title: '', status: 'Ativo', tag: '', content: '', variables: 1 };
-
-type ConnectionStatus = 'connected' | 'disconnected' | 'connecting';
-
-export const WhatsAppStatusContext = createContext({
-  isConnected: false,
-  connectionStatus: 'disconnected' as ConnectionStatus,
-  setIsConnected: (v: boolean) => {},
-  setConnectionStatus: (status: ConnectionStatus) => {},
-});
-
-export const useWhatsAppStatus = () => useContext(WhatsAppStatusContext);
 
 const AdminWhatsApp: React.FC = () => {
   // Estados para a API Brasil
