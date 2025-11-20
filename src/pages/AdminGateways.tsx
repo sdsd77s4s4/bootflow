@@ -67,6 +67,27 @@ export default function AdminGateways() {
     setModal({ type: null });
   };
 
+  // Load saved credentials from localStorage (mapping gatewayId -> creds)
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem('gateways_credentials');
+      if (raw) {
+        const map = JSON.parse(raw) as Record<string, { apiKey?: string; secret?: string; webhook?: string; configurado?: boolean }>;
+        if (map) {
+          setGateways(prev => prev.map(g => {
+            const saved = map[g.id];
+            if (saved) {
+              return { ...g, apiKey: saved.apiKey || '', secret: saved.secret || '', webhook: saved.webhook || '', configurado: saved.configurado ?? g.configurado };
+            }
+            return g;
+          }));
+        }
+      }
+    } catch (err) {
+      console.error('Erro ao carregar credenciais dos gateways:', err);
+    }
+  }, []);
+
   return (
     <div className="p-6 min-h-screen bg-[#09090b]">
       <div className="flex items-center gap-3 mb-2">
