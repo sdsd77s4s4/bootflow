@@ -230,6 +230,9 @@ export default function AdminGateways() {
                       <div>
                         <div className="font-semibold text-white">{g.nome}</div>
                         <div className="text-xs text-gray-400">{g.configurado ? 'Configurado' : 'Não configurado'}</div>
+                        {g.configurado && (g.apiKey || g.secret) && (
+                          <div className="text-xs text-gray-500 mt-1">Key: <span className="ml-1 text-gray-300">{maskKey(g.apiKey)}</span></div>
+                        )}
                       </div>
                     </div>
                   </TableCell>
@@ -256,7 +259,7 @@ export default function AdminGateways() {
                           </Button>
                         </>
                       ) : (
-                        <Button size="sm" className="bg-[#7e22ce] hover:bg-[#6d1bb7] text-white" onClick={() => { setModal({ type: 'configurar', gateway: g }); setConfig({ apiKey: g.apiKey || '', secret: g.secret || '', webhook: g.webhook || '' }); }}>
+                        <Button size="sm" className="bg-[#7e22ce] hover:bg-[#6d1bb7] text-white" onClick={() => { setModal({ type: 'configurar', gateway: g }); setConfig({ apiKey: g.apiKey || '', secret: g.secret || '', webhook: g.webhook || '' }); setConfigErrors({}); setShowSecrets(false); }}>
                           Configurar
                         </Button>
                       )}
@@ -307,13 +310,32 @@ export default function AdminGateways() {
           <DialogHeader>
             <DialogTitle>Configurar Gateway: {modal.gateway?.nome}</DialogTitle>
           </DialogHeader>
-          <div className="space-y-4 py-2">
-            <Input placeholder="Chave/API Key" className="bg-gray-900 border border-gray-700 text-white" value={config.apiKey} onChange={e => setConfig({ ...config, apiKey: e.target.value })} />
-            <Input placeholder="Secret/Token" className="bg-gray-900 border border-gray-700 text-white" value={config.secret} onChange={e => setConfig({ ...config, secret: e.target.value })} />
-            <Input placeholder="Webhook URL" className="bg-gray-900 border border-gray-700 text-white" value={config.webhook} onChange={e => setConfig({ ...config, webhook: e.target.value })} />
+          <div className="space-y-2 py-2">
+            <div className="flex items-center justify-between">
+              <div className="text-sm text-gray-300">Credenciais</div>
+              <div className="flex items-center gap-2">
+                <label className="text-xs text-gray-400">Mostrar chaves</label>
+                <Button size="sm" variant="outline" onClick={() => setShowSecrets(s => !s)} className="text-gray-300">{showSecrets ? 'Ocultar' : 'Mostrar'}</Button>
+              </div>
+            </div>
+            <div>
+              <Input placeholder="Chave/API Key" type={showSecrets ? 'text' : 'password'} className="bg-gray-900 border border-gray-700 text-white" value={config.apiKey} onChange={e => setConfig({ ...config, apiKey: e.target.value })} />
+              {configErrors.apiKey && <div className="text-xs text-red-400 mt-1">{configErrors.apiKey}</div>}
+            </div>
+            <div>
+              <Input placeholder="Secret/Token" type={showSecrets ? 'text' : 'password'} className="bg-gray-900 border border-gray-700 text-white" value={config.secret} onChange={e => setConfig({ ...config, secret: e.target.value })} />
+              {configErrors.secret && <div className="text-xs text-red-400 mt-1">{configErrors.secret}</div>}
+            </div>
+            <div>
+              <Input placeholder="Webhook URL" className="bg-gray-900 border border-gray-700 text-white" value={config.webhook} onChange={e => setConfig({ ...config, webhook: e.target.value })} />
+              {configErrors.webhook && <div className="text-xs text-red-400 mt-1">{configErrors.webhook}</div>}
+            </div>
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setModal({ type: null })} className="bg-gray-700 text-white">Cancelar</Button>
+          <DialogFooter className="flex items-center justify-between">
+            <div className="flex gap-2">
+              <Button variant="destructive" size="sm" onClick={() => handleResetCredentials(modal.gateway?.id)} className="bg-red-600 text-white">Resetar Credenciais</Button>
+              <Button variant="outline" onClick={() => setModal({ type: null })} className="bg-gray-700 text-white">Cancelar</Button>
+            </div>
             <Button className="bg-blue-600 hover:bg-blue-700 text-white" onClick={handleConfigurar}>Salvar Configuração</Button>
           </DialogFooter>
         </DialogContent>
