@@ -25,6 +25,7 @@ import BlogPost from "./pages/BlogPost";
 // Dashboards
 import AdminDashboard from "./pages/dashboards/AdminDashboard";
 import ClientDashboard from "./pages/dashboards/ClientDashboard";
+import RequireAuth from '@/components/RequireAuth';
 
 
 // Internal Pages
@@ -84,9 +85,9 @@ const App = () => {
                 <Route path="/empresa/blog/:category" element={<Blog />} />
                 <Route path="/blog/:id" element={<BlogPost />} />
 
-                {/* Dashboard Admin - Acesso direto */}
-                <Route path="/admin" element={<AdminDashboard />} />
-                <Route path="/admin/revendedores" element={<AdminResellers />} />
+                {/* Dashboard Admin - Acesso direto (protegido) */}
+                <Route path="/admin" element={<RequireAuth allowedRoles={['admin']}><AdminDashboard /></RequireAuth>} />
+                <Route path="/admin/revendedores" element={<RequireAuth allowedRoles={['admin']}><AdminResellers /></RequireAuth>} />
                 
                 {/* Dashboard Cliente */}
                 <Route path="/dashboard/client" element={<ClientDashboard />} />
