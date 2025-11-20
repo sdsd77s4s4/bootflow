@@ -13,6 +13,7 @@ import { ThemeProvider } from '@/components/theme-provider';
 
 // Pages
 import Landing from "./pages/Landing";
+import HomeRoute from '@/components/HomeRoute';
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import ForgotPassword from "./pages/ForgotPassword";
@@ -67,7 +68,7 @@ const App = () => {
               <WhatsAppStatusContext.Provider value={{ isConnected, setIsConnected, connectionStatus, setConnectionStatus }}>
                 <Routes>
                 {/* Rotas públicas */}
-                <Route path="/" element={<Landing />} />
+                <Route path="/" element={<HomeRoute />} />
                 <Route path="/preco" element={<Landing />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/cadastro" element={<Signup />} />
