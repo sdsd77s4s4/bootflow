@@ -45,6 +45,7 @@ import Channels from "./pages/Channels";
 import VoiceCampaigns from "./pages/VoiceCampaigns";
 import AIConfiguration from "./pages/AIConfiguration";
 import AdminResellers from "./pages/AdminResellers";
+import ButtonConfigurator from "./pages/ButtonConfigurator";
 import { WhatsAppStatusContext } from './pages/AdminWhatsApp';
 
 const queryClient = new QueryClient();
@@ -104,6 +105,7 @@ const App = () => {
                 <Route path="/canais" element={<Channels />} />
                 <Route path="/campanhas-voz" element={<VoiceCampaigns />} />
                 <Route path="/ia-config" element={<AIConfiguration />} />
+                <Route path="/button-configurator" element={<ButtonConfigurator />} />
 
                 {/* Rota 404 */}
                 <Route path="*" element={<NotFound />} />
