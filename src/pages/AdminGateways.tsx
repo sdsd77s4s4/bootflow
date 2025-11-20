@@ -31,11 +31,20 @@ const gatewaysMock: Gateway[] = [
   { id: 7, nome: 'Asaas', tipo: 'Boleto', status: 'Ativo', configurado: true, taxa: '1.99% + R$ 2,00', volume: 'R$ 12.345,67', ultimaTransacao: '14/01/2025', apiKey: '', secret: '', webhook: '' },
 ];
 
+function maskKey(s?: string) {
+  if (!s) return '—';
+  const str = String(s);
+  if (str.length <= 8) return str.replace(/.(?=.{4})/g, '*');
+  return `${str.slice(0,4)}...${str.slice(-4)}`;
+}
+
 export default function AdminGateways() {
   const [gateways, setGateways] = useState<Gateway[]>(gatewaysMock);
   const [modal, setModal] = useState<{ type: null | 'testar' | 'editar' | 'configurar' | 'desativar', gateway?: Gateway }>({ type: null });
   const [form, setForm] = useState({ nome: '', tipo: '', taxa: '' });
   const [config, setConfig] = useState({ apiKey: '', secret: '', webhook: '' });
+  const [showSecrets, setShowSecrets] = useState(false);
+  const [configErrors, setConfigErrors] = useState<{ apiKey?: string; secret?: string; webhook?: string }>({});
   const [testValue, setTestValue] = useState('');
 
   // Cards resumo (zerados para modo real)
@@ -57,6 +66,24 @@ export default function AdminGateways() {
   };
   const handleConfigurar = () => {
     if (!modal.gateway) return;
+    // validate fields
+    const errors: typeof configErrors = {};
+    if (!config.apiKey || config.apiKey.trim() === '') errors.apiKey = 'Chave/API Key é obrigatória.';
+    if (!config.secret || config.secret.trim() === '') errors.secret = 'Secret/Token é obrigatório.';
+    if (config.webhook && config.webhook.trim() !== '') {
+      try {
+        // eslint-disable-next-line no-new
+        new URL(config.webhook);
+      } catch (e) {
+        errors.webhook = 'Webhook inválido. Informe uma URL válida.';
+      }
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setConfigErrors(errors);
+      return;
+    }
+
     // Save credentials into the gateway object
     setGateways(prev => prev.map(g => g.id === modal.gateway!.id ? {
       ...g,
@@ -78,6 +105,23 @@ export default function AdminGateways() {
     }
 
     setConfig({ apiKey: '', secret: '', webhook: '' });
+    setConfigErrors({});
+    setModal({ type: null });
+  };
+  
+  const handleResetCredentials = (gatewayId?: number) => {
+    if (!gatewayId) return;
+    // remove from localStorage map
+    try {
+      const raw = localStorage.getItem('gateways_credentials');
+      const map = raw ? JSON.parse(raw) : {};
+      if (map[gatewayId]) delete map[gatewayId];
+      localStorage.setItem('gateways_credentials', JSON.stringify(map));
+    } catch (err) {
+      console.error('Erro ao resetar credenciais:', err);
+    }
+    // update state
+    setGateways(prev => prev.map(g => g.id === gatewayId ? { ...g, apiKey: '', secret: '', webhook: '', configurado: false } : g));
     setModal({ type: null });
   };
   const handleDesativar = () => {
