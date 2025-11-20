@@ -257,6 +257,11 @@ export default function AdminGateways() {
 
   return (
     <div className="p-6 min-h-screen bg-[#09090b]">
+      {serverError && (
+        <div className="mb-4 p-3 rounded bg-red-900/80 border border-red-700 text-red-200 font-semibold text-center">
+          {serverError}
+        </div>
+      )}
       <div className="flex items-center gap-3 mb-2">
         <Server className="w-7 h-7 text-purple-400" />
         <h1 className="text-3xl font-bold text-green-400">Gateways de Pagamento</h1>
