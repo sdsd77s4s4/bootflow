@@ -333,7 +333,7 @@ export default function AdminGateways() {
           </div>
           <DialogFooter className="flex items-center justify-between">
             <div className="flex gap-2">
-              <Button variant="destructive" size="sm" onClick={() => handleResetCredentials(modal.gateway?.id)} className="bg-red-600 text-white">Resetar Credenciais</Button>
+              <Button variant="outline" size="sm" onClick={() => handleResetCredentials(modal.gateway?.id)} className="bg-red-600 text-white">Resetar Credenciais</Button>
               <Button variant="outline" onClick={() => setModal({ type: null })} className="bg-gray-700 text-white">Cancelar</Button>
             </div>
             <Button className="bg-blue-600 hover:bg-blue-700 text-white" onClick={handleConfigurar}>Salvar Configuração</Button>
