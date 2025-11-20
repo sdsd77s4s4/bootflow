@@ -232,9 +232,9 @@ export default function AdminGateways() {
               if (!res.ok) continue;
               const resJson = await res.json();
               if (!mounted) return;
-              const data = resJson?.data;
-              if (data) {
-                setGateways(prev => prev.map(p => p.id === g.id ? { ...p, apiKey: data.apiKey || '', secret: data.secret || '', webhook: data.webhook || '', configurado: true } : p));
+              const gatewayData = resJson?.data;
+              if (gatewayData) {
+                setGateways(prev => prev.map(p => p.id === g.id ? { ...p, apiKey: gatewayData.apiKey || '', secret: gatewayData.secret || '', webhook: gatewayData.webhook || '', configurado: true } : p));
               }
           if (!res.ok) continue; // no creds or server error (skip)
           const json = await res.json();
