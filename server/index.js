@@ -11,6 +11,27 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Simple API key auth for credential endpoints
+function getServerApiToken() {
+  return process.env.SERVER_API_TOKEN || process.env.GATEWAY_SERVER_TOKEN || null;
+}
+
+app.use((req, res, next) => {
+  try {
+    // protect credential routes
+    if (req.path.startsWith('/credentials')) {
+      const token = getServerApiToken();
+      if (!token) return res.status(500).json({ error: 'SERVER_API_TOKEN is not configured on server' });
+      const provided = (req.headers['x-api-key'] || (req.headers.authorization && String(req.headers.authorization).split(' ')[1]) || '').toString();
+      if (!provided || provided !== token) return res.status(401).json({ error: 'Unauthorized' });
+    }
+  } catch (err) {
+    console.error('Auth middleware error', err);
+    return res.status(500).json({ error: 'Internal auth error' });
+  }
+  next();
+});
+
 const DATA_DIR = path.join(__dirname, 'data');
 const CRED_FILE = path.join(DATA_DIR, 'credentials.json');
 
