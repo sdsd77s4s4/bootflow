@@ -57,7 +57,26 @@ export default function AdminGateways() {
   };
   const handleConfigurar = () => {
     if (!modal.gateway) return;
-    setGateways(gateways.map(g => g.id === modal.gateway!.id ? { ...g, configurado: true, status: 'Ativo' } : g));
+    // Save credentials into the gateway object
+    setGateways(prev => prev.map(g => g.id === modal.gateway!.id ? {
+      ...g,
+      configurado: true,
+      status: 'Ativo',
+      apiKey: config.apiKey || '',
+      secret: config.secret || '',
+      webhook: config.webhook || ''
+    } : g));
+
+    // persist to localStorage
+    try {
+      const raw = localStorage.getItem('gateways_credentials');
+      const map = raw ? JSON.parse(raw) : {};
+      map[modal.gateway!.id] = { apiKey: config.apiKey || '', secret: config.secret || '', webhook: config.webhook || '', configurado: true };
+      localStorage.setItem('gateways_credentials', JSON.stringify(map));
+    } catch (err) {
+      console.error('Erro ao salvar credenciais dos gateways:', err);
+    }
+
     setConfig({ apiKey: '', secret: '', webhook: '' });
     setModal({ type: null });
   };
