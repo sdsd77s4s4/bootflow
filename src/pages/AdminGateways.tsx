@@ -39,7 +39,7 @@ function maskKey(s?: string) {
 }
 
 export default function AdminGateways() {
-  const API_BASE = (process.env.REACT_APP_GATEWAY_API_URL as string) || 'http://localhost:4001';
+  const API_BASE = ((typeof import.meta !== 'undefined' && (import.meta as any).env && (import.meta as any).env.VITE_GATEWAY_API_URL) as string) || 'http://localhost:4001';
   const [gateways, setGateways] = useState<Gateway[]>(gatewaysMock);
   const [modal, setModal] = useState<{ type: null | 'testar' | 'editar' | 'configurar' | 'desativar', gateway?: Gateway }>({ type: null });
   const [form, setForm] = useState({ nome: '', tipo: '', taxa: '' });
