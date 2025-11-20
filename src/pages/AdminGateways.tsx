@@ -212,7 +212,7 @@ export default function AdminGateways() {
                           </Button>
                         </>
                       ) : (
-                        <Button size="sm" className="bg-[#7e22ce] hover:bg-[#6d1bb7] text-white" onClick={() => { setModal({ type: 'configurar', gateway: g }); setConfig({ apiKey: '', secret: '', webhook: '' }); }}>
+                        <Button size="sm" className="bg-[#7e22ce] hover:bg-[#6d1bb7] text-white" onClick={() => { setModal({ type: 'configurar', gateway: g }); setConfig({ apiKey: g.apiKey || '', secret: g.secret || '', webhook: g.webhook || '' }); }}>
                           Configurar
                         </Button>
                       )}
