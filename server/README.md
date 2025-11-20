@@ -1,3 +1,26 @@
+## Token rotativo (token dinâmico com expiração)
+
+Se não definir `SERVER_API_TOKEN` no `.env`, o servidor usará um token rotativo salvo em `server/data/token.json`.
+
+Para renovar o token, faça um POST para `/auth/refresh-token` com o segredo de renovação:
+
+```
+TOKEN_REFRESH_SECRET=refresh_secret_dev
+```
+
+Exemplo (curl):
+
+```powershell
+curl -X POST http://localhost:4001/auth/refresh-token -H "Content-Type: application/json" -d '{"secret":"refresh_secret_dev"}'
+```
+
+O retorno será:
+```
+{ "token": "...", "expires": 1700000000000 }
+```
+Use esse token no frontend (em `VITE_GATEWAY_SERVER_TOKEN`) e nas chamadas protegidas.
+
+Se o token expirar, renove novamente.
 # Bootflow - Gateway Keys Server
 
 This is a minimal server to store gateway credentials encrypted at rest. It is intended as a small, local service you can run alongside the frontend for safe credential persistence.

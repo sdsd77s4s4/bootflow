@@ -11,17 +11,42 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Simple API key auth for credential endpoints
-function getServerApiToken() {
-  return process.env.SERVER_API_TOKEN || process.env.GATEWAY_SERVER_TOKEN || null;
+// Token rotation logic
+const TOKEN_FILE = path.join(DATA_DIR, 'token.json');
+function ensureTokenFile() {
+  if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+  if (!fs.existsSync(TOKEN_FILE)) fs.writeFileSync(TOKEN_FILE, JSON.stringify({ token: '', expires: 0 }, null, 2));
 }
-
-app.use((req, res, next) => {
+function getTokenObj() {
+  ensureTokenFile();
   try {
-    // protect credential routes
+    return JSON.parse(fs.readFileSync(TOKEN_FILE, 'utf8'));
+  } catch {
+    return { token: '', expires: 0 };
+  }
+}
+function setTokenObj(obj) {
+  ensureTokenFile();
+  fs.writeFileSync(TOKEN_FILE, JSON.stringify(obj, null, 2));
+}
+function generateToken() {
+  return crypto.randomBytes(32).toString('hex');
+}
+function getServerApiToken() {
+  // If env is set, use as static token (legacy)
+  if (process.env.SERVER_API_TOKEN || process.env.GATEWAY_SERVER_TOKEN) {
+    return process.env.SERVER_API_TOKEN || process.env.GATEWAY_SERVER_TOKEN;
+  }
+  // Otherwise, use rotating token
+  const { token, expires } = getTokenObj();
+  if (!token || !expires || Date.now() > expires) return null;
+  return token;
+}
+function requireToken(req, res, next) {
+  try {
     if (req.path.startsWith('/credentials')) {
       const token = getServerApiToken();
-      if (!token) return res.status(500).json({ error: 'SERVER_API_TOKEN is not configured on server' });
+      if (!token) return res.status(401).json({ error: 'Token expirado ou não configurado. Faça refresh.' });
       const provided = (req.headers['x-api-key'] || (req.headers.authorization && String(req.headers.authorization).split(' ')[1]) || '').toString();
       if (!provided || provided !== token) return res.status(401).json({ error: 'Unauthorized' });
     }
@@ -30,6 +55,18 @@ app.use((req, res, next) => {
     return res.status(500).json({ error: 'Internal auth error' });
   }
   next();
+}
+app.use(requireToken);
+
+// Endpoint para renovar token (precisa de secret compartilhado)
+const REFRESH_SECRET = process.env.TOKEN_REFRESH_SECRET || 'refresh_secret_dev';
+app.post('/auth/refresh-token', (req, res) => {
+  const { secret } = req.body || {};
+  if (!secret || secret !== REFRESH_SECRET) return res.status(401).json({ error: 'Refresh secret inválido' });
+  const token = generateToken();
+  const expires = Date.now() + 1000 * 60 * 60 * 2; // 2h
+  setTokenObj({ token, expires });
+  return res.json({ token, expires });
 });
 
 const DATA_DIR = path.join(__dirname, 'data');
