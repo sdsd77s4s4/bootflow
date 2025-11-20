@@ -39,6 +39,7 @@ function maskKey(s?: string) {
 }
 
 export default function AdminGateways() {
+  const API_BASE = (process.env.REACT_APP_GATEWAY_API_URL as string) || 'http://localhost:4001';
   const [gateways, setGateways] = useState<Gateway[]>(gatewaysMock);
   const [modal, setModal] = useState<{ type: null | 'testar' | 'editar' | 'configurar' | 'desativar', gateway?: Gateway }>({ type: null });
   const [form, setForm] = useState({ nome: '', tipo: '', taxa: '' });
@@ -64,7 +65,10 @@ export default function AdminGateways() {
     setGateways(gateways.map(g => g.id === modal.gateway!.id ? { ...g, nome: form.nome, tipo: form.tipo, taxa: form.taxa } : g));
     setModal({ type: null });
   };
-  const handleConfigurar = () => {
+  const [serverError, setServerError] = useState<string | null>(null);
+
+  const handleConfigurar = async () => {
+    setServerError(null);
     if (!modal.gateway) return;
     // validate fields
     const errors: typeof configErrors = {};
@@ -94,35 +98,54 @@ export default function AdminGateways() {
       webhook: config.webhook || ''
     } : g));
 
-    // persist to localStorage
+    // send to server
     try {
-      const raw = localStorage.getItem('gateways_credentials');
-      const map = raw ? JSON.parse(raw) : {};
-      map[modal.gateway!.id] = { apiKey: config.apiKey || '', secret: config.secret || '', webhook: config.webhook || '', configurado: true };
-      localStorage.setItem('gateways_credentials', JSON.stringify(map));
-    } catch (err) {
-      console.error('Erro ao salvar credenciais dos gateways:', err);
-    }
+      const res = await fetch(`${API_BASE}/credentials/${modal.gateway!.id}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ apiKey: config.apiKey, secret: config.secret, webhook: config.webhook })
+      });
+      if (!res.ok) {
+        const json = await res.json().catch(() => ({}));
+        setServerError(json?.error || `Erro ao salvar credenciais (status ${res.status})`);
+        return;
+      }
 
-    setConfig({ apiKey: '', secret: '', webhook: '' });
-    setConfigErrors({});
-    setModal({ type: null });
+      // update state
+      setGateways(prev => prev.map(g => g.id === modal.gateway!.id ? {
+        ...g,
+        configurado: true,
+        status: 'Ativo',
+        apiKey: config.apiKey || '',
+        secret: config.secret || '',
+        webhook: config.webhook || ''
+      } : g));
+
+      setConfig({ apiKey: '', secret: '', webhook: '' });
+      setConfigErrors({});
+      setModal({ type: null });
+    } catch (err) {
+      console.error('Erro ao chamar API de credenciais:', err);
+      setServerError(String(err));
+    }
   };
   
-  const handleResetCredentials = (gatewayId?: number) => {
+  const handleResetCredentials = async (gatewayId?: number) => {
+    setServerError(null);
     if (!gatewayId) return;
-    // remove from localStorage map
     try {
-      const raw = localStorage.getItem('gateways_credentials');
-      const map = raw ? JSON.parse(raw) : {};
-      if (map[gatewayId]) delete map[gatewayId];
-      localStorage.setItem('gateways_credentials', JSON.stringify(map));
+      const res = await fetch(`${API_BASE}/credentials/${gatewayId}`, { method: 'DELETE' });
+      if (!res.ok) {
+        const json = await res.json().catch(() => ({}));
+        setServerError(json?.error || `Erro ao remover credenciais (status ${res.status})`);
+        return;
+      }
+      setGateways(prev => prev.map(g => g.id === gatewayId ? { ...g, apiKey: '', secret: '', webhook: '', configurado: false } : g));
+      setModal({ type: null });
     } catch (err) {
-      console.error('Erro ao resetar credenciais:', err);
+      console.error('Erro ao chamar API de remoção de credenciais:', err);
+      setServerError(String(err));
     }
-    // update state
-    setGateways(prev => prev.map(g => g.id === gatewayId ? { ...g, apiKey: '', secret: '', webhook: '', configurado: false } : g));
-    setModal({ type: null });
   };
   const handleDesativar = () => {
     if (!modal.gateway) return;
@@ -132,23 +155,29 @@ export default function AdminGateways() {
 
   // Load saved credentials from localStorage (mapping gatewayId -> creds)
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem('gateways_credentials');
-      if (raw) {
-        const map = JSON.parse(raw) as Record<string, { apiKey?: string; secret?: string; webhook?: string; configurado?: boolean }>;
-        if (map) {
-          setGateways(prev => prev.map(g => {
-            const saved = map[g.id];
-            if (saved) {
-              return { ...g, apiKey: saved.apiKey || '', secret: saved.secret || '', webhook: saved.webhook || '', configurado: saved.configurado ?? g.configurado };
-            }
-            return g;
-          }));
+    // load credentials from server for each gateway
+    let mounted = true;
+    const loadAll = async () => {
+      for (const g of gatewaysMock) {
+        try {
+          const res = await fetch(`${API_BASE}/credentials/${g.id}`);
+          if (!res.ok) continue; // no creds or server error (skip)
+          const json = await res.json();
+          if (!mounted) return;
+          const data = json?.data;
+          if (data) {
+            setGateways(prev => prev.map(p => p.id === g.id ? { ...p, apiKey: data.apiKey || '', secret: data.secret || '', webhook: data.webhook || '', configurado: true } : p));
+          }
+        } catch (err) {
+          // server unreachable — show message once
+          if (mounted) setServerError('Servidor de credenciais indisponível.');
+          console.error('Erro ao carregar credenciais do servidor:', err);
+          break;
         }
       }
-    } catch (err) {
-      console.error('Erro ao carregar credenciais dos gateways:', err);
-    }
+    };
+    loadAll();
+    return () => { mounted = false; };
   }, []);
 
   return (
