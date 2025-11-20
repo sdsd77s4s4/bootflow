@@ -557,6 +557,7 @@ const AdminWhatsApp: React.FC = () => {
   return (
     <WhatsAppStatusContext.Provider value={{ isConnected, connectionStatus, setIsConnected, setConnectionStatus }}>
       <div className="p-6 space-y-6">
+
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-2">
           <div>
@@ -583,6 +584,50 @@ const AdminWhatsApp: React.FC = () => {
               Novo Template
             </Button>
           </div>
+        </div>
+
+        {/* Dashboard Admin - Cards de Métricas WhatsApp */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 mb-6">
+          <Card className="bg-[#181825] border border-green-900">
+            <CardHeader>
+              <CardTitle className="text-green-300 text-sm">Total Enviados</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-white">0</div>
+            </CardContent>
+          </Card>
+          <Card className="bg-[#181825] border border-green-900">
+            <CardHeader>
+              <CardTitle className="text-green-300 text-sm">Entregues</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-white">0</div>
+            </CardContent>
+          </Card>
+          <Card className="bg-[#181825] border border-green-900">
+            <CardHeader>
+              <CardTitle className="text-green-300 text-sm">Lidos</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-white">0</div>
+            </CardContent>
+          </Card>
+          <Card className="bg-[#181825] border border-green-900">
+            <CardHeader>
+              <CardTitle className="text-green-300 text-sm">Falhas</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-white">0</div>
+            </CardContent>
+          </Card>
+          <Card className="bg-[#181825] border border-green-900">
+            <CardHeader>
+              <CardTitle className="text-green-300 text-sm">Taxa Entrega</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-white">0%</div>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Modal de Configuração */}
