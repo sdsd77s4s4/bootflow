@@ -35,12 +35,12 @@ export default function AdminGateways() {
   const [config, setConfig] = useState({ apiKey: '', secret: '', webhook: '' });
   const [testValue, setTestValue] = useState('');
 
-  // Cards resumo
-  const total = gateways.length;
-  const ativos = gateways.filter(g => g.status === 'Ativo').length;
-  const configurados = gateways.filter(g => g.configurado).length;
-  const volumeMensal = 'R$ 212.840,81';
-  const transacoes = 5777;
+  // Cards resumo (zerados para modo real)
+  const total = 0;
+  const ativos = 0;
+  const configurados = 0;
+  const volumeMensal = 'R$ 0,00';
+  const transacoes = 0;
 
   // Funções dos modais
   const handleTestar = () => {
