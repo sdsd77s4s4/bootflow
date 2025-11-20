@@ -53,3 +53,24 @@ curl -X DELETE http://localhost:4001/credentials/2
 ## Notes
 - The service expects `GATEWAY_KEYS_SECRET` to be defined. Do not commit this secret to the repository.
 - The server stores encrypted blobs in `server/data/credentials.json`. For safety, add that file to your `.gitignore` in production setups.
+
+## Authentication (API Token)
+
+This server supports a simple API token to restrict access to the credential endpoints. Configure `SERVER_API_TOKEN` in your `.env`:
+
+```
+SERVER_API_TOKEN=your_strong_token_here
+```
+
+When calling the credential endpoints, provide the token either with a header `x-api-key` or `Authorization: Bearer <token>`.
+
+Example (curl):
+
+```powershell
+curl -X POST http://localhost:4001/credentials/2 \
+	-H "Content-Type: application/json" \
+	-H "x-api-key: your_strong_token_here" \
+	-d '{"apiKey":"sk_test_...","secret":"s3cr3t","webhook":"https://example.com/webhook"}'
+```
+
+If `SERVER_API_TOKEN` is not set on the server, the server will return an error indicating that configuration is missing.

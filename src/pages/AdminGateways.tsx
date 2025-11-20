@@ -40,6 +40,7 @@ function maskKey(s?: string) {
 
 export default function AdminGateways() {
   const API_BASE = ((typeof import.meta !== 'undefined' && (import.meta as any).env && (import.meta as any).env.VITE_GATEWAY_API_URL) as string) || 'http://localhost:4001';
+  const API_TOKEN = ((typeof import.meta !== 'undefined' && (import.meta as any).env && (import.meta as any).env.VITE_GATEWAY_SERVER_TOKEN) as string) || '';
   const [gateways, setGateways] = useState<Gateway[]>(gatewaysMock);
   const [modal, setModal] = useState<{ type: null | 'testar' | 'editar' | 'configurar' | 'desativar', gateway?: Gateway }>({ type: null });
   const [form, setForm] = useState({ nome: '', tipo: '', taxa: '' });
@@ -100,9 +101,15 @@ export default function AdminGateways() {
 
     // send to server
     try {
+      const headers: Record<string,string> = { 'Content-Type': 'application/json' };
+      if (!API_TOKEN) {
+        setServerError('VITE_GATEWAY_SERVER_TOKEN não configurado no frontend. Defina VITE_GATEWAY_SERVER_TOKEN no .env.');
+        return;
+      }
+      headers['x-api-key'] = API_TOKEN;
       const res = await fetch(`${API_BASE}/credentials/${modal.gateway!.id}`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({ apiKey: config.apiKey, secret: config.secret, webhook: config.webhook })
       });
       if (!res.ok) {
@@ -134,7 +141,9 @@ export default function AdminGateways() {
     setServerError(null);
     if (!gatewayId) return;
     try {
-      const res = await fetch(`${API_BASE}/credentials/${gatewayId}`, { method: 'DELETE' });
+      const headers: Record<string,string> = {};
+      if (API_TOKEN) headers['x-api-key'] = API_TOKEN;
+      const res = await fetch(`${API_BASE}/credentials/${gatewayId}`, { method: 'DELETE', headers });
       if (!res.ok) {
         const json = await res.json().catch(() => ({}));
         setServerError(json?.error || `Erro ao remover credenciais (status ${res.status})`);
@@ -158,9 +167,11 @@ export default function AdminGateways() {
     // load credentials from server for each gateway
     let mounted = true;
     const loadAll = async () => {
-      for (const g of gatewaysMock) {
+          for (const g of gatewaysMock) {
         try {
-          const res = await fetch(`${API_BASE}/credentials/${g.id}`);
+          const headers: Record<string,string> = {};
+          if (API_TOKEN) headers['x-api-key'] = API_TOKEN;
+          const res = await fetch(`${API_BASE}/credentials/${g.id}`, { headers });
           if (!res.ok) continue; // no creds or server error (skip)
           const json = await res.json();
           if (!mounted) return;
