@@ -230,9 +230,9 @@ export default function AdminGateways() {
                 }
               }
               if (!res.ok) continue;
-              const json = await res.json();
+              const resJson = await res.json();
               if (!mounted) return;
-              const data = json?.data;
+              const data = resJson?.data;
               if (data) {
                 setGateways(prev => prev.map(p => p.id === g.id ? { ...p, apiKey: data.apiKey || '', secret: data.secret || '', webhook: data.webhook || '', configurado: true } : p));
               }
