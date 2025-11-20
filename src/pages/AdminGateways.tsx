@@ -113,7 +113,6 @@ export default function AdminGateways() {
     }
     try {
       if (!apiToken) {
-        setServerError('VITE_GATEWAY_SERVER_TOKEN não configurado no frontend. Defina VITE_GATEWAY_SERVER_TOKEN no .env.');
         return;
       }
       let res = await doRequest(apiToken);
@@ -165,7 +164,6 @@ export default function AdminGateways() {
     }
     try {
       if (!apiToken) {
-        setServerError('VITE_GATEWAY_SERVER_TOKEN não configurado no frontend. Defina VITE_GATEWAY_SERVER_TOKEN no .env.');
         return;
       }
       let res = await doDelete(apiToken);
@@ -210,7 +208,6 @@ export default function AdminGateways() {
           for (const g of gatewaysMock) {
             try {
               if (!apiToken) {
-                setServerError('VITE_GATEWAY_SERVER_TOKEN não configurado no frontend. Defina VITE_GATEWAY_SERVER_TOKEN no .env.');
                 return;
               }
               let res = await fetch(`${API_BASE}/credentials/${g.id}`, { headers: { 'x-api-key': apiToken } });
