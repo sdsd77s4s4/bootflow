@@ -40,7 +40,10 @@ function maskKey(s?: string) {
 
 export default function AdminGateways() {
   const API_BASE = ((typeof import.meta !== 'undefined' && (import.meta as any).env && (import.meta as any).env.VITE_GATEWAY_API_URL) as string) || 'http://localhost:4001';
-  const API_TOKEN = ((typeof import.meta !== 'undefined' && (import.meta as any).env && (import.meta as any).env.VITE_GATEWAY_SERVER_TOKEN) as string) || '';
+  const [apiToken, setApiToken] = useState<string>(
+    ((typeof import.meta !== 'undefined' && (import.meta as any).env && (import.meta as any).env.VITE_GATEWAY_SERVER_TOKEN) as string) || ''
+  );
+  const REFRESH_SECRET = ((typeof import.meta !== 'undefined' && (import.meta as any).env && (import.meta as any).env.VITE_GATEWAY_REFRESH_SECRET) as string) || '';
   const [gateways, setGateways] = useState<Gateway[]>(gatewaysMock);
   const [modal, setModal] = useState<{ type: null | 'testar' | 'editar' | 'configurar' | 'desativar', gateway?: Gateway }>({ type: null });
   const [form, setForm] = useState({ nome: '', tipo: '', taxa: '' });
@@ -100,24 +103,41 @@ export default function AdminGateways() {
     } : g));
 
     // send to server
-    try {
-      const headers: Record<string,string> = { 'Content-Type': 'application/json' };
-      if (!API_TOKEN) {
-        setServerError('VITE_GATEWAY_SERVER_TOKEN não configurado no frontend. Defina VITE_GATEWAY_SERVER_TOKEN no .env.');
-        return;
-      }
-      headers['x-api-key'] = API_TOKEN;
-      const res = await fetch(`${API_BASE}/credentials/${modal.gateway!.id}`, {
+    async function doRequest(token: string) {
+      const headers: Record<string,string> = { 'Content-Type': 'application/json', 'x-api-key': token };
+      return fetch(`${API_BASE}/credentials/${modal.gateway!.id}`, {
         method: 'POST',
         headers,
         body: JSON.stringify({ apiKey: config.apiKey, secret: config.secret, webhook: config.webhook })
       });
+    }
+    try {
+      if (!apiToken) {
+        setServerError('VITE_GATEWAY_SERVER_TOKEN não configurado no frontend. Defina VITE_GATEWAY_SERVER_TOKEN no .env.');
+        return;
+      }
+      let res = await doRequest(apiToken);
+      if (res.status === 401 && REFRESH_SECRET) {
+        // tentar renovar token
+        const refreshRes = await fetch(`${API_BASE}/auth/refresh-token`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ secret: REFRESH_SECRET })
+        });
+        if (refreshRes.ok) {
+          const { token } = await refreshRes.json();
+          setApiToken(token);
+          res = await doRequest(token);
+        } else {
+          setServerError('Token expirado e não foi possível renovar. Verifique o segredo de renovação.');
+          return;
+        }
+      }
       if (!res.ok) {
         const json = await res.json().catch(() => ({}));
         setServerError(json?.error || `Erro ao salvar credenciais (status ${res.status})`);
         return;
       }
-
       // update state
       setGateways(prev => prev.map(g => g.id === modal.gateway!.id ? {
         ...g,
@@ -127,7 +147,6 @@ export default function AdminGateways() {
         secret: config.secret || '',
         webhook: config.webhook || ''
       } : g));
-
       setConfig({ apiKey: '', secret: '', webhook: '' });
       setConfigErrors({});
       setModal({ type: null });
@@ -140,10 +159,31 @@ export default function AdminGateways() {
   const handleResetCredentials = async (gatewayId?: number) => {
     setServerError(null);
     if (!gatewayId) return;
+    async function doDelete(token: string) {
+      const headers: Record<string,string> = { 'x-api-key': token };
+      return fetch(`${API_BASE}/credentials/${gatewayId}`, { method: 'DELETE', headers });
+    }
     try {
-      const headers: Record<string,string> = {};
-      if (API_TOKEN) headers['x-api-key'] = API_TOKEN;
-      const res = await fetch(`${API_BASE}/credentials/${gatewayId}`, { method: 'DELETE', headers });
+      if (!apiToken) {
+        setServerError('VITE_GATEWAY_SERVER_TOKEN não configurado no frontend. Defina VITE_GATEWAY_SERVER_TOKEN no .env.');
+        return;
+      }
+      let res = await doDelete(apiToken);
+      if (res.status === 401 && REFRESH_SECRET) {
+        const refreshRes = await fetch(`${API_BASE}/auth/refresh-token`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ secret: REFRESH_SECRET })
+        });
+        if (refreshRes.ok) {
+          const { token } = await refreshRes.json();
+          setApiToken(token);
+          res = await doDelete(token);
+        } else {
+          setServerError('Token expirado e não foi possível renovar. Verifique o segredo de renovação.');
+          return;
+        }
+      }
       if (!res.ok) {
         const json = await res.json().catch(() => ({}));
         setServerError(json?.error || `Erro ao remover credenciais (status ${res.status})`);
@@ -168,10 +208,34 @@ export default function AdminGateways() {
     let mounted = true;
     const loadAll = async () => {
           for (const g of gatewaysMock) {
-        try {
-          const headers: Record<string,string> = {};
-          if (API_TOKEN) headers['x-api-key'] = API_TOKEN;
-          const res = await fetch(`${API_BASE}/credentials/${g.id}`, { headers });
+            try {
+              if (!apiToken) {
+                setServerError('VITE_GATEWAY_SERVER_TOKEN não configurado no frontend. Defina VITE_GATEWAY_SERVER_TOKEN no .env.');
+                return;
+              }
+              let res = await fetch(`${API_BASE}/credentials/${g.id}`, { headers: { 'x-api-key': apiToken } });
+              if (res.status === 401 && REFRESH_SECRET) {
+                const refreshRes = await fetch(`${API_BASE}/auth/refresh-token`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ secret: REFRESH_SECRET })
+                });
+                if (refreshRes.ok) {
+                  const { token } = await refreshRes.json();
+                  setApiToken(token);
+                  res = await fetch(`${API_BASE}/credentials/${g.id}`, { headers: { 'x-api-key': token } });
+                } else {
+                  setServerError('Token expirado e não foi possível renovar. Verifique o segredo de renovação.');
+                  return;
+                }
+              }
+              if (!res.ok) continue;
+              const json = await res.json();
+              if (!mounted) return;
+              const data = json?.data;
+              if (data) {
+                setGateways(prev => prev.map(p => p.id === g.id ? { ...p, apiKey: data.apiKey || '', secret: data.secret || '', webhook: data.webhook || '', configurado: true } : p));
+              }
           if (!res.ok) continue; // no creds or server error (skip)
           const json = await res.json();
           if (!mounted) return;
