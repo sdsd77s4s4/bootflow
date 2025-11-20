@@ -11,50 +11,7 @@ interface Customer {
   phone: string;
   status: string;
 }
-  // Categorias
-  const [categories, setCategories] = useState<Category[]>([
-    { id: 1, name: "Planos" },
-    { id: 2, name: "Serviços" },
-  ]);
-  const [newCategory, setNewCategory] = useState("");
-  const [isCategoryDialogOpen, setIsCategoryDialogOpen] = useState(false);
 
-  // Clientes
-  const [customers, setCustomers] = useState<Customer[]>([
-    { id: 1, name: "João Silva", email: "joao@email.com", phone: "11999999999", status: "Ativo" },
-    { id: 2, name: "Maria Santos", email: "maria@email.com", phone: "11988888888", status: "Ativo" },
-    { id: 3, name: "Pedro Oliveira", email: "pedro@email.com", phone: "11977777777", status: "Inativo" },
-  ]);
-  const [newCustomer, setNewCustomer] = useState({ name: "", email: "", phone: "", status: "Ativo" });
-  const [isCustomerDialogOpen, setIsCustomerDialogOpen] = useState(false);
-
-  // Filtros
-  const [productFilter, setProductFilter] = useState("");
-  const [customerFilter, setCustomerFilter] = useState("");
-
-  // CRUD Categoria
-  const handleAddCategory = () => {
-    if (newCategory.trim()) {
-      setCategories([...categories, { id: Date.now(), name: newCategory.trim() }]);
-      setNewCategory("");
-      setIsCategoryDialogOpen(false);
-    }
-  };
-  const handleDeleteCategory = (id: number) => {
-    setCategories(categories.filter(c => c.id !== id));
-  };
-
-  // CRUD Cliente
-  const handleAddCustomer = () => {
-    if (newCustomer.name && newCustomer.email) {
-      setCustomers([...customers, { ...newCustomer, id: Date.now() }]);
-      setNewCustomer({ name: "", email: "", phone: "", status: "Ativo" });
-      setIsCustomerDialogOpen(false);
-    }
-  };
-  const handleDeleteCustomer = (id: number) => {
-    setCustomers(customers.filter(c => c.id !== id));
-  };
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -120,6 +77,51 @@ export default function AdminEcommerce() {
 
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isConfigDialogOpen, setIsConfigDialogOpen] = useState(false);
+
+  // Categorias
+  const [categories, setCategories] = useState<Category[]>([
+    { id: 1, name: "Planos" },
+    { id: 2, name: "Serviços" },
+  ]);
+  const [newCategory, setNewCategory] = useState("");
+  const [isCategoryDialogOpen, setIsCategoryDialogOpen] = useState(false);
+
+  // Clientes
+  const [customers, setCustomers] = useState<Customer[]>([
+    { id: 1, name: "João Silva", email: "joao@email.com", phone: "11999999999", status: "Ativo" },
+    { id: 2, name: "Maria Santos", email: "maria@email.com", phone: "11988888888", status: "Ativo" },
+    { id: 3, name: "Pedro Oliveira", email: "pedro@email.com", phone: "11977777777", status: "Inativo" },
+  ]);
+  const [newCustomer, setNewCustomer] = useState({ name: "", email: "", phone: "", status: "Ativo" });
+  const [isCustomerDialogOpen, setIsCustomerDialogOpen] = useState(false);
+
+  // Filtros
+  const [productFilter, setProductFilter] = useState("");
+  const [customerFilter, setCustomerFilter] = useState("");
+
+  // CRUD Categoria
+  const handleAddCategory = () => {
+    if (newCategory.trim()) {
+      setCategories([...categories, { id: Date.now(), name: newCategory.trim() }]);
+      setNewCategory("");
+      setIsCategoryDialogOpen(false);
+    }
+  };
+  const handleDeleteCategory = (id: number) => {
+    setCategories(categories.filter(c => c.id !== id));
+  };
+
+  // CRUD Cliente
+  const handleAddCustomer = () => {
+    if (newCustomer.name && newCustomer.email) {
+      setCustomers([...customers, { ...newCustomer, id: Date.now() }]);
+      setNewCustomer({ name: "", email: "", phone: "", status: "Ativo" });
+      setIsCustomerDialogOpen(false);
+    }
+  };
+  const handleDeleteCustomer = (id: number) => {
+    setCustomers(customers.filter(c => c.id !== id));
+  };
 
   const handleAddProduct = () => {
     if (newProduct.name && newProduct.price) {
