@@ -550,8 +550,8 @@ export default function AdminEcommerce() {
               <Input value={newCustomer.email} onChange={e => setNewCustomer({ ...newCustomer, email: e.target.value })} className="bg-[#1f2937] border border-gray-700 text-white" />
               <Label>Telefone</Label>
               <Input value={newCustomer.phone} onChange={e => setNewCustomer({ ...newCustomer, phone: e.target.value })} className="bg-[#1f2937] border border-gray-700 text-white" />
-              <Label>Status</Label>
-              <select value={newCustomer.status} onChange={e => setNewCustomer({ ...newCustomer, status: e.target.value })} className="w-full bg-[#1f2937] border border-gray-700 text-white rounded px-3 py-2">
+              <Label htmlFor="new-customer-status">Status</Label>
+              <select id="new-customer-status" aria-label="Status do cliente" value={newCustomer.status} onChange={e => setNewCustomer({ ...newCustomer, status: e.target.value })} className="w-full bg-[#1f2937] border border-gray-700 text-white rounded px-3 py-2">
                 <option value="Ativo">Ativo</option>
                 <option value="Inativo">Inativo</option>
               </select>
