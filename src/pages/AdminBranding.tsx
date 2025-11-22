@@ -51,7 +51,7 @@ type PageComponent = {
   id: string;
   type: string;
   name?: string;
-  config?: any;
+  config?: ComponentConfig;
   order?: number;
 };
 type Client = {
@@ -59,6 +59,64 @@ type Client = {
   email?: string;
   status?: string;
 };
+
+// Tipagens para os diferentes configs de componentes do page builder
+type MetricCardConfig = {
+  title?: string;
+  value?: string | number;
+  label?: string;
+  color?: string;
+};
+
+type StatsGridConfig = {
+  columns?: number;
+  metrics?: string[];
+};
+
+type RevenueCardConfig = {
+  showGrowth?: boolean;
+  period?: string;
+};
+
+type UsersTableConfig = {
+  showSearch?: boolean;
+  showPagination?: boolean;
+  pageSize?: number;
+};
+
+type ButtonConfig = {
+  text?: string;
+  variant?: 'primary' | 'secondary' | 'success';
+  action?: string;
+  link?: string;
+};
+
+type TextConfig = {
+  content?: string;
+  size?: 'small' | 'medium' | 'large' | 'xlarge';
+  align?: 'left' | 'center' | 'right';
+};
+
+type ImageConfig = { src?: string; alt?: string; width?: string; height?: string };
+type VideoConfig = { src?: string; autoplay?: boolean; controls?: boolean };
+type ListConfig = { items?: string[]; ordered?: boolean };
+type ColumnsConfig = { count?: number; gap?: string };
+type FormField = { name: string; label?: string; type?: string; placeholder?: string };
+type FormConfig = { fields?: FormField[]; submitText?: string; action?: string };
+
+type ComponentConfig =
+  | MetricCardConfig
+  | StatsGridConfig
+  | RevenueCardConfig
+  | UsersTableConfig
+  | ButtonConfig
+  | TextConfig
+  | ImageConfig
+  | VideoConfig
+  | ListConfig
+  | ColumnsConfig
+  | FormConfig
+  | Record<string, unknown>;
 
 type Page = {
   id?: number;
@@ -559,7 +617,7 @@ const AdminBranding: React.FC = () => {
   };
 
   // Atualizar componente
-  const updateComponent = (componentId: string, config: any) => {
+  const updateComponent = (componentId: string, config: Partial<ComponentConfig>) => {
     setPageForm({
       ...pageForm,
       components: pageForm.components.map(c => 
@@ -734,7 +792,7 @@ const AdminBranding: React.FC = () => {
         return (
           <div className={`grid ${gridCols} gap-4`}>
             {config.metrics?.map((metric: string, idx: number) => {
-              const metricData: Record<string, { value: any; label: string; icon: React.ComponentType<any> }> = {
+              const metricData: Record<string, { value: string | number; label: string; icon: React.ComponentType<Record<string, unknown>> }> = {
                 totalUsers: { value: stats?.totalUsers || 0, label: 'Total de Usuários', icon: Users },
                 totalRevenue: { value: `R$ ${stats?.totalRevenue?.toLocaleString('pt-BR') || '0'}`, label: 'Receita Total', icon: DollarSign },
                 activeClients: { value: stats?.activeClients || 0, label: 'Clientes Ativos', icon: Users },
@@ -920,16 +978,26 @@ const AdminBranding: React.FC = () => {
         );
 
       case 'list':
-        return (
-          <div className={config.ordered ? 'list-decimal list-inside' : 'list-disc list-inside'}>
+        return config.ordered ? (
+          <ol className="list-decimal list-inside">
             {config.items?.length > 0 ? (
               config.items.map((item: string, idx: number) => (
                 <li key={idx} className="text-white mb-1">{item}</li>
               ))
             ) : (
-              <p className="text-gray-400 text-sm">Nenhum item na lista. Edite o componente para adicionar itens.</p>
+              <li className="text-gray-400 text-sm">Nenhum item na lista. Edite o componente para adicionar itens.</li>
             )}
-          </div>
+          </ol>
+        ) : (
+          <ul className="list-disc list-inside">
+            {config.items?.length > 0 ? (
+              config.items.map((item: string, idx: number) => (
+                <li key={idx} className="text-white mb-1">{item}</li>
+              ))
+            ) : (
+              <li className="text-gray-400 text-sm">Nenhum item na lista. Edite o componente para adicionar itens.</li>
+            )}
+          </ul>
         );
 
       case 'columns': {
@@ -961,12 +1029,12 @@ const AdminBranding: React.FC = () => {
     availableComponents: typeof availableComponents;
     addComponent: (t: string) => void;
     removeComponent: (id: string) => void;
-    updateComponent: (id: string, cfg: any) => void;
+    updateComponent: (id: string, cfg: Partial<ComponentConfig>) => void;
     selectedComponent: PageComponent | null;
     setSelectedComponent: (c: PageComponent | null) => void;
     handleDragEnd: (e: DragEndEvent) => void;
-    sensors: any;
-    stats: any;
+    sensors: ReturnType<typeof useSensors> | undefined;
+    stats: { totalUsers?: number; totalRevenue?: number; activeClients?: number } | undefined;
     clientes: Client[];
     generateSlug: (t: string) => string;
     renderComponent: (c: PageComponent) => JSX.Element | null;
@@ -1248,13 +1316,13 @@ const AdminBranding: React.FC = () => {
   // Editor de Propriedades do Componente
   type ComponentPropertiesEditorProps = {
     component: PageComponent;
-    onUpdate: (cfg: any) => void;
+    onUpdate: (cfg: Partial<ComponentConfig>) => void;
   };
   const ComponentPropertiesEditor = ({ component, onUpdate }: ComponentPropertiesEditorProps) => {
     const { type, config } = component;
 
-    const updateConfig = (key: string, value: any) => {
-      onUpdate({ [key]: value });
+    const updateConfig = (key: string, value: unknown) => {
+      onUpdate({ [key]: value } as Partial<ComponentConfig>);
     };
 
     switch (type) {
