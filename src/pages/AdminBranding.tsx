@@ -773,20 +773,22 @@ const AdminBranding: React.FC = () => {
     const config = (component.config ?? ({} as ComponentConfig));
 
     switch (type) {
-      case 'metric-card':
+      case 'metric-card': {
+        const metricConfig = config as Record<string, unknown>;
         return (
           <Card className="bg-[#181e29] border border-gray-700">
             <CardHeader>
-              <CardTitle className="text-white text-sm">{config.title || 'Métrica'}</CardTitle>
+              <CardTitle className="text-white text-sm">{metricConfig.title as string || 'Métrica'}</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold" style={{ color: config.color || pageForm.primaryColor }}>
-                {config.value || '0'}
+              <div className="text-3xl font-bold" style={{ color: metricConfig.color as string || pageForm.primaryColor }}>
+                {metricConfig.value as string || '0'}
               </div>
-              <div className="text-sm text-gray-400 mt-1">{config.label || 'Descrição'}</div>
+              <div className="text-sm text-gray-400 mt-1">{metricConfig.label as string || 'Descrição'}</div>
             </CardContent>
           </Card>
         );
+      }
 
       case 'stats-grid': {
         const gridCols = config.columns === 2 ? 'grid-cols-2' : config.columns === 4 ? 'grid-cols-4' : 'grid-cols-3';
@@ -891,7 +893,7 @@ const AdminBranding: React.FC = () => {
           </Card>
         );
 
-      case 'form':
+      case 'form': {
         const formConfig = config as Record<string, unknown>;
         return (
           <Card className="bg-[#181e29] border border-gray-700">
@@ -921,6 +923,7 @@ const AdminBranding: React.FC = () => {
             </CardContent>
           </Card>
         );
+      }
 
       case 'button':
         return (
@@ -949,7 +952,7 @@ const AdminBranding: React.FC = () => {
         );
 
       }
-      case 'image':
+      case 'image': {
         const imageConfig = config as Record<string, unknown>;
         return imageConfig.src ? (
           <img
@@ -964,8 +967,9 @@ const AdminBranding: React.FC = () => {
             <p>Nenhuma imagem configurada</p>
           </div>
         );
+      }
 
-      case 'video':
+      case 'video': {
         const videoConfig = config as Record<string, unknown>;
         return videoConfig.src ? (
           <video
@@ -980,8 +984,9 @@ const AdminBranding: React.FC = () => {
             <p>Nenhum vídeo configurado</p>
           </div>
         );
+      }
 
-      case 'list':
+      case 'list': {
         const listConfig = config as Record<string, unknown>;
         return listConfig.ordered ? (
           <ol className="list-decimal list-inside">
@@ -1004,6 +1009,7 @@ const AdminBranding: React.FC = () => {
             )}
           </ul>
         );
+      }
 
       case 'columns': {
         const columnsConfig = config as Record<string, unknown>;
