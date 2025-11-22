@@ -967,69 +967,86 @@ const AdminBranding: React.FC = () => {
               <div className="space-y-4 max-w-2xl">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label className="text-gray-300">Título <span className="text-red-400">*</span></Label>
-                    <Input
-                      value={pageForm.title}
-                      onChange={(e) => {
-                        setPageForm({
-                          ...pageForm,
-                          title: e.target.value,
-                          slug: pageForm.slug || generateSlug(e.target.value),
-                        });
-                      }}
-                      className="bg-gray-900 border-gray-700 text-white"
-                    />
-                  </div>
+                      <Label htmlFor="page-title" className="text-gray-300">Título <span className="text-red-400">*</span></Label>
+                      <Input
+                        id="page-title"
+                        value={pageForm.title}
+                        onChange={(e) => {
+                          setPageForm({
+                            ...pageForm,
+                            title: e.target.value,
+                            slug: pageForm.slug || generateSlug(e.target.value),
+                          });
+                        }}
+                        className="bg-gray-900 border-gray-700 text-white"
+                        placeholder="Título da página"
+                        title="Título da página"
+                      />
+                    </div>
                   <div className="space-y-2">
-                    <Label className="text-gray-300">URL <span className="text-red-400">*</span></Label>
+                    <Label htmlFor="page-slug" className="text-gray-300">URL <span className="text-red-400">*</span></Label>
                     <div className="flex items-center gap-2">
                       <span className="text-gray-400 text-sm">/page/</span>
                       <Input
+                        id="page-slug"
                         value={pageForm.slug}
                         onChange={(e) => setPageForm({ ...pageForm, slug: e.target.value.toLowerCase() })}
                         className="flex-1 bg-gray-900 border-gray-700 text-white"
+                        placeholder="slug-da-pagina"
+                        title="Parte final da URL (slug)"
                       />
                     </div>
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-gray-300">Descrição</Label>
+                  <Label htmlFor="page-description" className="text-gray-300">Descrição</Label>
                   <Input
+                    id="page-description"
                     value={pageForm.description}
                     onChange={(e) => setPageForm({ ...pageForm, description: e.target.value })}
                     className="bg-gray-900 border-gray-700 text-white"
+                    placeholder="Breve descrição da página"
+                    title="Descrição da página"
                   />
                 </div>
                 <div className="grid grid-cols-3 gap-4">
                   <div className="space-y-2">
                     <Label className="text-gray-300">Cor de Fundo</Label>
                     <div className="flex gap-2">
-                      <input
-                        type="color"
-                        value={pageForm.backgroundColor}
-                        onChange={(e) => setPageForm({ ...pageForm, backgroundColor: e.target.value })}
-                        className="w-12 h-10 rounded border border-gray-700"
-                      />
-                      <Input
-                        value={pageForm.backgroundColor}
-                        onChange={(e) => setPageForm({ ...pageForm, backgroundColor: e.target.value })}
-                        className="flex-1 bg-gray-900 border-gray-700 text-white"
-                      />
+                        <input
+                          aria-label="Selecionar cor de fundo"
+                          type="color"
+                          value={pageForm.backgroundColor}
+                          onChange={(e) => setPageForm({ ...pageForm, backgroundColor: e.target.value })}
+                          className="w-12 h-10 rounded border border-gray-700"
+                        />
+                        <Input
+                          id="page-bg-hex"
+                          value={pageForm.backgroundColor}
+                          onChange={(e) => setPageForm({ ...pageForm, backgroundColor: e.target.value })}
+                          className="flex-1 bg-gray-900 border-gray-700 text-white"
+                          placeholder="#000000"
+                          title="Cor de fundo (hex)"
+                        />
                     </div>
                   </div>
                   <div className="space-y-2">
                     <Label className="text-gray-300">Cor do Texto</Label>
                     <div className="flex gap-2">
                       <input
+                        aria-label="Selecionar cor do texto"
                         type="color"
                         value={pageForm.textColor}
                         onChange={(e) => setPageForm({ ...pageForm, textColor: e.target.value })}
                         className="w-12 h-10 rounded border border-gray-700"
                       />
                       <Input
+                        id="page-text-hex"
                         value={pageForm.textColor}
                         onChange={(e) => setPageForm({ ...pageForm, textColor: e.target.value })}
                         className="flex-1 bg-gray-900 border-gray-700 text-white"
+                        placeholder="#ffffff"
+                        title="Cor do texto (hex)"
                       />
                     </div>
                   </div>
@@ -1037,15 +1054,19 @@ const AdminBranding: React.FC = () => {
                     <Label className="text-gray-300">Cor Primária</Label>
                     <div className="flex gap-2">
                       <input
+                        aria-label="Selecionar cor primária"
                         type="color"
                         value={pageForm.primaryColor}
                         onChange={(e) => setPageForm({ ...pageForm, primaryColor: e.target.value })}
                         className="w-12 h-10 rounded border border-gray-700"
                       />
                       <Input
+                        id="page-primary-hex"
                         value={pageForm.primaryColor}
                         onChange={(e) => setPageForm({ ...pageForm, primaryColor: e.target.value })}
                         className="flex-1 bg-gray-900 border-gray-700 text-white"
+                        placeholder="#7c3aed"
+                        title="Cor primária (hex)"
                       />
                     </div>
                   </div>
