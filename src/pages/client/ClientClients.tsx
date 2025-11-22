@@ -2340,6 +2340,7 @@ export default function ClientClients() {
                         type="number"
                         min={1}
                         value={editingUser.devices || 0}
+                        title="Número de dispositivos permitidos"
                         onChange={(e) =>
                           setEditingUser({
                             ...editingUser,
@@ -2365,6 +2366,7 @@ export default function ClientClients() {
                           type="number"
                           min={0}
                           value={editingUser.credits || 0}
+                          title="Quantidade de créditos"
                           onChange={(e) =>
                             setEditingUser({
                               ...editingUser,
@@ -2395,7 +2397,7 @@ export default function ClientClients() {
                     Informações Adicionais
                   </span>
                   <div className="flex items-center gap-2 mb-2">
-                    <input type="checkbox" className="accent-purple-600" />
+                    <input type="checkbox" className="accent-purple-600" title="Ativar notificações via WhatsApp" />
                     <span className="text-gray-300">Notificações via WhatsApp</span>
                   </div>
                   <div>
@@ -2642,6 +2644,7 @@ function VencimentoDatePicker() {
             readOnly
             value={date ? formatDate(date) : ""}
             placeholder="Selecione a data"
+            title="Selecionar data de vencimento"
             className="w-1/2 bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2 cursor-pointer"
             onClick={() => setOpen(true)}
           />
@@ -2649,6 +2652,7 @@ function VencimentoDatePicker() {
             type="time"
             value={time}
             onChange={handleTimeChange}
+            title="Selecionar hora de vencimento"
             className="w-1/2 bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
           />
         </div>
@@ -2775,6 +2779,7 @@ function VencimentoDatePickerEdit({
             readOnly
             value={date ? formatDate(date) : ""}
             placeholder="Selecione a data"
+            title="Selecionar data de expiração"
             className="w-1/2 bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2 cursor-pointer"
             onClick={() => setOpen(true)}
           />
@@ -2782,6 +2787,7 @@ function VencimentoDatePickerEdit({
             type="time"
             value={time}
             onChange={handleTimeChange}
+            title="Selecionar hora de expiração"
             className="w-1/2 bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
           />
         </div>
