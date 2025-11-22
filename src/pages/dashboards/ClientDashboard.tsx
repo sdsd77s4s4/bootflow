@@ -158,7 +158,7 @@ const ClientDashboard = () => {
   // Estados para a extração M3U
   const [m3uUrl, setM3uUrl] = useState("");
   const [isExtracting, setIsExtracting] = useState(false);
-  const [extractionResult, setExtractionResult] = useState<any>(null);
+  const [extractionResult, setExtractionResult] = useState<Record<string, unknown> | null>(null);
   const [extractionError, setExtractionError] = useState("");
   const [isAddingUser, setIsAddingUser] = useState(false);
 
@@ -235,7 +235,7 @@ const ClientDashboard = () => {
   }, [clientesError, revendasError]);
   
   // Função para adicionar um novo cliente (usa o hook useClientes)
-  const addCliente = useCallback(async (clienteData: any) => {
+  const addCliente = useCallback(async (clienteData: TableInsert<'clientes'>) => {
     try {
       console.log('🔄 [ClientDashboard] addCliente wrapper chamado com:', clienteData);
       
@@ -252,9 +252,10 @@ const ClientDashboard = () => {
         console.error('Erro ao adicionar cliente - verifique o console para detalhes');
         return false;
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Erro no wrapper addCliente:', error);
-      toast.error(`Erro ao adicionar cliente: ${error?.message || 'Erro desconhecido'}`, { duration: 5000 });
+      const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
+      toast.error(`Erro ao adicionar cliente: ${errorMessage}`, { duration: 5000 });
       return false;
     }
   }, [addClienteHook]);
