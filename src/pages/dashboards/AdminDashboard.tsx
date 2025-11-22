@@ -45,7 +45,8 @@ import AdminWhatsApp from '../AdminWhatsApp';
 import AdminBranding from '../AdminBranding';
 import AdminGateways from "../AdminGateways";
 import AdminCobrancas from "../AdminCobrancas";
-import Notifications from "../Profile";
+import Profile from "../Profile";
+import Notifications from "../Notifications";
 
 // Wrapper para AdminResellers que aceita callback quando um revendedor é criado
 const AdminResellersWrapper = ({ onResellerCreated, onCloseModal }: { onResellerCreated: () => void; onCloseModal: () => void }) => {
@@ -172,12 +173,14 @@ const AdminDashboard = () => {
     if (user?.id) {
       if (clientesToUse && Array.isArray(clientesToUse)) {
         clientesToUse = clientesToUse.filter((cliente: TableRow<'clientes'>) => {
-          return cliente.admin_id === user.id || cliente.admin_id === null || cliente.admin_id === undefined;
+          const adminId = (cliente as any).admin_id ?? (cliente as any).adminId;
+          return adminId === user.id || adminId === null || adminId === undefined;
         }) as unknown as TableRow<'clientes'>[];
       }
       if (revendasToUse && Array.isArray(revendasToUse)) {
         revendasToUse = revendasToUse.filter((revenda: TableRow<'revendas'>) => {
-          return revenda.admin_id === user.id || revenda.admin_id === null || revenda.admin_id === undefined;
+          const adminId = (revenda as any).admin_id ?? (revenda as any).adminId;
+          return adminId === user.id || adminId === null || adminId === undefined;
         }) as unknown as TableRow<'revendas'>[];
       }
       console.log('🔄 [AdminDashboard] Dados filtrados por admin_id:', user.id, 'Clientes:', clientesToUse?.length, 'Revendas:', revendasToUse?.length);
