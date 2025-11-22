@@ -1308,7 +1308,7 @@ const AdminDashboard = () => {
       <div 
         ref={assignRef} 
         className="select-none touch-manipulation"
-        {...attributes} 
+        {...(attributes ?? {})} 
         data-card-id={id}
       >
         <Card 
@@ -1318,13 +1318,13 @@ const AdminDashboard = () => {
           onClick={handleClick} 
           onMouseDown={(e) => {
             // Aplicar listeners de drag apenas no mouse down
-            if (listeners.onMouseDown) {
+            if (listeners?.onMouseDown) {
               listeners.onMouseDown(e);
             }
           }}
           onTouchStart={(e) => {
             // Aplicar listeners de touch apenas no touch start
-            if (listeners.onTouchStart) {
+            if (listeners?.onTouchStart) {
               listeners.onTouchStart(e);
             }
           }}
