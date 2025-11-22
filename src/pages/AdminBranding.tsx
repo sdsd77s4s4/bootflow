@@ -473,9 +473,9 @@ const AdminBranding: React.FC = () => {
             )}
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent style={{ '--dashboard-color': viewingDashboard?.color } as React.CSSProperties}>
           <div className="space-y-2">
-            <div className="text-3xl font-bold" style={{ color: viewingDashboard?.color }}>
+            <div className="text-3xl font-bold" style={{ color: 'var(--dashboard-color)' }}>
               {data.value}
             </div>
             <div className="text-sm text-gray-400">{data.label}</div>
@@ -713,15 +713,15 @@ const AdminBranding: React.FC = () => {
     } = useSortable({ id: component.id });
 
     const style = {
-      transform: CSS.Transform.toString(transform),
-      transition,
-      opacity: isDragging ? 0.5 : 1,
+      '--transform': CSS.Transform.toString(transform),
+      '--transition': transition,
+      '--opacity': isDragging ? 0.5 : 1,
     };
 
     return (
       <div
         ref={setNodeRef}
-        style={style}
+        style={style as React.CSSProperties}
         className={`relative group border-2 rounded-lg p-4 mb-3 cursor-pointer transition-all ${
           selectedComponent?.id === component.id
             ? 'border-blue-500 bg-blue-900/20'
