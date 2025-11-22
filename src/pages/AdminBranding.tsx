@@ -3367,6 +3367,7 @@ const AdminBranding: React.FC = () => {
                     checked={pageForm.showFooter}
                     onChange={(e) => setPageForm({ ...pageForm, showFooter: e.target.checked })}
                     className="accent-blue-500"
+                    title="Mostrar rodapé na página"
                   />
                   <Label htmlFor="page-show-footer" className="text-gray-300 cursor-pointer">
                     Mostrar Rodapé
