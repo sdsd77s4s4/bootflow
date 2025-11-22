@@ -1,4 +1,3 @@
-/* eslint-disable no-inline-styles */
 import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Paintbrush, UploadCloud, X, Check, GripVertical, Plus, Edit, Trash2, Palette, Code, Sliders, Star, Eye, ArrowLeft, BarChart3, TrendingUp, Activity, Bell, Table, Calendar, Map, FileText, PieChart, Globe, ExternalLink, Copy, Link2, Layout, Move, Settings2, Type, Image, Video, List, Grid3x3, Columns, DollarSign, Users } from 'lucide-react';
