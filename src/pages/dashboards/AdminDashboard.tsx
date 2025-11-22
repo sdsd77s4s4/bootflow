@@ -281,8 +281,8 @@ const AdminDashboard = () => {
   const addRevenda = useCallback(async (revendaData: any) => {
     try {
       const { data, error } = await (supabase
-        .from('revendas') as any)
-        .insert([revendaData] as any)
+        .from('revendas') as unknown as any)
+        .insert([revendaData] as unknown as any)
         .select();
         
       if (error) throw error;
