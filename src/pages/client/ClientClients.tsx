@@ -72,6 +72,9 @@ import { useClientes } from "@/hooks/useClientes";
 import { RLSErrorBanner } from "@/components/RLSErrorBanner";
 import { useNavigate } from "react-router-dom";
 import { ArrowUp } from "lucide-react";
+import type { TableRow } from "@/types/supabase.types";
+
+interface User extends TableRow<'clientes'> {}
 
 const MAX_CLIENTS = 5; // Limite de clientes para o plano Essencial
 
