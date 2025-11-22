@@ -1007,7 +1007,7 @@ const AdminBranding: React.FC = () => {
                 <h4 className="text-xs font-semibold text-gray-400 uppercase mb-2">{category}</h4>
                 <div className="space-y-1">
                   {availableComponents
-                    .filter((c: any) => c.category === category)
+                    .filter((c) => c.category === category)
                     .map((component) => (
                       <button
                         key={component.id}
@@ -1165,11 +1165,11 @@ const AdminBranding: React.FC = () => {
                     onDragEnd={handleDragEnd}
                   >
                     <SortableContext
-                      items={pageForm.components.map((c: any) => c.id)}
+                      items={pageForm.components.map((c: PageComponent) => c.id)}
                       strategy={verticalListSortingStrategy}
                     >
                       {pageForm.components
-                        .sort((a: any, b: any) => a.order - b.order)
+                        .sort((a: PageComponent, b: PageComponent) => (a.order || 0) - (b.order || 0))
                         .map((component: PageComponent) => (
                           <div key={component.id} className="mb-4">
                             {renderComponent(component)}
@@ -1199,11 +1199,11 @@ const AdminBranding: React.FC = () => {
                   onDragEnd={handleDragEnd}
                 >
                   <SortableContext
-                    items={pageForm.components.map((c: any) => c.id)}
+                    items={pageForm.components.map((c: PageComponent) => c.id)}
                     strategy={verticalListSortingStrategy}
                   >
                     {pageForm.components
-                      .sort((a: any, b: any) => a.order - b.order)
+                      .sort((a: PageComponent, b: PageComponent) => (a.order || 0) - (b.order || 0))
                       .map((component: PageComponent) => (
                         <SortableComponentItem
                           key={component.id}
@@ -1236,7 +1236,7 @@ const AdminBranding: React.FC = () => {
             <div className="p-4 space-y-4">
               <ComponentPropertiesEditor
                 component={selectedComponent}
-                onUpdate={(config: any) => updateComponent(selectedComponent.id, config)}
+                onUpdate={(config) => updateComponent(selectedComponent!.id, config as Record<string, unknown>)}
               />
             </div>
           </div>
@@ -1246,10 +1246,14 @@ const AdminBranding: React.FC = () => {
   };
 
   // Editor de Propriedades do Componente
-  const ComponentPropertiesEditor = ({ component, onUpdate }: any) => {
+  type ComponentPropertiesEditorProps = {
+    component: PageComponent;
+    onUpdate: (cfg: Record<string, unknown>) => void;
+  };
+  const ComponentPropertiesEditor = ({ component, onUpdate }: ComponentPropertiesEditorProps) => {
     const { type, config } = component;
 
-    const updateConfig = (key: string, value: any) => {
+    const updateConfig = (key: string, value: unknown) => {
       onUpdate({ [key]: value });
     };
 
