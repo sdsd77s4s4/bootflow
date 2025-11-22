@@ -2350,6 +2350,9 @@ export default function AdminUsers() {
                         Número de Dispositivos
                       </label>
                       <input
+                        id="editing-devices"
+                        title="Número de dispositivos"
+                        aria-label="Número de dispositivos"
                         type="number"
                         min={1}
                         value={editingUser.devices || 0}
@@ -2359,6 +2362,7 @@ export default function AdminUsers() {
                             devices: parseInt(e.target.value) || 0,
                           })
                         }
+                        placeholder="0"
                         className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
                       />
                     </div>
@@ -2375,6 +2379,9 @@ export default function AdminUsers() {
                           -
                         </button>
                         <input
+                          id="editing-credits"
+                          title="Créditos"
+                          aria-label="Créditos"
                           type="number"
                           min={0}
                           value={editingUser.credits || 0}
@@ -2384,6 +2391,7 @@ export default function AdminUsers() {
                               credits: parseInt(e.target.value) || 0,
                             })
                           }
+                          placeholder="0"
                           className="w-16 bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
                         />
                         <button
@@ -2408,8 +2416,14 @@ export default function AdminUsers() {
                     Informações Adicionais
                   </span>
                   <div className="flex items-center gap-2 mb-2">
-                    <input type="checkbox" className="accent-purple-600" />
-                    <span className="text-gray-300">Notificações via WhatsApp</span>
+                    <input
+                      id="notify-whatsapp"
+                      title="Notificações via WhatsApp"
+                      aria-label="Notificações via WhatsApp"
+                      type="checkbox"
+                      className="accent-purple-600"
+                    />
+                    <label htmlFor="notify-whatsapp" className="text-gray-300">Notificações via WhatsApp</label>
                   </div>
                   <div>
                     <label className="block text-gray-300 mb-1 font-medium">Anotações</label>
@@ -2652,6 +2666,9 @@ function VencimentoDatePicker() {
       <PopoverTrigger asChild>
         <div className="flex gap-2">
           <input
+            id="vencimento-date"
+            title="Data de renovação"
+            aria-label="Data de renovação"
             readOnly
             value={date ? formatDate(date) : ""}
             placeholder="Selecione a data"
@@ -2659,6 +2676,9 @@ function VencimentoDatePicker() {
             onClick={() => setOpen(true)}
           />
           <input
+            id="vencimento-time"
+            title="Hora de renovação"
+            aria-label="Hora de renovação"
             type="time"
             value={time}
             onChange={handleTimeChange}
@@ -2785,6 +2805,9 @@ function VencimentoDatePickerEdit({
       <PopoverTrigger asChild>
         <div className="flex gap-2">
           <input
+            id="vencimento-date-2"
+            title="Data de renovação"
+            aria-label="Data de renovação"
             readOnly
             value={date ? formatDate(date) : ""}
             placeholder="Selecione a data"
@@ -2792,6 +2815,9 @@ function VencimentoDatePickerEdit({
             onClick={() => setOpen(true)}
           />
           <input
+            id="vencimento-time-2"
+            title="Hora de renovação"
+            aria-label="Hora de renovação"
             type="time"
             value={time}
             onChange={handleTimeChange}
