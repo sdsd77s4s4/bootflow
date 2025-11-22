@@ -2374,6 +2374,7 @@ const AdminDashboard = () => {
                                     Status *
                                   </label>
                                   <select
+                                    title="Status"
                                     className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
                                     value={newUser.status}
                                     onChange={(e) =>
@@ -2671,6 +2672,7 @@ const AdminDashboard = () => {
                                   Permissão <span className="text-red-500">*</span>
                                 </Label>
                                 <select 
+                                  title="Permissão"
                                   className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
                                   value={newReseller.permission}
                                   onChange={(e) => setNewReseller({...newReseller, permission: e.target.value})}
