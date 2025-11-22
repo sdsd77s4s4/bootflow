@@ -2973,6 +2973,7 @@ const AdminBranding: React.FC = () => {
                 value={dashboardForm.layout}
                 onChange={(e) => setDashboardForm({ ...dashboardForm, layout: e.target.value })}
                 className="w-full bg-gray-900 border border-gray-700 text-white rounded-md px-3 py-2 focus:border-purple-500 focus:outline-none"
+                title="Selecionar layout do dashboard"
               >
                 <option value="Padrão">Padrão</option>
                 <option value="Compacto">Compacto</option>
@@ -3429,6 +3430,7 @@ const AdminBranding: React.FC = () => {
                 checked={pageForm.isPublished}
                 onChange={(e) => setPageForm({ ...pageForm, isPublished: e.target.checked })}
                 className="accent-blue-500"
+                title="Publicar página e torná-la acessível publicamente"
               />
               <Label htmlFor="page-is-published" className="text-gray-300 cursor-pointer">
                 Publicar página (tornar acessível publicamente)
