@@ -1933,7 +1933,6 @@ const AdminDashboard = () => {
                           <div 
                             className="space-y-4 min-h-[200px] bg-[#1f2937]/50 rounded-lg p-4 border border-gray-700 transition-all duration-200 hover:border-gray-600"
                             data-column-id={column.id}
-                            data-droppable="true"
                           >
                             {column.cards.map(card => (
                               <SortableCard 
@@ -1945,16 +1944,12 @@ const AdminDashboard = () => {
                               />
                             ))}
                             {column.cards.length === 0 && (
-                              <div 
-                                className="flex items-center justify-center h-32 text-gray-500 border-2 border-dashed border-gray-600 rounded-lg transition-all duration-200 hover:border-blue-500 hover:text-blue-400 group"
-                                data-droppable="true"
-                                data-column-id={column.id}
-                              >
+                              <div className="flex items-center justify-center h-32 text-gray-500 border-2 border-dashed border-gray-600 rounded-lg transition-all duration-200 hover:border-blue-500 hover:text-blue-400">
                                 <div className="text-center">
-                                  <svg className="w-8 h-8 mx-auto mb-2 text-gray-600 group-hover:text-blue-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <svg className="w-8 h-8 mx-auto mb-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
                                   </svg>
-                                  <p className="text-sm group-hover:text-blue-400 transition-colors">Solte um card aqui</p>
+                                  <p className="text-sm">Solte um card aqui</p>
                                 </div>
                               </div>
                             )}
@@ -2263,11 +2258,11 @@ const AdminDashboard = () => {
                           </div>
                           
                           <form onSubmit={async (e) => { 
-                        e.preventDefault(); 
-                        e.stopPropagation();
-                        console.log("🔵 [AdminDashboard] Form submit disparado!");
-                        await handleAddUser(); 
-                      }} className="space-y-6 flex-1 overflow-y-auto">
+                            e.preventDefault(); 
+                            e.stopPropagation();
+                            console.log("🔵 [AdminDashboard] Form submit disparado!");
+                            await handleAddUser(); 
+                          }} className="space-y-6 flex-1 overflow-y-auto">
                             <div className="flex items-center gap-2 mb-4">
                               <span className="text-green-400 text-xs font-medium">• Campos obrigatórios marcados com *</span>
                               <span className="text-blue-400 text-xs font-medium">• Dados serão sincronizados automaticamente</span>
@@ -2577,522 +2572,527 @@ const AdminDashboard = () => {
                               </Button>
                             </div>
                           </form>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+                
+                <Dialog open={resellerModal} onOpenChange={setResellerModal}>
+                  <DialogContent className="bg-[#1f2937] text-white max-w-4xl w-full p-0 rounded-xl shadow-xl border border-gray-700 flex flex-col max-h-[90vh] overflow-y-auto scrollbar-hide">
+                    <DialogHeader className="sr-only">
+                      <DialogTitle>Adicionar um Revenda</DialogTitle>
+                      <DialogDescription>Preencha os dados do novo revendedor</DialogDescription>
+                    </DialogHeader>
+                    <div className="p-6 w-full flex flex-col">
+                      <div className="flex items-center justify-between mb-6">
+                        <h2 className="text-2xl font-bold">Adicionar um Revenda</h2>
+                        <div className="flex items-center gap-2">
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="text-gray-400 hover:text-white"
+                            onClick={() => setResellerModal(false)}
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                          </Button>
                         </div>
-                      </DialogContent>
-                    </Dialog>
-                    
-                    <Dialog open={resellerModal} onOpenChange={setResellerModal}>
-                      <DialogContent className="bg-[#1f2937] text-white max-w-4xl w-full p-0 rounded-xl shadow-xl border border-gray-700 flex flex-col max-h-[90vh] overflow-y-auto scrollbar-hide">
-                        <DialogHeader className="sr-only">
-                          <DialogTitle>Adicionar um Revenda</DialogTitle>
-                          <DialogDescription>Preencha os dados do novo revendedor</DialogDescription>
-                        </DialogHeader>
-                        <div className="p-6 w-full flex flex-col">
-                          <div className="flex items-center justify-between mb-6">
-                            <h2 className="text-2xl font-bold">Adicionar um Revenda</h2>
-                            <div className="flex items-center gap-2">
-                              <Button 
-                                variant="ghost" 
-                                size="sm" 
-                                className="text-gray-400 hover:text-white"
-                                onClick={() => setResellerModal(false)}
-                              >
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                              </Button>
+                      </div>
+                      
+                      {/* Usar componente AdminResellers dentro do modal */}
+                      <div className="flex-1 overflow-y-auto">
+                        <AdminResellersWrapper 
+                          onResellerCreated={() => {
+                            console.log('🔄 [AdminDashboard] Revendedor criado, preparando navegação...');
+                            // Garantir que a flag esteja definida antes de navegar
+                            try {
+                              localStorage.setItem('reseller-created', Date.now().toString());
+                              localStorage.setItem('dashboard-refresh', Date.now().toString());
+                              console.log('✅ [AdminDashboard] Flags definidas no localStorage');
+                            } catch (error) {
+                              console.error('❌ [AdminDashboard] Erro ao definir flags:', error);
+                            }
+                            
+                            // Fechar modal após criar revendedor com sucesso
+                            setTimeout(() => {
+                              setResellerModal(false);
+                              // Atualizar stats do dashboard
+                              if (refreshStats) {
+                                refreshStats();
+                              }
+                              // Navegar para a página de Gerenciamento de Revendedores
+                              // A página AdminResellers irá buscar os dados atualizados automaticamente
+                              console.log('🔄 [AdminDashboard] Navegando para página de revendedores...');
+                              setCurrentPage("resellers");
+                              console.log('✅ [AdminDashboard] Navegação concluída - AdminResellers irá buscar dados atualizados');
+                            }, 800);
+                          }}
+                          onCloseModal={() => {
+                            setResellerModal(false);
+                          }}
+                        />
+                      </div>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+              </div>
+            </div>
+
+            {/* Stats Cards */}
+            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 my-4 sm:my-6">
+              {/* Card 1: Total Clientes */}
+              <Card className="bg-gradient-to-br from-purple-900/50 to-purple-800/30 border border-purple-700/40 text-white">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-xs sm:text-sm font-medium text-gray-300">Total Clientes</CardTitle>
+                  <Users className="h-3 w-3 sm:h-4 sm:w-4 text-purple-400" />
+                </CardHeader>
+                <CardContent className="p-3 sm:p-6">
+                  <div className="text-lg sm:text-2xl font-bold text-white">{(clientes?.length || 0).toLocaleString()}</div>
+                  <p className="text-xs text-gray-400 mt-1">Clientes cadastrados</p>
+                </CardContent>
+              </Card>
+              {/* Card 2: Clientes dos Revendas */}
+              <Card className="bg-gradient-to-br from-red-900/50 to-red-800/30 border border-red-700/40 text-white">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-xs sm:text-sm font-medium text-gray-300">Clientes dos Revendas</CardTitle>
+                  <AlertCircle className="h-3 w-3 sm:h-4 sm:w-4 text-red-400" />
+                </CardHeader>
+                <CardContent className="p-3 sm:p-6">
+                  <div className="text-lg sm:text-2xl font-bold text-white">{clientesExpiramEm3Dias.toLocaleString()}</div>
+                  <p className="text-xs text-gray-400 mt-1">Clientes próximos do vencimento</p>
+                </CardContent>
+              </Card>
+              {/* Card 3: Total Revendas */}
+              <Card className="bg-gradient-to-br from-yellow-900/50 to-yellow-800/30 border border-yellow-700/40 text-white">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-xs sm:text-sm font-medium text-gray-300">Total Revendas</CardTitle>
+                  <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 text-yellow-400" />
+                </CardHeader>
+                <CardContent className="p-3 sm:p-6">
+                  <div className="text-lg sm:text-2xl font-bold text-white">{(revendas?.length || 0).toLocaleString()}</div>
+                  <p className="text-xs text-gray-400 mt-1">Revendedores cadastrados</p>
+                </CardContent>
+              </Card>
+              {/* Card 4: Receita Total */}
+              <Card className="bg-gradient-to-br from-green-900/50 to-green-800/30 border border-green-700/40 text-white">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-xs sm:text-sm font-medium text-gray-300">Receita Total</CardTitle>
+                  <DollarSign className="h-3 w-3 sm:h-4 sm:w-4 text-green-400" />
+                </CardHeader>
+                <CardContent className="p-3 sm:p-6">
+                  <div className="text-lg sm:text-2xl font-bold text-white">
+                    R$ {formatCurrency(stats.totalRevenue)}
+                  </div>
+                  <p className="text-xs text-gray-400 mt-1">Receita acumulada (clientes + revendas)</p>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Cards Section */}
+            <div className="space-y-6">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                  <h2 className="text-xl sm:text-2xl font-bold text-white">
+                    {viewMode === 'kanban' ? 'Sistema Kanban' : 'Serviços do Sistema'}
+                  </h2>
+                  <p className="text-gray-400 text-sm sm:text-base">
+                    {viewMode === 'kanban' 
+                      ? 'Organize seus serviços por categoria' 
+                      : 'Acesse todos os serviços do sistema'
+                    }
+                  </p>
+                </div>
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                  <Button
+                    variant={viewMode === 'grid' ? 'default' : 'outline'}
+                    onClick={() => setViewMode('grid')}
+                    className="bg-[#1f2937] text-white border border-gray-700 hover:bg-[#23272f] h-10 sm:h-auto"
+                  >
+                    <svg className="w-4 h-4 sm:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                    </svg>
+                    <span className="hidden sm:inline">Grid</span>
+                  </Button>
+                  <Button
+                    variant={viewMode === 'kanban' ? 'default' : 'outline'}
+                    onClick={() => setViewMode('kanban')}
+                    className="bg-[#1f2937] text-white border border-gray-700 hover:bg-[#23272f] h-10 sm:h-auto"
+                  >
+                    <svg className="w-4 h-4 sm:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                    </svg>
+                    <span className="hidden sm:inline">Kanban</span>
+                  </Button>
+                  {viewMode === 'kanban' && (
+                    <>
+                      <Badge className="bg-blue-600 text-white flex items-center gap-1 animate-pulse text-xs">
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                        </svg>
+                        <span className="hidden sm:inline">Arraste para reorganizar</span>
+                        <span className="sm:hidden">Arrastar</span>
+                      </Badge>
+                      <Badge className="bg-green-600 text-white flex items-center gap-1 text-xs">
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                        <span className="hidden sm:inline">Clique para abrir modal</span>
+                        <span className="sm:hidden">Clique</span>
+                      </Badge>
+                      <Badge className="bg-purple-600 text-white flex items-center gap-1 text-xs">
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                        <span className="hidden sm:inline">Modais Funcionais</span>
+                        <span className="sm:hidden">Modais</span>
+                      </Badge>
+                    </>
+                  )}
+                </div>
+              </div>
+              
+              {viewMode === 'kanban' ? (
+                <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                  <SortableContext items={Object.values(kanbanColumns).flatMap(column => column.cards).map(card => card.id)} strategy={rectSortingStrategy}>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
+                      {Object.values(kanbanColumns).map(column => (
+                        <div key={column.id} className="space-y-4">
+                          {/* Column Header */}
+                          <div className={`${column.color} rounded-lg p-4 text-white shadow-lg`}>
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-2">
+                                <h3 className="font-semibold text-lg">{column.title}</h3>
+                                <div className="w-2 h-2 bg-white rounded-full"></div>
+                              </div>
+                              <Badge className="bg-white/20 text-white font-medium">{column.cards.length}</Badge>
                             </div>
                           </div>
                           
-                          <form onSubmit={handleAddReseller} className="space-y-6 flex-1 overflow-y-auto">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                              <div className="space-y-2">
-                                <Label className="text-sm font-medium text-white">
-                                  Usuário <span className="text-red-500">*</span>
-                                </Label>
-                                <Input
-                                  className="bg-[#23272f] border-gray-600 text-white placeholder-gray-400 focus:border-blue-500"
-                                  placeholder="Obrigatório"
-                                  value={newReseller.username}
-                                  onChange={(e) => setNewReseller({...newReseller, username: e.target.value})}
-                                  required
-                                />
-                                <div className="space-y-1">
-                                  <div className="flex items-center gap-2 text-blue-400 text-xs">
-                                    <div className="w-1 h-1 bg-blue-400 rounded-full"></div>
-                                    <span>O campo usuário só pode conter letras, números e traços.</span>
-                                  </div>
-                                  <div className="flex items-center gap-2 text-blue-400 text-xs">
-                                    <div className="w-1 h-1 bg-blue-400 rounded-full"></div>
-                                    <span>O usuário precisa ter no mínimo 6 caracteres.</span>
-                                  </div>
-                                </div>
-                              </div>
-                              
-                              <div className="space-y-2">
-                                <Label className="text-sm font-medium text-white">
-                                  Senha <span className="text-red-500">*</span>
-                                </Label>
-                                <div className="flex gap-2">
-                                  <Input
-                                    type="password"
-                                    className="bg-[#23272f] border-gray-600 text-white flex-1 placeholder-gray-400 focus:border-blue-500"
-                                    placeholder="Digite a senha"
-                                    value={newReseller.password}
-                                    onChange={(e) => setNewReseller({...newReseller, password: e.target.value})}
-                                    required
-                                  />
-                                  <Button type="button" variant="outline" size="sm" className="border-gray-600 text-gray-400 hover:text-white">
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                                    </svg>
-                                  </Button>
-                                </div>
-                                <div className="space-y-1">
-                                  <div className="flex items-center gap-2 text-blue-400 text-xs">
-                                    <div className="w-1 h-1 bg-blue-400 rounded-full"></div>
-                                    <span>A senha precisa ter no mínimo 8 caracteres.</span>
-                                  </div>
-                                  <div className="flex items-center gap-2 text-blue-400 text-xs">
-                                    <div className="w-1 h-1 bg-blue-400 rounded-full"></div>
-                                    <span>Pelo menos 8 caracteres de comprimento, mas 14 ou mais é melhor.</span>
-                                  </div>
-                                  <div className="flex items-center gap-2 text-blue-400 text-xs">
-                                    <div className="w-1 h-1 bg-blue-400 rounded-full"></div>
-                                    <span>Uma combinação de letras maiúsculas, letras minúsculas, números e símbolos.</span>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-
-                            <div className="flex items-center space-x-2">
-                              <input
-                                type="checkbox"
-                                id="forcePasswordChange"
-                                className="rounded border-gray-600 bg-[#23272f] text-blue-500 focus:ring-blue-500"
-                                checked={newReseller.force_password_change}
-                                onChange={(e) => setNewReseller({...newReseller, force_password_change: e.target.checked})}
+                          {/* Column Cards */}
+                          <div 
+                            className="space-y-4 min-h-[200px] bg-[#1f2937]/50 rounded-lg p-4 border border-gray-700 transition-all duration-200 hover:border-gray-600"
+                            data-column-id={column.id}
+                          >
+                            {column.cards.map(card => (
+                              <SortableCard 
+                                key={card.id} 
+                                id={card.id} 
+                                content={card.content} 
+                                body={card.body} 
+                                onClick={card.onClick} 
                               />
-                              <Label htmlFor="forcePasswordChange" className="text-sm text-gray-300">
-                                Forçar revenda a mudar a senha no próximo login
-                              </Label>
-                            </div>
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                              <div className="space-y-2">
-                                <Label className="text-sm font-medium text-white">
-                                  Permissão <span className="text-red-500">*</span>
-                                </Label>
-                                <select 
-                                  title="Permissão"
-                                  className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
-                                  value={newReseller.permission}
-                                  onChange={(e) => setNewReseller({...newReseller, permission: e.target.value})}
-                                  required
-                                >
-                                  <option value="">Selecione</option>
-                                  <option value="admin">Administrador</option>
-                                  <option value="reseller">Revendedor</option>
-                                  <option value="subreseller">Sub-Revendedor</option>
-                                </select>
-                              </div>
-                              
-                              <div className="space-y-2">
-                                <Label className="text-sm font-medium text-white">
-                                  Créditos <span className="text-red-500">*</span>
-                                </Label>
-                                <div className="flex items-center gap-2">
-                                  <Button 
-                                    type="button" 
-                                    variant="outline" 
-                                    size="sm" 
-                                    className="border-gray-600 text-gray-400 hover:text-white"
-                                    onClick={() => setNewReseller({...newReseller, credits: Math.max(0, newReseller.credits - 1)})}
-                                  >
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
-                                    </svg>
-                                  </Button>
-                                  <Input
-                                    type="number"
-                                    className="bg-[#23272f] border-gray-600 text-white text-center placeholder-gray-400 focus:border-blue-500"
-                                    placeholder="0"
-                                    value={newReseller.credits}
-                                    onChange={(e) => setNewReseller({...newReseller, credits: parseInt(e.target.value) || 0})}
-                                    min="10"
-                                  />
-                                  <Button 
-                                    type="button" 
-                                    variant="outline" 
-                                    size="sm" 
-                                    className="border-gray-600 text-gray-400 hover:text-white"
-                                    onClick={() => setNewReseller({...newReseller, credits: newReseller.credits + 1})}
-                                  >
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                                    </svg>
-                                  </Button>
-                                </div>
-                                <div className="text-blue-400 text-xs">Mínimo de 10 créditos</div>
-                              </div>
-                            </div>
-
-                            <div className="space-y-2">
-                              <Label className="text-sm font-medium text-white">Servidores (Opcional)</Label>
-                              <select 
-                                className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
-                                value={newReseller.servers}
-                                onChange={(e) => setNewReseller({...newReseller, servers: e.target.value})}
-                              >
-                                <option value="">Opcional</option>
-                                <option value="none">Opcional</option>
-                                <option value="server1">Servidor 1</option>
-                                <option value="server2">Servidor 2</option>
-                                <option value="server3">Servidor 3</option>
-                              </select>
-                              <div className="text-blue-400 text-xs">
-                                Selecione os servidores que esse revenda pode ter acesso. Deixe em branco para permitir todos os servidores. Essa configuração afeta tanto a revenda quanto as subrevendas.
-                              </div>
-                            </div>
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                              <div className="space-y-2">
-                                <Label className="text-sm font-medium text-white">Revenda Master</Label>
-                                <Input
-                                  className="bg-[#23272f] border-gray-600 text-white placeholder-gray-400 focus:border-blue-500"
-                                  placeholder="Nome da revenda master"
-                                  value={newReseller.master_reseller}
-                                  onChange={(e) => setNewReseller({...newReseller, master_reseller: e.target.value})}
-                                />
-                              </div>
-                              
-                              <div className="space-y-2">
-                                <Label className="text-sm font-medium text-white">
-                                  Desativar login se não recarregar - em dias
-                                </Label>
-                                <div className="flex items-center gap-2">
-                                  <Button 
-                                    type="button" 
-                                    variant="outline" 
-                                    size="sm" 
-                                    className="border-gray-600 text-gray-400 hover:text-white"
-                                    onClick={() => setNewReseller({...newReseller, disable_login_days: Math.max(0, newReseller.disable_login_days - 1)})}
-                                  >
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
-                                    </svg>
-                                  </Button>
-                                  <Input
-                                    type="number"
-                                    className="bg-[#23272f] border-gray-600 text-white text-center placeholder-gray-400 focus:border-blue-500"
-                                    placeholder="0"
-                                    value={newReseller.disable_login_days}
-                                    onChange={(e) => setNewReseller({...newReseller, disable_login_days: parseInt(e.target.value) || 0})}
-                                    min="0"
-                                  />
-                                  <Button 
-                                    type="button" 
-                                    variant="outline" 
-                                    size="sm" 
-                                    className="border-gray-600 text-gray-400 hover:text-white"
-                                    onClick={() => setNewReseller({...newReseller, disable_login_days: newReseller.disable_login_days + 1})}
-                                  >
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                                    </svg>
-                                  </Button>
-                                </div>
-                                <div className="text-blue-400 text-xs">Deixe 0 para desativar essa opção</div>
-                              </div>
-                            </div>
-
-                            <div className="space-y-3">
-                              <div className="flex items-center space-x-2">
-                                <input
-                                  type="checkbox"
-                                  id="monthlyReseller"
-                                  className="rounded border-gray-600 bg-[#23272f] text-blue-500 focus:ring-blue-500"
-                                  checked={newReseller.monthly_reseller}
-                                  onChange={(e) => setNewReseller({...newReseller, monthly_reseller: e.target.checked})}
-                                />
-                                <Label htmlFor="monthlyReseller" className="text-sm text-gray-300">
-                                  Configuração de Revenda Mensalista
-                                </Label>
-                              </div>
-                              <div className="bg-green-600/20 border border-green-600/30 rounded-lg p-3">
-                                <div className="text-green-400 text-sm">
-                                  Apenas você pode visualizar os detalhes pessoais deste revenda.
+                            ))}
+                            {column.cards.length === 0 && (
+                              <div className="flex items-center justify-center h-32 text-gray-500 border-2 border-dashed border-gray-600 rounded-lg transition-all duration-200 hover:border-blue-500 hover:text-blue-400">
+                                <div className="text-center">
+                                  <svg className="w-8 h-8 mx-auto mb-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                                  </svg>
+                                  <p className="text-sm">Solte um card aqui</p>
                                 </div>
                               </div>
-                            </div>
-
-                            <div className="space-y-4">
-                              <h3 className="text-lg font-semibold text-white">Informações Pessoais (Opcional)</h3>
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div className="space-y-2">
-                                  <Label className="text-sm font-medium text-white">Nome</Label>
-                                  <Input
-                                    className="bg-[#23272f] border-gray-600 text-white placeholder-gray-400 focus:border-blue-500"
-                                    placeholder="Nome completo"
-                                    value={newReseller.personal_name}
-                                    onChange={(e) => setNewReseller({...newReseller, personal_name: e.target.value})}
-                                  />
-                                </div>
-                                
-                                <div className="space-y-2">
-                                  <Label className="text-sm font-medium text-white">E-mail</Label>
-                                  <Input
-                                    type="email"
-                                    className="bg-[#23272f] border-gray-600 text-white placeholder-gray-400 focus:border-blue-500"
-                                    placeholder="email@exemplo.com"
-                                    value={newReseller.email}
-                                    onChange={(e) => setNewReseller({...newReseller, email: e.target.value})}
-                                  />
-                                </div>
-                                
-                                <div className="space-y-2">
-                                  <Label className="text-sm font-medium text-white">Telegram</Label>
-                                  <Input
-                                    className="bg-[#23272f] border-gray-600 text-white placeholder-gray-400 focus:border-blue-500"
-                                    placeholder="@usuario"
-                                    value={newReseller.telegram}
-                                    onChange={(e) => setNewReseller({...newReseller, telegram: e.target.value})}
-                                  />
-                                </div>
-                                
-                                <div className="space-y-2">
-                                  <Label className="text-sm font-medium text-white">WhatsApp</Label>
-                                  <Input
-                                    className="bg-[#23272f] border-gray-600 text-white placeholder-gray-400 focus:border-blue-500"
-                                    placeholder="55 11 99999 3333"
-                                    value={newReseller.whatsapp}
-                                    onChange={(e) => setNewReseller({...newReseller, whatsapp: e.target.value})}
-                                  />
-                                  <div className="text-blue-400 text-xs">
-                                    Incluindo o código do país - com ou sem espaço e traços - ex. 55 11 99999 3333
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-
-                            <div className="space-y-2">
-                              <Label className="text-sm font-medium text-white">Observações (Opcional)</Label>
-                              <textarea
-                                rows={4}
-                                placeholder="Adicione observações sobre este revendedor..."
-                                className="w-full bg-[#23272f] border border-gray-600 text-white rounded-md px-3 py-2 focus:border-blue-500 focus:outline-none placeholder-gray-400 resize-none"
-                                value={newReseller.observations}
-                                onChange={(e) => setNewReseller({...newReseller, observations: e.target.value})}
-                              />
-                            </div>
-
-                            <div className="flex items-center justify-between pt-6 border-t border-gray-700">
-                              <Button
-                                type="button"
-                                variant="outline"
-                                className="border-gray-600 text-gray-400 hover:text-white"
-                                onClick={() => setResellerModal(false)}
-                              >
-                                Cancelar
-                              </Button>
-                              <Button
-                                type="submit"
-                                className="bg-blue-600 hover:bg-blue-700 text-white"
-                                disabled={isAddingReseller}
-                              >
-                                {isAddingReseller ? (
-                                  <>
-                                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                                    Salvando...
-                                  </>
-                                ) : (
-                                  <>
-                                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
-                                    </svg>
-                                    Salvar
-                                  </>
-                                )}
-                              </Button>
-                            </div>
-                          </form>
+                            )}
+                          </div>
                         </div>
-                      </DialogContent>
-                    </Dialog>
-                  </div>
-                </div>
-                {/* Cards de métricas do Analytics */}
-                <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 my-4 sm:my-6">
-                  {/* Card 1: Total Clientes */}
-                  <Card className="bg-gradient-to-br from-purple-900/50 to-purple-800/30 border border-purple-700/40 text-white">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                      <CardTitle className="text-xs sm:text-sm font-medium text-gray-300">Total Clientes</CardTitle>
-                      <Users className="h-3 w-3 sm:h-4 sm:w-4 text-purple-400" />
-                    </CardHeader>
-                    <CardContent className="p-3 sm:p-6">
-                      <div className="text-lg sm:text-2xl font-bold text-white">{(clientes?.length || 0).toLocaleString()}</div>
-                      <p className="text-xs text-gray-400 mt-1">Clientes cadastrados</p>
-                    </CardContent>
-                  </Card>
-                  {/* Card 2: Clientes dos Revendas */}
-                  <Card className="bg-gradient-to-br from-red-900/50 to-red-800/30 border border-red-700/40 text-white">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                      <CardTitle className="text-xs sm:text-sm font-medium text-gray-300">Clientes dos Revendas</CardTitle>
-                      <AlertCircle className="h-3 w-3 sm:h-4 sm:w-4 text-red-400" />
-                    </CardHeader>
-                    <CardContent className="p-3 sm:p-6">
-                      <div className="text-lg sm:text-2xl font-bold text-white">{clientesExpiramEm3Dias.toLocaleString()}</div>
-                      <p className="text-xs text-gray-400 mt-1">Clientes próximos do vencimento</p>
-                    </CardContent>
-                  </Card>
-                  {/* Card 3: Total Revendas */}
-                  <Card className="bg-gradient-to-br from-yellow-900/50 to-yellow-800/30 border border-yellow-700/40 text-white">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                      <CardTitle className="text-xs sm:text-sm font-medium text-gray-300">Total Revendas</CardTitle>
-                      <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 text-yellow-400" />
-                    </CardHeader>
-                    <CardContent className="p-3 sm:p-6">
-                      <div className="text-lg sm:text-2xl font-bold text-white">{(revendas?.length || 0).toLocaleString()}</div>
-                      <p className="text-xs text-gray-400 mt-1">Revendedores cadastrados</p>
-                    </CardContent>
-                  </Card>
-                  {/* Card 4: Receita Total */}
-                  <Card className="bg-gradient-to-br from-green-900/50 to-green-800/30 border border-green-700/40 text-white">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                      <CardTitle className="text-xs sm:text-sm font-medium text-gray-300">Receita Total</CardTitle>
-                      <DollarSign className="h-3 w-3 sm:h-4 sm:w-4 text-green-400" />
-                    </CardHeader>
-                    <CardContent className="p-3 sm:p-6">
-                      <div className="text-lg sm:text-2xl font-bold text-white">
-                        R$ {formatCurrency(stats.totalRevenue)}
-                      </div>
-                      <p className="text-xs text-gray-400 mt-1">Receita acumulada (clientes + revendas)</p>
-                    </CardContent>
-                  </Card>
-                </div>
-
-                {/* Cards Section */}
-                <div className="space-y-6">
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                    <div>
-                      <h2 className="text-xl sm:text-2xl font-bold text-white">
-                        {viewMode === 'kanban' ? 'Sistema Kanban' : 'Serviços do Sistema'}
-                      </h2>
-                      <p className="text-gray-400 text-sm sm:text-base">
-                        {viewMode === 'kanban' 
-                          ? 'Organize seus serviços por categoria' 
-                          : 'Acesse todos os serviços do sistema'
-                        }
-                      </p>
-                    </div>
-                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-                      <Button
-                        variant={viewMode === 'grid' ? 'default' : 'outline'}
-                        onClick={() => setViewMode('grid')}
-                        className="bg-[#1f2937] text-white border border-gray-700 hover:bg-[#23272f] h-10 sm:h-auto"
-                      >
-                        <svg className="w-4 h-4 sm:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-                        </svg>
-                        <span className="hidden sm:inline">Grid</span>
-                      </Button>
-                      <Button
-                        variant={viewMode === 'kanban' ? 'default' : 'outline'}
-                        onClick={() => setViewMode('kanban')}
-                        className="bg-[#1f2937] text-white border border-gray-700 hover:bg-[#23272f] h-10 sm:h-auto"
-                      >
-                        <svg className="w-4 h-4 sm:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                        </svg>
-                        <span className="hidden sm:inline">Kanban</span>
-                      </Button>
-                      {viewMode === 'kanban' && (
-                        <>
-                          <Badge className="bg-blue-600 text-white flex items-center gap-1 animate-pulse text-xs">
-                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
-                            </svg>
-                            <span className="hidden sm:inline">Arraste para reorganizar</span>
-                            <span className="sm:hidden">Arrastar</span>
-                          </Badge>
-                          <Badge className="bg-green-600 text-white flex items-center gap-1 text-xs">
-                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                            </svg>
-                            <span className="hidden sm:inline">Clique para abrir modal</span>
-                            <span className="sm:hidden">Clique</span>
-                          </Badge>
-                          <Badge className="bg-purple-600 text-white flex items-center gap-1 text-xs">
-                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                            </svg>
-                            <span className="hidden sm:inline">Modais Funcionais</span>
-                            <span className="sm:hidden">Modais</span>
-                          </Badge>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                  
-                  {viewMode === 'kanban' ? (
-                <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-                      <SortableContext items={Object.values(kanbanColumns).flatMap(column => column.cards).map(card => card.id)} strategy={rectSortingStrategy}>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
-                          {Object.values(kanbanColumns).map(column => (
-                            <div key={column.id} className="space-y-4">
-                              {/* Column Header */}
-                              <div className={`${column.color} rounded-lg p-4 text-white shadow-lg`}>
-                                <div className="flex items-center justify-between">
-                                  <div className="flex items-center gap-2">
-                                    <h3 className="font-semibold text-lg">{column.title}</h3>
-                                    <div className="w-2 h-2 bg-white rounded-full"></div>
-                                  </div>
-                                  <Badge className="bg-white/20 text-white font-medium">{column.cards.length}</Badge>
-                                </div>
-                              </div>
-                              
-                              {/* Column Cards */}
-                              <div 
-                                className="space-y-4 min-h-[200px] bg-[#1f2937]/50 rounded-lg p-4 border border-gray-700 transition-all duration-200 hover:border-gray-600"
-                                data-column-id={column.id}
-                              >
-                                {column.cards.map(card => (
-                                  <SortableCard 
-                                    key={card.id} 
-                                    id={card.id} 
-                                    content={card.content} 
-                                    body={card.body} 
-                                    onClick={card.onClick} 
-                                  />
-                                ))}
-                                {column.cards.length === 0 && (
-                                  <div className="flex items-center justify-center h-32 text-gray-500 border-2 border-dashed border-gray-600 rounded-lg transition-all duration-200 hover:border-blue-500 hover:text-blue-400">
-                                    <div className="text-center">
-                                      <svg className="w-8 h-8 mx-auto mb-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
-                                      </svg>
-                                      <p className="text-sm">Solte um card aqui</p>
-                                    </div>
-                                  </div>
-                                )}
-                              </div>
-                            </div>
                       ))}
                     </div>
                   </SortableContext>
                 </DndContext>
-                  ) : (
-                    /* Layout Grid Original */
-                    <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-                      <SortableContext items={Object.values(kanbanColumns).flatMap(column => column.cards).map(card => card.id)} strategy={rectSortingStrategy}>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
-                          {Object.values(kanbanColumns).flatMap(column => column.cards).map(card => (
-                            <SortableCard 
-                              key={card.id} 
-                              id={card.id} 
-                              content={card.content} 
-                              body={card.body} 
+              ) : (
+                /* Layout Grid Original */
+                <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                  <SortableContext items={Object.values(kanbanColumns).flatMap(column => column.cards).map(card => card.id)} strategy={rectSortingStrategy}>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
+                      {Object.values(kanbanColumns).flatMap(column => column.cards).map(card => (
+                        <SortableCard 
+                          key={card.id} 
+                          id={card.id} 
+                          content={card.content} 
+                          body={card.body} 
+                          onClick={card.onClick} 
+                        />
+                      ))}
+                    </div>
+                  </SortableContext>
+                </DndContext>
+              )}
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-6">
+              <Card className="bg-[#1f2937]">
+                <CardHeader>
+                  <CardTitle className="text-white">Atividade Recente</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {(loadingClientes || loadingRevendas) ? (
+                      <div className="text-gray-400">Carregando atividades...</div>
+                    ) : recentActivityUnified.length === 0 ? (
+                      <div className="text-gray-400">Nenhuma atividade recente encontrada.</div>
+                    ) : recentActivityUnified.map((activity) => (
+                      <div key={activity.id} className="flex items-center space-x-3">
+                        {getActivityIcon(activity.type)}
+                        <div className="flex-1">
+                          <p className="text-sm font-medium text-white">{activity.user}</p>
+                          <p className="text-xs text-gray-400">{activity.time}</p>
+                        </div>
+                        <Badge variant="outline">{activity.status}</Badge>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+              <Card className="bg-[#1f2937]">
+                <CardHeader>
+                  <CardTitle className="text-white">Usuários Online</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {(loadingClientes || loadingRevendas) ? (
+                      <div className="text-gray-400">Carregando usuários online...</div>
+                    ) : onlineUsersUnified.length === 0 ? (
+                      <div className="text-gray-400">Nenhum usuário online no momento.</div>
+                    ) : onlineUsersUnified.map((user) => (
+                      <div key={user.id} className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+                            <span className="text-white text-xs font-medium">
+                              {user.name.split(' ').map(n => n[0]).join('')}
+                            </span>
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium text-white">{user.name}</p>
+                            <p className="text-xs text-gray-400">{user.type}</p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          {getStatusBadge(user.status)}
+                          <p className="text-xs text-gray-400">{user.lastSeen}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </main>
+
+        {/* Modals */}
+        <AIModalManager 
+          activeModal={activeModal} 
+          onClose={handleModalClose} 
+          onAddReseller={handleAddReseller}
+        />
+
+        {/* Modal Customizar Marca */}
+        <Dialog open={brandingModal} onOpenChange={setBrandingModal}>
+          <DialogContent className="max-w-4xl bg-[#232a36] border border-purple-700 text-white p-0">
+            <div className="overflow-y-auto max-h-[80vh]">
+              <AdminBranding />
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Modais dos cards Kanban */}
+        <Dialog open={activeModal === 'iptv_management'} onOpenChange={handleModalClose}>
+          <DialogContent className="max-w-2xl bg-[#232a36] text-white">
+            <DialogHeader>
+              <DialogTitle>Gestão de IPTV</DialogTitle>
+              <DialogDescription>Gerencie canais, servidores e configurações do IPTV</DialogDescription>
+            </DialogHeader>
+            <AdminIPTV />
+          </DialogContent>
+        </Dialog>
+        <Dialog open={activeModal === 'ecommerce_management'} onOpenChange={handleModalClose}>
+          <DialogContent className="max-w-2xl bg-[#232a36] text-white">
+            <DialogHeader>
+              <DialogTitle>Gestão de E-commerce</DialogTitle>
+              <DialogDescription>Gerencie produtos, vendas e configurações da loja</DialogDescription>
+            </DialogHeader>
+            <AdminEcommerce />
+          </DialogContent>
+        </Dialog>
+        <Dialog open={activeModal === 'gamification_management'} onOpenChange={handleModalClose}>
+          <DialogContent className="max-w-2xl bg-[#232a36] text-white">
+            <DialogHeader>
+              <DialogTitle>Gestão de Gamificação</DialogTitle>
+              <DialogDescription>Configure sistema de pontos, badges e recompensas</DialogDescription>
+            </DialogHeader>
+            <AdminGames />
+          </DialogContent>
+        </Dialog>
+        <Dialog open={activeModal === 'analytics_management'} onOpenChange={handleModalClose}>
+          <DialogContent className="max-w-2xl bg-[#232a36] text-white">
+            <DialogHeader>
+              <DialogTitle>Resumo de Analytics</DialogTitle>
+              <DialogDescription>Visualize métricas e estatísticas do sistema</DialogDescription>
+            </DialogHeader>
+            <AdminAnalytics />
+          </DialogContent>
+        </Dialog>
+        <Dialog open={activeModal === 'ai_voice_config'} onOpenChange={handleModalClose}>
+          <DialogContent className="max-w-2xl bg-[#232a36] text-white">
+            <DialogHeader>
+              <DialogTitle>Configurações de IA + Voz</DialogTitle>
+              <DialogDescription>Configure assistente de voz e inteligência artificial</DialogDescription>
+            </DialogHeader>
+            <AdminAI />
+          </DialogContent>
+        </Dialog>
+        <Dialog open={activeModal === 'branding_management'} onOpenChange={handleModalClose}>
+          <DialogContent className="max-w-2xl bg-[#232a36] text-white">
+            <DialogHeader>
+              <DialogTitle>Customizar Marca</DialogTitle>
+              <DialogDescription>Personalize a identidade visual da plataforma</DialogDescription>
+            </DialogHeader>
+            <AdminBranding />
+          </DialogContent>
+        </Dialog>
+
+        {/* Modais para cada card */}
+        <Dialog open={activeModal === 'iptv'} onOpenChange={() => setActiveModal(null)}>
+          <DialogContent className="bg-[#1f2937] text-white max-w-2xl w-full p-0 rounded-xl shadow-xl border border-gray-700 flex flex-col items-center justify-center max-h-[80vh] overflow-y-auto scrollbar-hide">
+            <DialogHeader className="sr-only">
+              <DialogTitle>Sistema IPTV</DialogTitle>
+              <DialogDescription>Gerencie canais, servidores e configurações do IPTV</DialogDescription>
+            </DialogHeader>
+            <div className="p-6 w-full flex flex-col items-center">
+              <h2 className="text-2xl font-bold mb-2 text-center">Sistema IPTV</h2>
+              <p className="text-gray-400 mb-4 text-center">Gerencie canais, servidores e configurações do IPTV.</p>
+              <div className="w-full max-w-lg space-y-2 mb-4">
+                <div className="flex justify-between"><span className="text-gray-300">Servidor:</span><span className="font-semibold">SaaS Pro IPTV</span></div>
+                <div className="flex justify-between"><span className="text-gray-300">URL:</span><span className="font-semibold">http://iptv.saaspro.com.br</span></div>
+                <div className="flex justify-between"><span className="text-gray-300">Máx. Conexões:</span><span className="font-semibold">5</span></div>
+                <div className="flex justify-between"><span className="text-gray-300">Filmes:</span><span className="font-semibold text-green-400">Ativado</span></div>
+                <div className="flex justify-between"><span className="text-gray-300">Séries:</span><span className="font-semibold text-green-400">Ativado</span></div>
+                <div className="flex justify-between"><span className="text-gray-300">TV ao Vivo:</span><span className="font-semibold text-green-400">Ativado</span></div>
+              </div>
+              <div className="w-full max-w-lg mb-4 flex gap-4 justify-center">
+                <div className="flex flex-col items-center">
+                  <span className="text-xs text-gray-400 mb-1">Logo</span>
+                  <div className="w-16 h-16 bg-gray-800 rounded flex items-center justify-center">
+                    <span className="text-gray-500">Logo</span>
+                  </div>
+                </div>
+                <div className="flex flex-col items-center">
+                  <span className="text-xs text-gray-400 mb-1">Favicon</span>
+                  <div className="w-10 h-10 bg-gray-800 rounded flex items-center justify-center">
+                    <span className="text-gray-500">Favicon</span>
+                  </div>
+                </div>
+              </div>
+              <div className="w-full max-w-lg mb-4">
+                <h3 className="text-lg font-semibold mb-2">Canais</h3>
+                <div className="overflow-x-auto rounded border border-gray-700">
+                  <table className="min-w-full text-sm text-left">
+                    <thead className="bg-[#23272f]">
+                      <tr>
+                        <th className="px-2 py-1 text-gray-400 font-medium">Nome</th>
+                        <th className="px-2 py-1 text-gray-400 font-medium">Categoria</th>
+                        <th className="px-2 py-1 text-gray-400 font-medium">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr className="border-t border-gray-700">
+                        <td className="px-2 py-1">Globo</td>
+                        <td className="px-2 py-1">Entretenimento</td>
+                        <td className="px-2 py-1"><span className="text-green-400">Ativo</span></td>
+                      </tr>
+                      <tr className="border-t border-gray-700">
+                        <td className="px-2 py-1">SBT</td>
+                        <td className="px-2 py-1">Entretenimento</td>
+                        <td className="px-2 py-1"><span className="text-green-400">Ativo</span></td>
+                      </tr>
+                      <tr className="border-t border-gray-700">
+                        <td className="px-2 py-1">Record</td>
+                        <td className="px-2 py-1">Entretenimento</td>
+                        <td className="px-2 py-1"><span className="text-red-400">Inativo</span></td>
+                      </tr>
+                      <tr className="border-t border-gray-700">
+                        <td className="px-2 py-1">Band</td>
+                        <td className="px-2 py-1">Entretenimento</td>
+                        <td className="px-2 py-1"><span className="text-green-400">Ativo</span></td>
+                      </tr>
+                      <tr className="border-t border-gray-700">
+                        <td className="px-2 py-1">CNN Brasil</td>
+                        <td className="px-2 py-1">Notícias</td>
+                        <td className="px-2 py-1"><span className="text-green-400">Ativo</span></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              <Button className="mt-2 bg-purple-600 hover:bg-purple-700 text-white w-40" onClick={() => setActiveModal(null)}>Fechar</Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+        <Dialog open={activeModal === 'branding'} onOpenChange={() => setActiveModal(null)}>
+          <DialogContent className="bg-[#1f2937] text-white max-w-2xl w-full p-0 rounded-xl shadow-xl border border-gray-700 flex flex-col items-center justify-center max-h-[80vh] overflow-y-auto scrollbar-hide">
+            <DialogHeader className="sr-only">
+              <DialogTitle>Customizar Marca</DialogTitle>
+              <DialogDescription>Personalize a aparência, identidade visual e configurações white label da sua plataforma</DialogDescription>
+            </DialogHeader>
+            <div className="p-6 w-full flex flex-col items-center">
+              <h2 className="text-2xl font-bold mb-2 text-center">Customizar Marca</h2>
+              <p className="text-gray-400 mb-4 text-center">Personalize a aparência, identidade visual e configurações white label da sua plataforma.</p>
+              <div className="w-full max-w-lg space-y-2 mb-4">
+                <div className="flex justify-between"><span className="text-gray-300">Empresa:</span><span className="font-semibold">Sua Empresa Ltda</span></div>
+                <div className="flex justify-between"><span className="text-gray-300">Slogan:</span><span className="font-semibold">Seu slogan aqui</span></div>
+                <div className="flex justify-between"><span className="text-gray-300">Website:</span><span className="font-semibold">https://suaempresa.com</span></div>
+                <div className="flex justify-between"><span className="text-gray-300">E-mail:</span><span className="font-semibold">contato@suaempresa.com</span></div>
+                <div className="flex justify-between"><span className="text-gray-300">Telefone:</span><span className="font-semibold">99999-9999</span></div>
+              </div>
+              <div className="w-full max-w-lg mb-4 flex gap-4 justify-center">
+                <div className="flex flex-col items-center">
+                  <span className="text-xs text-gray-400 mb-1">Logo</span>
+                  <div className="w-16 h-16 bg-gray-800 rounded flex items-center justify-center">
+                    <span className="text-gray-500">Logo</span>
+                  </div>
+                </div>
+                <div className="flex flex-col items-center">
+                  <span className="text-xs text-gray-400 mb-1">Favicon</span>
+                  <div className="w-10 h-10 bg-gray-800 rounded flex items-center justify-center">
+                    <span className="text-gray-500">Favicon</span>
+                  </div>
+                </div>
+              </div>
+              <div className="w-full max-w-lg mb-4">
+                <h3 className="text-lg font-semibold mb-2">Preview</h3>
+                <div className="bg-[#181e29] rounded-lg p-4 flex flex-col items-center">
+                  <div className="flex gap-2 mb-2">
+                    <div className="w-4 h-4 rounded-full bg-gray-400" />
+                    <div className="w-4 h-4 rounded-full bg-gray-600" />
+                  </div>
+                  <span className="text-white font-bold">Sua Empresa Ltda</span>
+                  <span className="text-gray-400 text-xs">Seu slogan aqui</span>
+                </div>
+              </div>
+              <Button className="mt-2 bg-blue-600 hover:bg-blue-700 text-white w-40" onClick={() => setActiveModal(null)}>Fechar</Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+        <Dialog open={activeModal === 'ecommerce'} onOpenChange={() => setActiveModal(null)}>
+          <DialogContent className="bg-[#1f2937] text-white max-w-2xl w-full p-0 rounded-xl shadow-xl border border-gray-700 flex flex-col items-center justify-center max-h-[80vh] overflow-y-auto scrollbar-hide">
+            <DialogHeader className="sr-only">
+              <DialogTitle>E-commerce</DialogTitle>
+              <DialogDescription>Gerencie produtos, vendas e configurações da loja</DialogDescription>
+            </DialogHeader>
+            <div className="p-6 w-full flex flex-col items-center">
+              <h2 className="text-2xl font-bold mb-2 text-center">E-commerce</h2>
+              <p className="text-gray-400 mb-4 text-center">Gerencie produtos, vendas e configurações da loja.</p>
+              <div className="w-full max-w-lg space-y-2 mb-4">
+                <div className="flex justify-between"><span className="text-gray-300">Loja:</span><span className="font-semibold">SaaS Pro Store</span></div>
+                <div className="flex justify-between"><span className="text-gray-300">Moeda:</span><span className="font-semibold">BRL</span></div>
+                <div className="flex justify-between"><span className="text-gray-300">Taxa de Imposto:</span><span className="font-semibold">10%</span></div>
+                <div className="flex justify-between"><span className="text-gray-300">Avaliações:</span><span className="font-semibold text-green-400">Ativado</span></div>
+                <div className="flex justify-between"><span className="text-gray-300">Lista de Desejos:</span><span className="font-semibold text-green-400">Ativado</span></div>
+                <div className="flex justify-between"><span className="text-gray-300">Cupons:</span><span className="font-semibold text-green-400">Ativado</span></div>
+                <div className="flex justify-between"><span className="text-gray-300">Estoque Automático:</span><span className="font-semibold text-green-400">Ativado</span></div>
+              </div>
+              <div className="w-full max-w-lg mb-4">
+                <h3 className="text-lg font-semibold mb-2">Produtos</h3>
                               onClick={card.onClick} 
                             />
                           ))}
