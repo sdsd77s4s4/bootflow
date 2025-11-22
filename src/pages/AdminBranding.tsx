@@ -37,6 +37,41 @@ const initialDashboards = [
   },
 ];
 
+type Dashboard = {
+  id: number;
+  name: string;
+  layout: string;
+  widgets: string[];
+  order: string[];
+  realtime: boolean;
+  color: string;
+};
+
+type PageComponent = {
+  id: string;
+  type: string;
+  props: Record<string, unknown>;
+};
+
+type Page = {
+  id?: number;
+  title: string;
+  slug: string;
+  description: string;
+  content: string;
+  type: string;
+  backgroundColor: string;
+  textColor: string;
+  primaryColor: string;
+  showHeader: boolean;
+  showFooter: boolean;
+  customCSS: string;
+  metaTitle: string;
+  metaDescription: string;
+  isPublished: boolean;
+  components: PageComponent[];
+};
+
 type Site = {
   id: number;
   name: string;
@@ -60,10 +95,10 @@ const AdminBranding: React.FC = () => {
   const [faviconModal, setFaviconModal] = useState(false);
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [faviconFile, setFaviconFile] = useState<File | null>(null);
-  const [dashboards, setDashboards] = useState(initialDashboards);
+  const [dashboards, setDashboards] = useState<Dashboard[]>(initialDashboards as Dashboard[]);
   const [dashboardModal, setDashboardModal] = useState(false);
-  const [editingDashboard, setEditingDashboard] = useState<any>(null);
-  const [viewingDashboard, setViewingDashboard] = useState<any>(null);
+  const [editingDashboard, setEditingDashboard] = useState<Dashboard | null>(null);
+  const [viewingDashboard, setViewingDashboard] = useState<Dashboard | null>(null);
   const [dashboardForm, setDashboardForm] = useState({
     name: '',
     layout: 'Padrão',
@@ -74,10 +109,10 @@ const AdminBranding: React.FC = () => {
   });
   
   // Estados para páginas personalizadas
-  const [customPages, setCustomPages] = useState<any[]>([]);
+  const [customPages, setCustomPages] = useState<Page[]>([]);
   const [pageModal, setPageModal] = useState(false);
-  const [editingPage, setEditingPage] = useState<any>(null);
-  const [viewingPage, setViewingPage] = useState<any>(null);
+  const [editingPage, setEditingPage] = useState<Page | null>(null);
+  const [viewingPage, setViewingPage] = useState<Page | null>(null);
   const [pageForm, setPageForm] = useState({
     title: '',
     slug: '',
@@ -93,11 +128,11 @@ const AdminBranding: React.FC = () => {
     metaTitle: '',
     metaDescription: '',
     isPublished: false,
-    components: [] as any[], // Array de componentes do page builder
+    components: [] as PageComponent[], // Array de componentes do page builder
   });
   
   const [builderMode, setBuilderMode] = useState(false);
-  const [selectedComponent, setSelectedComponent] = useState<any>(null);
+  const [selectedComponent, setSelectedComponent] = useState<PageComponent | null>(null);
   
   // Hooks para dados reais
   const { stats } = useDashboardData();
@@ -277,7 +312,8 @@ const AdminBranding: React.FC = () => {
     });
     setDashboardModal(true);
   };
-  const openEditDashboard = (db: any) => {
+  const openEditDashboard = (db: Dashboard | null) => {
+    if (!db) return;
     setEditingDashboard(db);
     setDashboardForm({
       name: db.name,
