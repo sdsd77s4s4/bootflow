@@ -1296,7 +1296,7 @@ const AdminDashboard = () => {
     return (
       <div 
         ref={setNodeRef} 
-        style={style} 
+        style={style} // eslint-disable-line no-inline-styles
         {...attributes} 
         className="select-none touch-manipulation"
         data-card-id={id}
@@ -3760,7 +3760,7 @@ const AdminDashboard = () => {
                 {/* Servidores */}
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-white">Servidores (Opcional)</label>
-                  <select className="w-full bg-[#23272f] border border-gray-600 text-white rounded-md px-3 py-2 focus:border-blue-500 focus:outline-none">
+                  <select title="Servidores" className="w-full bg-[#23272f] border border-gray-600 text-white rounded-md px-3 py-2 focus:border-blue-500 focus:outline-none">
                     <option value="">Opcional</option>
                     <option value="server1">Servidor 1</option>
                     <option value="server2">Servidor 2</option>
