@@ -1299,9 +1299,10 @@ const AdminDashboard = () => {
     };
     
     return (
+      /* eslint-disable no-inline-styles */
       <div 
         ref={setNodeRef} 
-        style={style} // eslint-disable-line no-inline-styles
+        style={style}
         {...attributes} 
         className="select-none touch-manipulation"
         data-card-id={id}
