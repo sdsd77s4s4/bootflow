@@ -1343,7 +1343,7 @@ const AdminBranding: React.FC = () => {
             <div className="space-y-2">
               <Label className="text-gray-300">Título</Label>
               <Input
-                value={config.title || ''}
+                value={(config.title as string) || ''}
                 onChange={(e) => updateConfig('title', e.target.value)}
                 className="bg-gray-900 border-gray-700 text-white"
                 title="Título da métrica"
@@ -1352,7 +1352,7 @@ const AdminBranding: React.FC = () => {
             <div className="space-y-2">
               <Label className="text-gray-300">Valor</Label>
               <Input
-                value={config.value || ''}
+                value={(config.value as string | number) || ''}
                 onChange={(e) => updateConfig('value', e.target.value)}
                 className="bg-gray-900 border-gray-700 text-white"
                 title="Valor da métrica"
@@ -1361,7 +1361,7 @@ const AdminBranding: React.FC = () => {
             <div className="space-y-2">
               <Label className="text-gray-300">Label</Label>
               <Input
-                value={config.label || ''}
+                value={(config.label as string) || ''}
                 onChange={(e) => updateConfig('label', e.target.value)}
                 className="bg-gray-900 border-gray-700 text-white"
                 title="Rótulo da métrica"
@@ -1372,13 +1372,13 @@ const AdminBranding: React.FC = () => {
               <div className="flex gap-2">
                 <input
                   type="color"
-                  value={config.color || pageForm.primaryColor}
+                  value={(config.color as string) || pageForm.primaryColor}
                   onChange={(e) => updateConfig('color', e.target.value)}
                   className="w-12 h-10 rounded border border-gray-700"
                   title="Selecionar cor"
                 />
                 <Input
-                  value={config.color || pageForm.primaryColor}
+                  value={(config.color as string) || pageForm.primaryColor}
                   onChange={(e) => updateConfig('color', e.target.value)}
                   className="flex-1 bg-gray-900 border-gray-700 text-white"
                   title="Hex da cor"
@@ -1394,7 +1394,7 @@ const AdminBranding: React.FC = () => {
             <div className="space-y-2">
               <Label className="text-gray-300">Colunas</Label>
               <select
-                value={config.columns || 3}
+                value={(config.columns as number) || 3}
                 onChange={(e) => updateConfig('columns', parseInt(e.target.value))}
                 className="w-full bg-gray-900 border border-gray-700 text-white rounded px-3 py-2"
                 title="Número de colunas"
@@ -1411,9 +1411,9 @@ const AdminBranding: React.FC = () => {
                   <label key={metric} className="flex items-center gap-2 text-sm text-gray-300">
                     <input
                       type="checkbox"
-                      checked={config.metrics?.includes(metric) || false}
+                      checked={(config.metrics as string[])?.includes(metric) || false}
                       onChange={(e) => {
-                        const current = config.metrics || [];
+                        const current = (config.metrics as string[]) || [];
                         const updated = e.target.checked
                           ? [...current, metric]
                           : current.filter((m: string) => m !== metric);
@@ -1435,7 +1435,7 @@ const AdminBranding: React.FC = () => {
             <div className="space-y-2">
               <Label className="text-gray-300">Texto</Label>
               <Input
-                value={config.text || ''}
+                value={(config.text as string) || ''}
                 onChange={(e) => updateConfig('text', e.target.value)}
                 className="bg-gray-900 border-gray-700 text-white"
                 title="Texto do botão"
@@ -1444,7 +1444,7 @@ const AdminBranding: React.FC = () => {
             <div className="space-y-2">
               <Label className="text-gray-300">Variante</Label>
               <select
-                value={config.variant || 'primary'}
+                value={(config.variant as string) || 'primary'}
                 onChange={(e) => updateConfig('variant', e.target.value)}
                 className="w-full bg-gray-900 border border-gray-700 text-white rounded px-3 py-2"
                 title="Variante do botão"
@@ -1457,7 +1457,7 @@ const AdminBranding: React.FC = () => {
             <div className="space-y-2">
               <Label className="text-gray-300">Link (URL)</Label>
               <Input
-                value={config.link || ''}
+                value={(config.link as string) || ''}
                 onChange={(e) => updateConfig('link', e.target.value)}
                 className="bg-gray-900 border-gray-700 text-white"
                 placeholder="https://..."
@@ -1482,7 +1482,7 @@ const AdminBranding: React.FC = () => {
             <div className="space-y-2">
               <Label className="text-gray-300">Tamanho</Label>
               <select
-                value={config.size || 'medium'}
+                value={(config.size as string) || 'medium'}
                 onChange={(e) => updateConfig('size', e.target.value)}
                 className="w-full bg-gray-900 border border-gray-700 text-white rounded px-3 py-2"
                 title="Tamanho do texto"
@@ -1496,7 +1496,7 @@ const AdminBranding: React.FC = () => {
             <div className="space-y-2">
               <Label className="text-gray-300">Alinhamento</Label>
               <select
-                value={config.align || 'left'}
+                value={(config.align as string) || 'left'}
                 onChange={(e) => updateConfig('align', e.target.value)}
                 className="w-full bg-gray-900 border border-gray-700 text-white rounded px-3 py-2"
                 title="Alinhamento do texto"
