@@ -321,7 +321,7 @@ const AdminDashboard = () => {
     return prices[plan] || [];
   };
 
-  const normalizarDataDeExpiracao = useCallback((cliente: any) => {
+  const normalizarDataDeExpiracao = useCallback((cliente: TableRow<'clientes'>) => {
     const rawValue =
       cliente?.expiration_date ??
       cliente?.expirationDate ??
