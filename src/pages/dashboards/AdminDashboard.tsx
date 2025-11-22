@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { useClientes } from '@/hooks/useClientes';
 import { useRevendas } from '@/hooks/useRevendas';
 import { useRealtimeClientes, useRealtimeRevendas } from '@/hooks/useRealtime';
+import type { TableRow } from '@/types/supabase.types';
 import useDashboardData from '@/hooks/useDashboardData';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
@@ -175,8 +176,8 @@ const AdminDashboard = () => {
   const { revendas: revendasFromHook, fetchRevendas } = useRevendas();
   
   // Estados locais para os dados
-  const [clientes, setClientes] = useState<any[]>([]);
-  const [revendas, setRevendas] = useState<any[]>([]);
+  const [clientes, setClientes] = useState<TableRow<'clientes'>[]>([]);
+  const [revendas, setRevendas] = useState<TableRow<'revendas'>[]>([]);
   const [loadingClientes, setLoadingClientes] = useState(true);
   const [loadingRevendas, setLoadingRevendas] = useState(true);
   
@@ -190,26 +191,26 @@ const AdminDashboard = () => {
     // Filtrar por admin_id se houver admin logado (garantir que apenas dados do admin sejam exibidos)
     if (user?.id) {
       if (clientesToUse && Array.isArray(clientesToUse)) {
-        clientesToUse = clientesToUse.filter((cliente: any) => {
+        clientesToUse = clientesToUse.filter((cliente: TableRow<'clientes'>) => {
           return cliente.admin_id === user.id || cliente.admin_id === null || cliente.admin_id === undefined;
-        }) as unknown as any[];
+        }) as unknown as TableRow<'clientes'>[];
       }
       if (revendasToUse && Array.isArray(revendasToUse)) {
-        revendasToUse = revendasToUse.filter((revenda: any) => {
+        revendasToUse = revendasToUse.filter((revenda: TableRow<'revendas'>) => {
           return revenda.admin_id === user.id || revenda.admin_id === null || revenda.admin_id === undefined;
-        }) as unknown as any[];
+        }) as unknown as TableRow<'revendas'>[];
       }
       console.log('🔄 [AdminDashboard] Dados filtrados por admin_id:', user.id, 'Clientes:', clientesToUse?.length, 'Revendas:', revendasToUse?.length);
     }
     
     if (clientesToUse) {
-      setClientes(clientesToUse as unknown as any[]);
+      setClientes(clientesToUse as unknown as TableRow<'clientes'>[]);
       setLoadingClientes(false);
     }
     
     if (revendasToUse) {
       console.log('✅ [AdminDashboard] Atualizando estado revendas com', revendasToUse.length, 'revendedores');
-      setRevendas(revendasToUse as unknown as any[]);
+      setRevendas(revendasToUse as unknown as TableRow<'revendas'>[]);
       setLoadingRevendas(false);
     }
   }, [realtimeClientes, realtimeRevendas, clientesFromHook, revendasFromHook, user?.id]);
