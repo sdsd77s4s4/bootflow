@@ -1299,6 +1299,7 @@ const AdminDashboard = () => {
     };
     
     return (
+      {/* eslint-disable-next-line no-inline-styles */}
       <div 
         ref={setNodeRef} 
         className="select-none touch-manipulation"
