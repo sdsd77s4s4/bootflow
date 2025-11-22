@@ -3724,7 +3724,7 @@ const AdminDashboard = () => {
                     <label className="text-sm font-medium text-white">
                       Permissão <span className="text-red-500">*</span>
                     </label>
-                    <select className="w-full bg-[#23272f] border border-gray-600 text-white rounded-md px-3 py-2 focus:border-blue-500 focus:outline-none">
+                    <select title="Permissão" className="w-full bg-[#23272f] border border-gray-600 text-white rounded-md px-3 py-2 focus:border-blue-500 focus:outline-none">
                       <option value="">Selecione</option>
                       <option value="admin">Administrador</option>
                       <option value="reseller">Revendedor</option>
