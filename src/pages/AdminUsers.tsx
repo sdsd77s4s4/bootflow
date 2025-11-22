@@ -1118,6 +1118,7 @@ export default function AdminUsers() {
                           Plano *
                         </label>
                         <select
+                          title="Plano"
                           className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
                           value={newUser.plan}
                           onChange={(e) =>
@@ -1139,6 +1140,7 @@ export default function AdminUsers() {
                             Preço *
                           </label>
                           <select
+                            title="Preço"
                             className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
                             value={newUser.price}
                             onChange={(e) =>
@@ -1188,6 +1190,7 @@ export default function AdminUsers() {
                           Status *
                         </label>
                         <select
+                          title="Status"
                           className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
                           value={newUser.status}
                           onChange={(e) =>
@@ -2024,6 +2027,7 @@ export default function AdminUsers() {
                         Plano *
                       </label>
                       <select
+                        title="Plano"
                         className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
                         value={editingUser.plan}
                         onChange={(e) =>
@@ -2049,6 +2053,7 @@ export default function AdminUsers() {
                           Preço *
                         </label>
                         <select
+                          title="Preço"
                           className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
                           value={editingUser.price}
                           onChange={(e) =>
@@ -2275,7 +2280,7 @@ export default function AdminUsers() {
                       <label className="block text-gray-300 mb-1 font-medium">
                         Classe de Serviço
                       </label>
-                      <select className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2">
+                      <select title="Classe de Serviço" className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2">
                         <option value="">Selecione</option>
                         <option value="basico">Básico</option>
                         <option value="premium">Premium</option>
@@ -2286,7 +2291,7 @@ export default function AdminUsers() {
                       <label className="block text-gray-300 mb-1 font-medium">
                         Plano
                       </label>
-                      <select className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2">
+                      <select title="Plano" className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2">
                         <option value="mensal">Mensal</option>
                         <option value="anual">Anual</option>
                       </select>
