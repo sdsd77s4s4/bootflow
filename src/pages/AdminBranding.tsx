@@ -14,6 +14,47 @@ import useDashboardData from '@/hooks/useDashboardData';
 import { useClientes } from '@/hooks/useClientes';
 import "./AdminBranding.css";
 
+// Utility: generate a unique CSS class that applies dynamic color values without using JSX inline `style`.
+function ensureColorClass(color?: string) {
+  if (!color) return '';
+  try {
+    const safe = color.replace(/[^a-zA-Z0-9_-]/g, '').toLowerCase();
+    const id = `brand-color-${safe}`;
+    if (!document.getElementById(id)) {
+      const style = document.createElement('style');
+      style.id = id;
+      style.innerHTML = `
+        .${id} { --dashboard-color: ${color}; }
+        .${id}.bg-dynamic { background-color: var(--dashboard-color) !important; }
+        .${id}.text-dynamic { color: var(--dashboard-color) !important; }
+        .${id}.border-dynamic { border-color: var(--dashboard-color) !important; }
+        .${id}.border-top-dynamic { border-top-color: var(--dashboard-color) !important; }
+        .${id} .icon-color { color: var(--dashboard-color) !important; }
+      `;
+      document.head.appendChild(style);
+    }
+    return id;
+  } catch (e) {
+    return '';
+  }
+}
+
+function ensureDualColorClass(bg?: string, text?: string) {
+  if (!bg && !text) return '';
+  const bgSafe = (bg || '').replace(/[^a-zA-Z0-9_-]/g, '').toLowerCase() || 'bg';
+  const textSafe = (text || '').replace(/[^a-zA-Z0-9_-]/g, '').toLowerCase() || 'txt';
+  const id = `brand-style-${bgSafe}-${textSafe}`;
+  if (!document.getElementById(id)) {
+    const style = document.createElement('style');
+    style.id = id;
+    style.innerHTML = `
+      .${id} { ${bg ? `background-color: ${bg} !important;` : ''} ${text ? `color: ${text} !important;` : ''} }
+    `;
+    document.head.appendChild(style);
+  }
+  return id;
+}
+
 const initialBrand = {
   name: 'Sua Empresa Ltda',
   slogan: 'Seu slogan aqui',
@@ -457,13 +498,12 @@ const AdminBranding: React.FC = () => {
     return (
       <Card 
         key={index}
-        className="bg-[#181e29] border border-gray-700 hover:border-purple-500 transition-all"
-        style={{ borderTopColor: viewingDashboard?.color }}
+        className={`bg-[#181e29] border border-gray-700 hover:border-purple-500 transition-all ${viewingDashboard?.color ? ensureColorClass(viewingDashboard.color) + ' border-top-dynamic' : ''}`}
       >
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Icon className="w-5 h-5" style={{ color: viewingDashboard?.color }} />
+              <Icon className="w-5 h-5 icon-color" />
               <CardTitle className="text-white text-base">{widgetName}</CardTitle>
             </div>
             {viewingDashboard?.realtime && (
@@ -473,9 +513,9 @@ const AdminBranding: React.FC = () => {
             )}
           </div>
         </CardHeader>
-        <CardContent style={{ '--dashboard-color': viewingDashboard?.color } as React.CSSProperties}>
+        <CardContent>
           <div className="space-y-2">
-            <div className="text-3xl font-bold" style={{ color: 'var(--dashboard-color)' }}>
+            <div className={`text-3xl font-bold ${viewingDashboard?.color ? ensureColorClass(viewingDashboard.color) + ' text-dynamic' : ''}`}>
               {data.value}
             </div>
             <div className="text-sm text-gray-400">{data.label}</div>
