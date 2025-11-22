@@ -2291,6 +2291,7 @@ export default function ClientClients() {
                           })
                         }
                         className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
+                        title="Selecionar status do usuário"
                       >
                         <option value="Ativo">Ativo</option>
                         <option value="Inativo">Inativo</option>
