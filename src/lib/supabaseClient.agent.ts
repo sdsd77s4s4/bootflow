@@ -39,6 +39,19 @@ class AgentSupabaseCache {
   }
 }
 
+/**
+ * Safely extract a readable message from an unknown error value.
+ */
+export const getErrorMessage = (error: unknown): string => {
+  if (error instanceof Error) return error.message;
+  if (typeof error === 'string') return error;
+  try {
+    return JSON.stringify(error) || 'Erro desconhecido';
+  } catch {
+    return 'Erro desconhecido';
+  }
+};
+
 export interface AgentSupabaseClient {
   client: SupabaseClient;
   cache: AgentSupabaseCache;
@@ -136,7 +149,7 @@ export const createAgentSupabaseClient = (options?: AgentSupabaseOptions): Agent
   const listenRealtime = <T = unknown>(channel: string, event: string, callback: (payload: T) => void) => {
     const subscription = client
       .channel(channel, { config: { broadcast: { ack: true } } })
-      .on(event as any, (payload) => callback(payload.payload as T))
+      .on(event as any, (payload) => callback((payload as unknown as { payload: T }).payload))
       .subscribe((status) => {
         if (status === 'SUBSCRIBED') {
           console.info(`[AgentSupabase] Listening ${channel} for event ${event}`);
