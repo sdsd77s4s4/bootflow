@@ -262,7 +262,7 @@ const NotificacoesContent = ({ notificacoes, setNotificacoes }: { notificacoes: 
   );
 };
 
-const IntegracoesContent = ({ integracoes, setIntegracoes, modalIntegracao, setModalIntegracao }: { integracoes: any, setIntegracoes: any, modalIntegracao: string | null, setModalIntegracao: any }) => {
+const IntegracoesContent = ({ integracoes, setIntegracoes, modalIntegracao, setModalIntegracao }: { integracoes: Integracoes, setIntegracoes: React.Dispatch<React.SetStateAction<Integracoes>>, modalIntegracao: string | null, setModalIntegracao: React.Dispatch<React.SetStateAction<string | null>> }) => {
   return (
     <div className="bg-gradient-to-br from-purple-900/50 to-purple-800/30 rounded-xl p-6 border border-purple-700/40 mt-4">
       <h2 className="text-xl font-bold text-white mb-2">Integrações</h2>
@@ -306,7 +306,7 @@ const IntegracoesContent = ({ integracoes, setIntegracoes, modalIntegracao, setM
           <Button 
             className="bg-[#7e22ce] hover:bg-[#6d1bb7] text-white" 
             onClick={() => { 
-              setIntegracoes((i: any) => ({ ...i, [modalIntegracao!]: !i[modalIntegracao!] })); 
+              setIntegracoes((i: Integracoes) => ({ ...i, [modalIntegracao!]: !i[modalIntegracao!] })); 
               setModalIntegracao(null); 
             }}
             aria-label={`${integracoes[modalIntegracao!] ? 'Desconectar' : 'Conectar'} a integração`}
@@ -319,7 +319,7 @@ const IntegracoesContent = ({ integracoes, setIntegracoes, modalIntegracao, setM
   );
 };
 
-const FaturamentoContent = ({ plano, faturas }: { plano: string, faturas: any[] }) => {
+const FaturamentoContent = ({ plano, faturas }: { plano: string, faturas: Fatura[] }) => {
   return (
     <div className="bg-gradient-to-br from-purple-900/50 to-purple-800/30 rounded-xl p-6 border border-purple-700/40 mt-4">
       <h2 className="text-xl font-bold text-white mb-2">Faturamento</h2>
@@ -361,7 +361,7 @@ const FaturamentoContent = ({ plano, faturas }: { plano: string, faturas: any[] 
   );
 };
 
-const SegurancaContent = ({ senha, setSenha, modal2FA, setModal2FA, modalExcluir, setModalExcluir }: { senha: any, setSenha: any, modal2FA: boolean, setModal2FA: any, modalExcluir: boolean, setModalExcluir: any }) => {
+const SegurancaContent = ({ senha, setSenha, modal2FA, setModal2FA, modalExcluir, setModalExcluir }: { senha: Senha, setSenha: React.Dispatch<React.SetStateAction<Senha>>, modal2FA: boolean, setModal2FA: React.Dispatch<React.SetStateAction<boolean>>, modalExcluir: boolean, setModalExcluir: React.Dispatch<React.SetStateAction<boolean>> }) => {
   return (
     <div className="bg-gradient-to-br from-purple-900/50 to-purple-800/30 rounded-xl p-6 border border-purple-700/40 mt-4">
       <h2 className="text-xl font-bold text-white mb-2">Segurança</h2>
