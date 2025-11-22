@@ -1284,13 +1284,13 @@ const AdminDashboard = () => {
     };
     
     
-    const localRef = React.useRef<HTMLDivElement | null>(null);
+    const localRef = useRef<HTMLDivElement | null>(null);
     const assignRef = (node: HTMLDivElement | null) => {
       setNodeRef(node);
       localRef.current = node;
     };
 
-    React.useEffect(() => {
+    useEffect(() => {
       const node = localRef.current;
       if (!node) return;
       try {
