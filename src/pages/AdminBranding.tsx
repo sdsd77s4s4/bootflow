@@ -791,10 +791,11 @@ const AdminBranding: React.FC = () => {
       }
 
       case 'stats-grid': {
-        const gridCols = config.columns === 2 ? 'grid-cols-2' : config.columns === 4 ? 'grid-cols-4' : 'grid-cols-3';
+        const statsConfig = config as Record<string, unknown>;
+        const gridCols = (statsConfig.columns as number) === 2 ? 'grid-cols-2' : (statsConfig.columns as number) === 4 ? 'grid-cols-4' : 'grid-cols-3';
         return (
           <div className={`grid ${gridCols} gap-4`}>
-            {config.metrics?.map((metric: string, idx: number) => {
+            {(statsConfig.metrics as string[])?.map((metric: string, idx: number) => {
               const metricData: Record<string, { value: string | number; label: string; icon: React.ComponentType<Record<string, unknown>> }> = {
                 totalUsers: { value: stats?.totalUsers || 0, label: 'Total de Usuários', icon: Users },
                 totalRevenue: { value: `R$ ${stats?.totalRevenue?.toLocaleString('pt-BR') || '0'}`, label: 'Receita Total', icon: DollarSign },
@@ -820,7 +821,8 @@ const AdminBranding: React.FC = () => {
         );
 
       }
-      case 'revenue-card':
+      case 'revenue-card': {
+        const revenueConfig = config as Record<string, unknown>;
         return (
           <Card className="bg-gradient-to-br from-green-900/30 to-green-800/20 border border-green-700">
             <CardHeader>
@@ -830,7 +832,7 @@ const AdminBranding: React.FC = () => {
               <div className="text-4xl font-bold text-white mb-2">
                 R$ {stats?.totalRevenue?.toLocaleString('pt-BR') || '0'}
               </div>
-              {config.showGrowth && (
+              {revenueConfig.showGrowth && (
                 <div className="text-sm text-green-400 flex items-center gap-1">
                   <TrendingUp className="w-4 h-4" />
                   Crescimento este mês
@@ -839,8 +841,10 @@ const AdminBranding: React.FC = () => {
             </CardContent>
           </Card>
         );
+      }
 
-      case 'users-table':
+      case 'users-table': {
+        const usersConfig = config as Record<string, unknown>;
         return (
           <Card className="bg-[#181e29] border border-gray-700">
             <CardHeader>
@@ -857,7 +861,7 @@ const AdminBranding: React.FC = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {clientes.slice(0, (config.pageSize as number) || 5).map((cliente: { name?: string; email?: string; status?: string }, idx: number) => (
+                    {clientes.slice(0, (usersConfig.pageSize as number) || 5).map((cliente: { name?: string; email?: string; status?: string }, idx: number) => (
                       <tr key={idx} className="border-b border-gray-800">
                         <td className="p-2 text-white">{cliente.name || 'N/A'}</td>
                         <td className="p-2 text-gray-400">{cliente.email || 'N/A'}</td>
@@ -874,24 +878,27 @@ const AdminBranding: React.FC = () => {
             </CardContent>
           </Card>
         );
+      }
 
-      case 'chart':
+      case 'chart': {
+        const chartConfig = config as Record<string, unknown>;
         return (
           <Card className="bg-[#181e29] border border-gray-700">
             <CardHeader>
-              <CardTitle className="text-white">Gráfico - {config.type || 'Line'}</CardTitle>
+              <CardTitle className="text-white">Gráfico - {chartConfig.type as string || 'Line'}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="h-64 flex items-center justify-center bg-gray-900/50 rounded border border-gray-800">
                 <div className="text-center text-gray-400">
                   <TrendingUp className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                  <p>Gráfico {config.type || 'Line'}</p>
-                  <p className="text-xs">Fonte: {config.dataSource || 'revenue'}</p>
+                  <p>Gráfico {chartConfig.type as string || 'Line'}</p>
+                  <p className="text-xs">Fonte: {chartConfig.dataSource as string || 'revenue'}</p>
                 </div>
               </div>
             </CardContent>
           </Card>
         );
+      }
 
       case 'form': {
         const formConfig = config as Record<string, unknown>;
@@ -925,22 +932,24 @@ const AdminBranding: React.FC = () => {
         );
       }
 
-      case 'button':
+      case 'button': {
+        const buttonConfig = config as Record<string, unknown>;
         return (
           <Button
             className={`w-full ${
-              config.variant === 'primary' ? 'bg-blue-600 hover:bg-blue-700' :
-              config.variant === 'secondary' ? 'bg-gray-600 hover:bg-gray-700' :
+              buttonConfig.variant === 'primary' ? 'bg-blue-600 hover:bg-blue-700' :
+              buttonConfig.variant === 'secondary' ? 'bg-gray-600 hover:bg-gray-700' :
               'bg-green-600 hover:bg-green-700'
             } text-white`}
             onClick={() => {
-              if (config.link) window.open(config.link, '_blank');
-              if (config.action) toast.info(`Ação: ${config.action}`);
+              if (buttonConfig.link) window.open(buttonConfig.link as string, '_blank');
+              if (buttonConfig.action) toast.info(`Ação: ${buttonConfig.action as string}`);
             }}
           >
-            {config.text || 'Clique aqui'}
+            {buttonConfig.text as string || 'Clique aqui'}
           </Button>
         );
+      }
 
       case 'text': {
         const textSizes: Record<string, string> = { small: 'text-sm', medium: 'text-base', large: 'text-lg', xlarge: 'text-2xl' };
