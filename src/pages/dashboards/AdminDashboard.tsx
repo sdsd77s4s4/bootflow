@@ -1298,11 +1298,11 @@ const AdminDashboard = () => {
       }
     };
     
+    {/* eslint-disable-next-line no-inline-styles */}
     return (
       <div 
         ref={setNodeRef} 
         className="select-none touch-manipulation"
-        {/* eslint-disable-next-line no-inline-styles */}
         style={{
           transform: CSS.Transform.toString(transform),
           transition: transition as unknown as string,
