@@ -1493,6 +1493,7 @@ const ClientDashboard = () => {
                                     onChange={(e) =>
                                       setNewUser({ ...newUser, plan: e.target.value, price: "" })
                                     }
+                                    title="Selecionar plano de cobrança"
                                   >
                                     <option value="">Selecione um plano</option>
                                     <option value="Mensal">Mensal</option>
@@ -1514,6 +1515,7 @@ const ClientDashboard = () => {
                                       onChange={(e) =>
                                         setNewUser({ ...newUser, price: e.target.value })
                                       }
+                                      title="Selecionar preço do plano"
                                     >
                                       <option value="">Selecione um preço</option>
                                       {getPlanPrices(newUser.plan).map((price) => (
@@ -1563,6 +1565,7 @@ const ClientDashboard = () => {
                                     onChange={(e) =>
                                       setNewUser({ ...newUser, status: e.target.value })
                                     }
+                                    title="Selecionar status do usuário"
                                   >
                                     <option value="Ativo">Ativo</option>
                                     <option value="Inativo">Inativo</option>
