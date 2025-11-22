@@ -488,7 +488,7 @@ export default function ClientClients() {
     setIsViewDialogOpen(true);
   };
 
-  const openEditModal = (user: any) => {
+  const openEditModal = (user: User) => {
     console.log("=== DEBUG: Abrindo modal de edição ===");
     console.log("Dados do usuário vindos do banco:", user);
     console.log("Campo real_name do banco:", user.real_name);
@@ -526,12 +526,12 @@ export default function ClientClients() {
     setIsEditDialogOpen(true);
   };
 
-  const openDeleteModal = (user: any) => {
+  const openDeleteModal = (user: User) => {
     setDeletingUser(user);
     setIsDeleteDialogOpen(true);
   };
 
-  const openPagoModal = (user: any) => {
+  const openPagoModal = (user: User) => {
     setPagoUser(user);
     setIsPagoDialogOpen(true);
   };
@@ -625,9 +625,9 @@ export default function ClientClients() {
         console.error('❌ [AdminUsers] Erro ao atualizar:', errorMessage);
         alert(`Erro ao atualizar status de pagamento.\n\nDetalhes: ${errorMessage}\n\nVerifique:\n- Se a coluna 'pago' existe na tabela 'users'\n- Se você tem permissão para atualizar\n- Se está conectado à internet`);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('❌ [AdminUsers] Erro ao atualizar status de pagamento:', error);
-      const errorMessage = error?.message || error?.toString() || 'Erro desconhecido';
+      const errorMessage = error instanceof Error ? error.message : String(error);
       alert(`Erro ao atualizar status de pagamento.\n\nErro: ${errorMessage}\n\nVerifique o console para mais detalhes.`);
     }
   };
@@ -1104,6 +1104,7 @@ export default function ClientClients() {
                           onChange={(e) =>
                             setNewUser({ ...newUser, plan: e.target.value, price: "" })
                           }
+                          title="Selecionar plano de cobrança"
                         >
                           <option value="">Selecione um plano</option>
                           <option value="Mensal">Mensal</option>
@@ -1125,6 +1126,7 @@ export default function ClientClients() {
                             onChange={(e) =>
                               setNewUser({ ...newUser, price: e.target.value })
                             }
+                            title="Selecionar preço do plano"
                           >
                             <option value="">Selecione um preço</option>
                             {getPlanPrices(newUser.plan).map((price) => (
@@ -1174,6 +1176,7 @@ export default function ClientClients() {
                           onChange={(e) =>
                             setNewUser({ ...newUser, status: e.target.value })
                           }
+                          title="Selecionar status do usuário"
                         >
                           <option value="Ativo">Ativo</option>
                           <option value="Inativo">Inativo</option>
@@ -2711,8 +2714,8 @@ function VencimentoDatePickerEdit({
   editingUser,
   setEditingUser,
 }: {
-  editingUser: any | null;
-  setEditingUser: (user: any) => void;
+  editingUser: User | null;
+  setEditingUser: (user: User) => void;
 }) {
   const [open, setOpen] = React.useState(false);
   // Função auxiliar para criar data local a partir de string YYYY-MM-DD
