@@ -187,24 +187,24 @@ const ClientDashboard = () => {
       if (clientesToUse && Array.isArray(clientesToUse)) {
         clientesToUse = clientesToUse.filter((cliente: any) => {
           return cliente.admin_id === user.id || cliente.admin_id === null || cliente.admin_id === undefined;
-        }) as any[];
+        }) as unknown as any[];
       }
       if (revendasToUse && Array.isArray(revendasToUse)) {
         revendasToUse = revendasToUse.filter((revenda: any) => {
           return revenda.admin_id === user.id || revenda.admin_id === null || revenda.admin_id === undefined;
-        }) as any[];
+        }) as unknown as any[];
       }
       console.log('🔄 [ClientDashboard] Dados filtrados por admin_id:', user.id, 'Clientes:', clientesToUse?.length, 'Revendas:', revendasToUse?.length);
     }
     
     if (clientesToUse) {
-      setClientes(clientesToUse as any[]);
+      setClientes(clientesToUse as unknown as any[]);
       setLoadingClientes(false);
     }
     
     if (revendasToUse) {
       console.log('✅ [ClientDashboard] Atualizando estado revendas com', revendasToUse.length, 'revendedores');
-      setRevendas(revendasToUse as any[]);
+      setRevendas(revendasToUse as unknown as any[]);
       setLoadingRevendas(false);
     }
   }, [realtimeClientes, realtimeRevendas, clientesFromHook, revendasFromHook, user?.id]);
@@ -262,8 +262,8 @@ const ClientDashboard = () => {
   const addRevenda = useCallback(async (revendaData: any) => {
     try {
       const { data, error } = await (supabase
-        .from('revendas') as any)
-        .insert([revendaData] as any)
+        .from('revendas') as unknown as any)
+        .insert([revendaData] as unknown as any)
         .select();
         
       if (error) throw error;
