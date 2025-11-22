@@ -380,17 +380,17 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
     }
   };
 
-  const openViewModal = (revenda: any) => {
+  const openViewModal = (revenda: Revenda) => {
     setViewingReseller(revenda);
     setIsViewDialogOpen(true);
   };
 
-  const openEditModal = (revenda: any) => {
+  const openEditModal = (revenda: Revenda) => {
     setEditingReseller({ ...revenda });
     setIsEditDialogOpen(true);
   };
 
-  const openDeleteModal = (revenda: any) => {
+  const openDeleteModal = (revenda: Revenda) => {
     setDeletingReseller(revenda);
     setIsDeleteDialogOpen(true);
   };
