@@ -2302,6 +2302,7 @@ export default function AdminUsers() {
                         Status
                       </label>
                       <select
+                        title="Status"
                         value={editingUser.status}
                         onChange={(e) =>
                           setEditingUser({
