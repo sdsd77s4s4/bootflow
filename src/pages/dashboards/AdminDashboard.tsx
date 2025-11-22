@@ -1284,17 +1284,30 @@ const AdminDashboard = () => {
     };
     
     
+    const localRef = React.useRef<HTMLDivElement | null>(null);
+    const assignRef = (node: HTMLDivElement | null) => {
+      setNodeRef(node);
+      localRef.current = node;
+    };
+
+    React.useEffect(() => {
+      const node = localRef.current;
+      if (!node) return;
+      try {
+        node.style.transform = CSS.Transform.toString(transform);
+        if (transition) node.style.transition = transition as unknown as string;
+        node.style.zIndex = String(isDragging ? 50 : 1);
+        node.style.opacity = String(isDragging ? 0.8 : 1);
+        node.style.cursor = isDragging ? 'grabbing' : 'grab';
+      } catch (e) {
+        // ignore
+      }
+    }, [transform, transition, isDragging]);
+
     return (
       <div 
-        ref={setNodeRef} 
+        ref={assignRef} 
         className="select-none touch-manipulation"
-        style={{
-          transform: CSS.Transform.toString(transform),
-          transition: transition as unknown as string,
-          zIndex: isDragging ? 50 : 1,
-          opacity: isDragging ? 0.8 : 1,
-          cursor: isDragging ? 'grabbing' : 'grab',
-        }}
         {...attributes} 
         data-card-id={id}
       >
