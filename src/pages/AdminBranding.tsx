@@ -1,4 +1,3 @@
-/* eslint-disable no-inline-styles */
 import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Paintbrush, UploadCloud, X, Check, GripVertical, Plus, Edit, Trash2, Palette, Code, Sliders, Star, Eye, ArrowLeft, BarChart3, TrendingUp, Activity, Bell, Table, Calendar, Map, FileText, PieChart, Globe, ExternalLink, Copy, Link2, Layout, Move, Settings2, Type, Image, Video, List, Grid3x3, Columns, DollarSign, Users } from 'lucide-react';
@@ -464,7 +463,6 @@ const AdminBranding: React.FC = () => {
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              {/* eslint-disable-next-line no-inline-styles */}
               <Icon className="w-5 h-5" style={{ color: viewingDashboard?.color }} />
               <CardTitle className="text-white text-base">{widgetName}</CardTitle>
             </div>
@@ -477,7 +475,6 @@ const AdminBranding: React.FC = () => {
         </CardHeader>
         <CardContent style={{ '--dashboard-color': viewingDashboard?.color } as React.CSSProperties}>
           <div className="space-y-2">
-            {/* eslint-disable-next-line no-inline-styles */}
             <div className="text-3xl font-bold" style={{ color: 'var(--dashboard-color)' }}>
               {data.value}
             </div>
@@ -721,7 +718,6 @@ const AdminBranding: React.FC = () => {
       '--opacity': isDragging ? 0.5 : 1,
     };
 
-    // eslint-disable-next-line no-inline-styles
     return (
       <div
         ref={setNodeRef}
@@ -773,7 +769,6 @@ const AdminBranding: React.FC = () => {
               <CardTitle className="text-white text-sm">{metricConfig.title as string || 'Métrica'}</CardTitle>
             </CardHeader>
             <CardContent>
-              {/* eslint-disable-next-line no-inline-styles */}
               <div className="text-3xl font-bold" style={{ color: metricConfig.color as string || pageForm.primaryColor }}>
                 {metricConfig.value as string || '0'}
               </div>

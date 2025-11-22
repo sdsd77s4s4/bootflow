@@ -1,4 +1,3 @@
-/* eslint-disable no-inline-styles */
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -1372,7 +1371,6 @@ const AdminDashboard = () => {
           <div className="absolute inset-0 border-2 border-transparent hover:border-blue-500/30 rounded-lg transition-all duration-300 pointer-events-none"></div>
         </Card>
       </div>
-      /* eslint-enable no-inline-styles */
     );
   }
 
