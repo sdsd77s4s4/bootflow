@@ -898,7 +898,7 @@ const AdminDashboard = () => {
 
       // Atualizar dashboard
       setRefreshTrigger(prev => prev + 1);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("❌ [AdminDashboard] Erro ao adicionar usuário:", error);
       
       // Cancelar timeout de segurança já que houve erro
@@ -1262,7 +1262,12 @@ const AdminDashboard = () => {
   }, [revendas, stats.activeResellers]);
 
   // Componente SortableCard
-  function SortableCard({ id, content, body, onClick }: any) {
+  function SortableCard({ id, content, body, onClick }: {
+    id: string;
+    content: React.ReactNode;
+    body: React.ReactNode;
+    onClick?: () => void;
+  }) {
     const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
     const style = {
       transform: CSS.Transform.toString(transform),
