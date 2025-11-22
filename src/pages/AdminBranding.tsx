@@ -1532,6 +1532,7 @@ const AdminBranding: React.FC = () => {
                   checked={config.showGrowth || false}
                   onChange={(e) => updateConfig('showGrowth', e.target.checked)}
                   className="accent-blue-500"
+                  title="Mostrar indicador de crescimento"
                 />
                 <span className="text-sm text-gray-300">Exibir indicador de crescimento</span>
               </div>
@@ -1564,6 +1565,7 @@ const AdminBranding: React.FC = () => {
                   checked={config.showSearch || false}
                   onChange={(e) => updateConfig('showSearch', e.target.checked)}
                   className="accent-blue-500"
+                  title="Habilitar campo de busca"
                 />
                 <span className="text-sm text-gray-300">Habilitar campo de busca</span>
               </div>
@@ -1576,6 +1578,7 @@ const AdminBranding: React.FC = () => {
                   checked={config.showPagination || false}
                   onChange={(e) => updateConfig('showPagination', e.target.checked)}
                   className="accent-blue-500"
+                  title="Habilitar paginação"
                 />
                 <span className="text-sm text-gray-300">Habilitar paginação</span>
               </div>
@@ -1729,6 +1732,7 @@ const AdminBranding: React.FC = () => {
                   checked={config.controls !== false}
                   onChange={(e) => updateConfig('controls', e.target.checked)}
                   className="accent-blue-500"
+                  title="Mostrar controles do vídeo"
                 />
                 <span className="text-sm text-gray-300">Mostrar controles</span>
               </div>
@@ -1741,6 +1745,7 @@ const AdminBranding: React.FC = () => {
                   checked={config.autoplay || false}
                   onChange={(e) => updateConfig('autoplay', e.target.checked)}
                   className="accent-blue-500"
+                  title="Reproduzir vídeo automaticamente"
                 />
                 <span className="text-sm text-gray-300">Reproduzir automaticamente</span>
               </div>
@@ -1759,6 +1764,7 @@ const AdminBranding: React.FC = () => {
                   checked={config.ordered || false}
                   onChange={(e) => updateConfig('ordered', e.target.checked)}
                   className="accent-blue-500"
+                  title="Lista ordenada (numerada)"
                 />
                 <span className="text-sm text-gray-300">Usar numeração</span>
               </div>
@@ -2355,27 +2361,27 @@ const AdminBranding: React.FC = () => {
               <span className="block text-purple-300 font-semibold mb-4 text-lg">Módulos e Funcionalidades</span>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="flex items-center gap-3">
-                  <input type="checkbox" className="accent-purple-500" defaultChecked />
+                  <input type="checkbox" className="accent-purple-500" defaultChecked title="Módulo E-commerce" />
                   <span className="text-gray-300">E-commerce</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <input type="checkbox" className="accent-purple-500" defaultChecked />
+                  <input type="checkbox" className="accent-purple-500" defaultChecked title="Módulo Gamificação" />
                   <span className="text-gray-300">Gamificação</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <input type="checkbox" className="accent-purple-500" />
+                  <input type="checkbox" className="accent-purple-500" title="Módulo Notificações" />
                   <span className="text-gray-300">Notificações</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <input type="checkbox" className="accent-purple-500" />
+                  <input type="checkbox" className="accent-purple-500" title="Módulo Exportação de Dados" />
                   <span className="text-gray-300">Exportação de Dados</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <input type="checkbox" className="accent-purple-500" />
+                  <input type="checkbox" className="accent-purple-500" title="Módulo Relatórios Avançados" />
                   <span className="text-gray-300">Relatórios Avançados</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <input type="checkbox" className="accent-purple-500" defaultChecked />
+                  <input type="checkbox" className="accent-purple-500" defaultChecked title="Módulo Chatbot IA" />
                   <span className="text-gray-300">Chatbot IA</span>
                 </div>
               </div>
