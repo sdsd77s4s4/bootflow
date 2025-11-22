@@ -2260,14 +2260,14 @@ const AdminBranding: React.FC = () => {
           <div className="max-w-2xl space-y-6">
             <div className="rounded-2xl border border-purple-700/40 bg-gradient-to-br from-purple-900/50 to-purple-800/30 p-6 shadow-lg">
               <span className="block text-purple-300 font-semibold mb-4 text-lg">Cores e Aparência</span>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
                   <label className="block text-gray-300 mb-1 font-medium">Cor Primária</label>
-                  <input type="color" className="w-12 h-12 p-0 border-none bg-transparent" />
+                  <input id="brand-primary-color" title="Cor Primária" aria-label="Cor Primária" type="color" className="w-12 h-12 p-0 border-none bg-transparent" />
                 </div>
                 <div>
                   <label className="block text-gray-300 mb-1 font-medium">Cor Secundária</label>
-                  <input type="color" className="w-12 h-12 p-0 border-none bg-transparent" />
+                  <input id="brand-secondary-color" title="Cor Secundária" aria-label="Cor Secundária" type="color" className="w-12 h-12 p-0 border-none bg-transparent" />
                 </div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
@@ -2281,8 +2281,8 @@ const AdminBranding: React.FC = () => {
                   </select>
                 </div>
                 <div className="flex items-center gap-3 mt-6">
-                  <input type="checkbox" className="accent-purple-500" />
-                  <span className="text-gray-300">Modo escuro</span>
+                  <input id="brand-dark-mode" title="Modo escuro" aria-label="Modo escuro" type="checkbox" className="accent-purple-500" />
+                  <label htmlFor="brand-dark-mode" className="text-gray-300">Modo escuro</label>
                 </div>
               </div>
               <div className="mt-6">
@@ -2315,8 +2315,8 @@ const AdminBranding: React.FC = () => {
                 <textarea className="w-full bg-gray-900 border border-gray-700 text-white rounded p-2 min-h-[60px]" placeholder="Cole aqui seu script..."></textarea>
               </div>
               <div className="flex items-center gap-3 mt-2">
-                <input type="checkbox" className="accent-purple-500" />
-                <span className="text-gray-300">Ativar CDN de performance</span>
+                <input id="enable-cdn" title="Ativar CDN de performance" aria-label="Ativar CDN de performance" type="checkbox" className="accent-purple-500" />
+                <label htmlFor="enable-cdn" className="text-gray-300">Ativar CDN de performance</label>
               </div>
             </div>
           </div>
@@ -2462,8 +2462,8 @@ const AdminBranding: React.FC = () => {
               <span className="block text-green-300 font-semibold mb-4 text-lg">Configurações WhiteLabel</span>
               <div className="mb-4">
                 <label className="block text-gray-300 mb-1 font-medium">Remover menção à plataforma original</label>
-                <input type="checkbox" className="accent-green-500" />
-                <span className="ml-2 text-gray-400 text-sm">Oculta qualquer referência à Symphonic Growth Hub</span>
+                <input id="whitelabel-remove-mention" title="Remover menção à plataforma original" aria-label="Remover menção à plataforma original" type="checkbox" className="accent-green-500" />
+                <label htmlFor="whitelabel-remove-mention" className="ml-2 text-gray-400 text-sm">Oculta qualquer referência à Symphonic Growth Hub</label>
               </div>
               <div className="mb-4">
                 <label className="block text-gray-300 mb-1 font-medium">Domínio personalizado exclusivo</label>
@@ -2480,13 +2480,13 @@ const AdminBranding: React.FC = () => {
               <div className="mb-4">
                 <label className="block text-gray-300 mb-1 font-medium">Cores e logotipo exclusivos</label>
                 <div className="flex gap-4 items-center mt-2">
-                  <input type="color" className="w-10 h-10 p-0 border-none bg-transparent" />
+                  <input id="whitelabel-color" title="Cor Whitelabel" aria-label="Cor Whitelabel" type="color" className="w-10 h-10 p-0 border-none bg-transparent" />
                   <Button className="bg-green-600 hover:bg-green-700 text-white">Upload Logo</Button>
                 </div>
               </div>
               <div className="mb-4">
                 <label className="block text-gray-300 mb-1 font-medium">Remover links de documentação padrão</label>
-                <input type="checkbox" className="accent-green-500" />
+                <input id="whitelabel-remove-links" title="Remover links de documentação padrão" aria-label="Remover links de documentação padrão" type="checkbox" className="accent-green-500" />
               </div>
               <div className="flex justify-end gap-2 mt-6">
                 <Button variant="outline" className="bg-gray-700 text-white px-6 py-2 rounded font-semibold">Cancelar</Button>
@@ -2982,6 +2982,7 @@ const AdminBranding: React.FC = () => {
                   >
                     <input
                       type="checkbox"
+                      aria-label={widget}
                       checked={dashboardForm.widgets.includes(widget)}
                       onChange={() => {}}
                       className="accent-purple-500"
