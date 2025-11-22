@@ -2701,7 +2701,7 @@ const AdminBranding: React.FC = () => {
                   </div>
                   <div className="space-y-2">
                     <Label className="text-gray-300">Status</Label>
-                    <select value={siteForm.status} onChange={e => setSiteForm({ ...siteForm, status: e.target.value as 'ativo' | 'inativo' })} className="w-full bg-gray-900 border border-gray-700 text-white rounded px-3 py-2">
+                    <select value={siteForm.status} onChange={e => setSiteForm({ ...siteForm, status: e.target.value as 'ativo' | 'inativo' })} className="w-full bg-gray-900 border border-gray-700 text-white rounded px-3 py-2" title="Selecionar status do site">
                       <option value="ativo">Ativo</option>
                       <option value="inativo">Inativo</option>
                     </select>
