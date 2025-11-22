@@ -20,6 +20,8 @@ import {
   DollarSign, 
   TrendingUp, 
   AlertCircle,
+  MessageSquare, // added missing icon
+  BarChart3      // added missing icon
 } from "lucide-react";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AdminSidebar } from "@/components/sidebars/AdminSidebar";
@@ -43,8 +45,7 @@ import AdminWhatsApp from '../AdminWhatsApp';
 import AdminBranding from '../AdminBranding';
 import AdminGateways from "../AdminGateways";
 import AdminCobrancas from "../AdminCobrancas";
-import Notifications from "../Notifications";
-import Profile from "../Profile";
+import Notifications from "../Profile";
 
 // Wrapper para AdminResellers que aceita callback quando um revendedor é criado
 const AdminResellersWrapper = ({ onResellerCreated, onCloseModal }: { onResellerCreated: () => void; onCloseModal: () => void }) => {
@@ -1732,7 +1733,6 @@ const AdminDashboard = () => {
                             onClick={() => setResellerModal(false)}
                           >
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                             </svg>
                           </Button>
                         </div>
