@@ -104,19 +104,7 @@ type ColumnsConfig = { count?: number; gap?: string };
 type FormField = { name: string; label?: string; type?: string; placeholder?: string };
 type FormConfig = { fields?: FormField[]; submitText?: string; action?: string };
 
-type ComponentConfig =
-  | MetricCardConfig
-  | StatsGridConfig
-  | RevenueCardConfig
-  | UsersTableConfig
-  | ButtonConfig
-  | TextConfig
-  | ImageConfig
-  | VideoConfig
-  | ListConfig
-  | ColumnsConfig
-  | FormConfig
-  | Record<string, unknown>;
+type ComponentConfig = Record<string, unknown>;
 
 type Page = {
   id?: number;
@@ -3083,6 +3071,7 @@ const AdminBranding: React.FC = () => {
                     onChange={(e) => setDashboardForm({ ...dashboardForm, color: e.target.value })}
                     className="flex-1 bg-gray-900 border border-gray-700 text-white focus:border-purple-500"
                     placeholder="#7c3aed"
+                    title="Cor do dashboard em formato hexadecimal"
                   />
                 </div>
               </div>
@@ -3095,6 +3084,7 @@ const AdminBranding: React.FC = () => {
                     checked={dashboardForm.realtime}
                     onChange={(e) => setDashboardForm({ ...dashboardForm, realtime: e.target.checked })}
                     className="accent-purple-500"
+                    title="Habilitar atualização em tempo real do dashboard"
                   />
                   <Label htmlFor="dashboard-realtime" className="text-gray-300 cursor-pointer">
                     Atualização em Tempo Real
@@ -3307,6 +3297,7 @@ const AdminBranding: React.FC = () => {
                       value={pageForm.backgroundColor}
                       onChange={(e) => setPageForm({ ...pageForm, backgroundColor: e.target.value })}
                       className="flex-1 bg-gray-900 border border-gray-700 text-white focus:border-blue-500"
+                      title="Cor de fundo da página em formato hexadecimal"
                     />
                   </div>
                 </div>
