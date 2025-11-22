@@ -51,7 +51,7 @@ type PageComponent = {
   id: string;
   type: string;
   name?: string;
-  config?: Record<string, unknown>;
+  config?: any;
   order?: number;
 };
 type Client = {
@@ -559,7 +559,7 @@ const AdminBranding: React.FC = () => {
   };
 
   // Atualizar componente
-  const updateComponent = (componentId: string, config: Record<string, unknown>) => {
+  const updateComponent = (componentId: string, config: any) => {
     setPageForm({
       ...pageForm,
       components: pageForm.components.map(c => 
@@ -734,7 +734,7 @@ const AdminBranding: React.FC = () => {
         return (
           <div className={`grid ${gridCols} gap-4`}>
             {config.metrics?.map((metric: string, idx: number) => {
-              const metricData: Record<string, { value: unknown; label: string; icon: React.ComponentType<unknown> }> = {
+              const metricData: Record<string, { value: any; label: string; icon: React.ComponentType<any> }> = {
                 totalUsers: { value: stats?.totalUsers || 0, label: 'Total de Usuários', icon: Users },
                 totalRevenue: { value: `R$ ${stats?.totalRevenue?.toLocaleString('pt-BR') || '0'}`, label: 'Receita Total', icon: DollarSign },
                 activeClients: { value: stats?.activeClients || 0, label: 'Clientes Ativos', icon: Users },
@@ -961,12 +961,12 @@ const AdminBranding: React.FC = () => {
     availableComponents: typeof availableComponents;
     addComponent: (t: string) => void;
     removeComponent: (id: string) => void;
-    updateComponent: (id: string, cfg: Record<string, unknown>) => void;
+    updateComponent: (id: string, cfg: any) => void;
     selectedComponent: PageComponent | null;
     setSelectedComponent: (c: PageComponent | null) => void;
     handleDragEnd: (e: DragEndEvent) => void;
-    sensors: unknown;
-    stats: unknown;
+    sensors: any;
+    stats: any;
     clientes: Client[];
     generateSlug: (t: string) => string;
     renderComponent: (c: PageComponent) => JSX.Element | null;
@@ -1236,7 +1236,7 @@ const AdminBranding: React.FC = () => {
             <div className="p-4 space-y-4">
               <ComponentPropertiesEditor
                 component={selectedComponent}
-                onUpdate={(config) => updateComponent(selectedComponent!.id, config as Record<string, unknown>)}
+                onUpdate={(config) => updateComponent(selectedComponent!.id, config)}
               />
             </div>
           </div>
@@ -1248,12 +1248,12 @@ const AdminBranding: React.FC = () => {
   // Editor de Propriedades do Componente
   type ComponentPropertiesEditorProps = {
     component: PageComponent;
-    onUpdate: (cfg: Record<string, unknown>) => void;
+    onUpdate: (cfg: any) => void;
   };
   const ComponentPropertiesEditor = ({ component, onUpdate }: ComponentPropertiesEditorProps) => {
     const { type, config } = component;
 
-    const updateConfig = (key: string, value: unknown) => {
+    const updateConfig = (key: string, value: any) => {
       onUpdate({ [key]: value });
     };
 
@@ -3431,7 +3431,7 @@ const AdminBranding: React.FC = () => {
                             return (
                               <div className={`grid ${gridCols} gap-4`}>
                                 {config.metrics?.map((metric: string, idx: number) => {
-                                  const metricData: Record<string, { value: unknown; label: string; icon: React.ComponentType<unknown> }> = {
+                                  const metricData: Record<string, { value: any; label: string; icon: React.ComponentType<any> }> = {
                                     totalUsers: { value: stats?.totalUsers || 0, label: 'Total de Usuários', icon: Users },
                                     totalRevenue: { value: `R$ ${stats?.totalRevenue?.toLocaleString('pt-BR') || '0'}`, label: 'Receita Total', icon: DollarSign },
                                     activeClients: { value: stats?.activeClients || 0, label: 'Clientes Ativos', icon: Users },
