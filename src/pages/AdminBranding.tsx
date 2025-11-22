@@ -381,7 +381,7 @@ const AdminBranding: React.FC = () => {
 
   // Função para renderizar widgets do dashboard
   const renderWidget = (widgetName: string, index: number) => {
-    const widgetIcons: Record<string, React.ComponentType<any>> = {
+    const widgetIcons: Record<string, React.ComponentType<unknown>> = {
       'Métricas': BarChart3,
       'Gráficos': TrendingUp,
       'Atividades Recentes': Activity,
@@ -3426,12 +3426,12 @@ const AdminBranding: React.FC = () => {
                                 </CardContent>
                               </Card>
                             );
-                          case 'stats-grid':
+                          case 'stats-grid': {
                             const gridCols = config.columns === 2 ? 'grid-cols-2' : config.columns === 4 ? 'grid-cols-4' : 'grid-cols-3';
                             return (
                               <div className={`grid ${gridCols} gap-4`}>
                                 {config.metrics?.map((metric: string, idx: number) => {
-                                  const metricData: any = {
+                                  const metricData: Record<string, { value: unknown; label: string; icon: React.ComponentType<unknown> }> = {
                                     totalUsers: { value: stats?.totalUsers || 0, label: 'Total de Usuários', icon: Users },
                                     totalRevenue: { value: `R$ ${stats?.totalRevenue?.toLocaleString('pt-BR') || '0'}`, label: 'Receita Total', icon: DollarSign },
                                     activeClients: { value: stats?.activeClients || 0, label: 'Clientes Ativos', icon: Users },
@@ -3454,6 +3454,7 @@ const AdminBranding: React.FC = () => {
                                 })}
                               </div>
                             );
+                          }
                           case 'revenue-card':
                             return (
                               <Card className="bg-gradient-to-br from-green-900/30 to-green-800/20 border border-green-700">
@@ -3490,7 +3491,7 @@ const AdminBranding: React.FC = () => {
                                         </tr>
                                       </thead>
                                       <tbody>
-                                        {clientes.slice(0, config.pageSize || 5).map((cliente: any, idx: number) => (
+                                        {clientes.slice(0, (config.pageSize as number) || 5).map((cliente: Client, idx: number) => (
                                           <tr key={idx} className="border-b border-gray-800">
                                             <td className="p-2 text-white">{cliente.name || 'N/A'}</td>
                                             <td className="p-2 text-gray-400">{cliente.email || 'N/A'}</td>
@@ -3523,14 +3524,15 @@ const AdminBranding: React.FC = () => {
                                 {config.text || 'Clique aqui'}
                               </Button>
                             );
-                          case 'text':
-                            const textSizes: any = { small: 'text-sm', medium: 'text-base', large: 'text-lg', xlarge: 'text-2xl' };
-                            const textAligns: any = { left: 'text-left', center: 'text-center', right: 'text-right' };
+                          case 'text': {
+                            const textSizes: Record<string, string> = { small: 'text-sm', medium: 'text-base', large: 'text-lg', xlarge: 'text-2xl' };
+                            const textAligns: Record<string, string> = { left: 'text-left', center: 'text-center', right: 'text-right' };
                             return (
                               <div className={`${textSizes[config.size || 'medium']} ${textAligns[config.align || 'left']}`} style={{ color: viewingPage.textColor }}>
                                 {config.content || 'Digite seu texto aqui'}
                               </div>
                             );
+                          }
                           default:
                             return renderComponent(comp);
                         }
