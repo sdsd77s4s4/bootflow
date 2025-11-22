@@ -464,6 +464,7 @@ const AdminBranding: React.FC = () => {
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
+              {/* eslint-disable-next-line no-inline-styles */}
               <Icon className="w-5 h-5" style={{ color: viewingDashboard?.color }} />
               <CardTitle className="text-white text-base">{widgetName}</CardTitle>
             </div>
