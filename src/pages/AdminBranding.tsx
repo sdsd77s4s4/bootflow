@@ -50,10 +50,17 @@ type Dashboard = {
 type PageComponent = {
   id: string;
   type: string;
-  props: Record<string, unknown>;
+  name?: string;
+  config?: Record<string, unknown>;
+  order?: number;
 };
 
 type Page = {
+  type Client = {
+    name?: string;
+    email?: string;
+    status?: string;
+  };
   id?: number;
   title: string;
   slug: string;
@@ -374,7 +381,7 @@ const AdminBranding: React.FC = () => {
 
   // Função para renderizar widgets do dashboard
   const renderWidget = (widgetName: string, index: number) => {
-    const widgetIcons: { [key: string]: any } = {
+    const widgetIcons: Record<string, React.ComponentType<any>> = {
       'Métricas': BarChart3,
       'Gráficos': TrendingUp,
       'Atividades Recentes': Activity,
@@ -478,12 +485,13 @@ const AdminBranding: React.FC = () => {
     setPageModal(true);
   };
 
-  const openEditPage = (page: any) => {
+  const openEditPage = (page: Page | null) => {
+    if (!page) return;
     setEditingPage(page);
     setPageForm({ 
       ...page,
       components: page.components || []
-    });
+    } as Page);
     setBuilderMode(false);
     setPageModal(true);
   };
@@ -551,7 +559,7 @@ const AdminBranding: React.FC = () => {
   };
 
   // Atualizar componente
-  const updateComponent = (componentId: string, config: any) => {
+  const updateComponent = (componentId: string, config: Record<string, unknown>) => {
     setPageForm({
       ...pageForm,
       components: pageForm.components.map(c => 
@@ -565,8 +573,8 @@ const AdminBranding: React.FC = () => {
     const { active, over } = event;
     if (!over || active.id === over.id) return;
 
-    const oldIndex = pageForm.components.findIndex((c: any) => c.id === active.id);
-    const newIndex = pageForm.components.findIndex((c: any) => c.id === over.id);
+    const oldIndex = pageForm.components.findIndex((c: PageComponent) => c.id === active.id);
+    const newIndex = pageForm.components.findIndex((c: PageComponent) => c.id === over.id);
 
     const newComponents = [...pageForm.components];
     const [removed] = newComponents.splice(oldIndex, 1);
@@ -643,7 +651,12 @@ const AdminBranding: React.FC = () => {
   };
 
   // Componente SortableItem para drag and drop
-  const SortableComponentItem = ({ component, onSelect, onRemove }: any) => {
+  type SortableComponentItemProps = {
+    component: PageComponent;
+    onSelect: (c: PageComponent) => void;
+    onRemove: (id: string) => void;
+  };
+  const SortableComponentItem = ({ component, onSelect, onRemove }: SortableComponentItemProps) => {
     const {
       attributes,
       listeners,
@@ -697,8 +710,8 @@ const AdminBranding: React.FC = () => {
   };
 
   // Renderizar componente na preview
-  const renderComponent = (component: any) => {
-    const { type, config } = component;
+  const renderComponent = (component: PageComponent) => {
+    const { type, config } = component as PageComponent;
 
     switch (type) {
       case 'metric-card':
@@ -721,7 +734,7 @@ const AdminBranding: React.FC = () => {
         return (
           <div className={`grid ${gridCols} gap-4`}>
             {config.metrics?.map((metric: string, idx: number) => {
-              const metricData: any = {
+              const metricData: Record<string, { value: unknown; label: string; icon: React.ComponentType<any> }> = {
                 totalUsers: { value: stats?.totalUsers || 0, label: 'Total de Usuários', icon: Users },
                 totalRevenue: { value: `R$ ${stats?.totalRevenue?.toLocaleString('pt-BR') || '0'}`, label: 'Receita Total', icon: DollarSign },
                 activeClients: { value: stats?.activeClients || 0, label: 'Clientes Ativos', icon: Users },
@@ -782,7 +795,7 @@ const AdminBranding: React.FC = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {clientes.slice(0, config.pageSize || 5).map((cliente: any, idx: number) => (
+                    {clientes.slice(0, (config.pageSize as number) || 5).map((cliente: { name?: string; email?: string; status?: string }, idx: number) => (
                       <tr key={idx} className="border-b border-gray-800">
                         <td className="p-2 text-white">{cliente.name || 'N/A'}</td>
                         <td className="p-2 text-gray-400">{cliente.email || 'N/A'}</td>
@@ -827,7 +840,7 @@ const AdminBranding: React.FC = () => {
             <CardContent>
               <div className="space-y-4">
                 {config.fields?.length > 0 ? (
-                  config.fields.map((field: any, idx: number) => (
+                  (config.fields as Array<{ label?: string; type?: string; placeholder?: string }>).map((field, idx: number) => (
                     <div key={idx} className="space-y-1">
                       <Label className="text-gray-300">{field.label}</Label>
                       <Input
@@ -866,8 +879,8 @@ const AdminBranding: React.FC = () => {
         );
 
       case 'text':
-        const textSizes: any = { small: 'text-sm', medium: 'text-base', large: 'text-lg', xlarge: 'text-2xl' };
-        const textAligns: any = { left: 'text-left', center: 'text-center', right: 'text-right' };
+        const textSizes: Record<string, string> = { small: 'text-sm', medium: 'text-base', large: 'text-lg', xlarge: 'text-2xl' };
+        const textAligns: Record<string, string> = { left: 'text-left', center: 'text-center', right: 'text-right' };
         return (
           <div className={`${textSizes[config.size || 'medium']} ${textAligns[config.align || 'left']} text-white`}>
             {config.content || 'Digite seu texto aqui'}
@@ -939,6 +952,23 @@ const AdminBranding: React.FC = () => {
   };
 
   // Componente PageBuilderContent
+  type PageBuilderContentProps = {
+    pageForm: Page;
+    setPageForm: (p: Page) => void;
+    availableComponents: typeof availableComponents;
+    addComponent: (t: string) => void;
+    removeComponent: (id: string) => void;
+    updateComponent: (id: string, cfg: Record<string, unknown>) => void;
+    selectedComponent: PageComponent | null;
+    setSelectedComponent: (c: PageComponent | null) => void;
+    handleDragEnd: (e: DragEndEvent) => void;
+    sensors: unknown;
+    stats: unknown;
+    clientes: Client[];
+    generateSlug: (t: string) => string;
+    renderComponent: (c: PageComponent) => JSX.Element | null;
+  };
+
   const PageBuilderContent = ({
     pageForm,
     setPageForm,
@@ -954,8 +984,8 @@ const AdminBranding: React.FC = () => {
     clientes,
     generateSlug,
     renderComponent,
-  }: any) => {
-    const categories = Array.from(new Set(availableComponents.map((c: any) => c.category)));
+  }: PageBuilderContentProps) => {
+    const categories = Array.from(new Set(availableComponents.map((c) => c.category)));
 
     return (
       <div className="flex h-[calc(95vh-100px)]">
@@ -975,7 +1005,7 @@ const AdminBranding: React.FC = () => {
                 <div className="space-y-1">
                   {availableComponents
                     .filter((c: any) => c.category === category)
-                    .map((component: any) => (
+                    .map((component) => (
                       <button
                         key={component.id}
                         onClick={() => addComponent(component.id)}
@@ -1137,7 +1167,7 @@ const AdminBranding: React.FC = () => {
                     >
                       {pageForm.components
                         .sort((a: any, b: any) => a.order - b.order)
-                        .map((component: any) => (
+                        .map((component: PageComponent) => (
                           <div key={component.id} className="mb-4">
                             {renderComponent(component)}
                           </div>
@@ -1171,7 +1201,7 @@ const AdminBranding: React.FC = () => {
                   >
                     {pageForm.components
                       .sort((a: any, b: any) => a.order - b.order)
-                      .map((component: any) => (
+                      .map((component: PageComponent) => (
                         <SortableComponentItem
                           key={component.id}
                           component={component}
@@ -3371,8 +3401,10 @@ const AdminBranding: React.FC = () => {
                   {viewingPage.components
                     .sort((a: any, b: any) => (a.order || 0) - (b.order || 0))
                     .map((component: any) => {
+                                          .map((component: PageComponent) => {
                       // Criar uma função de renderização local que usa viewingPage
                       const renderViewingComponent = (comp: any) => {
+                      const renderViewingComponent = (comp: PageComponent) => {
                         const { type, config } = comp;
                         switch (type) {
                           case 'metric-card':
