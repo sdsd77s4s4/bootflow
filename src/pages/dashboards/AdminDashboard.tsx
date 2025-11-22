@@ -265,8 +265,7 @@ const AdminDashboard = () => {
   // Função para adicionar um novo revendedor
   const addRevenda = useCallback(async (revendaData: any) => {
     try {
-      // supabase client generic types can be strict here; ignore TS for runtime insert
-      // @ts-expect-error TS-compat: runtime insert with flexible object
+      // supabase client generic types can be strict here; runtime insert may use a flexible object
       const { data, error } = await supabase
         .from('revendas')
         .insert([revendaData])
