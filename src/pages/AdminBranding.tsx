@@ -729,12 +729,12 @@ const AdminBranding: React.FC = () => {
           </Card>
         );
 
-      case 'stats-grid':
+      case 'stats-grid': {
         const gridCols = config.columns === 2 ? 'grid-cols-2' : config.columns === 4 ? 'grid-cols-4' : 'grid-cols-3';
         return (
           <div className={`grid ${gridCols} gap-4`}>
             {config.metrics?.map((metric: string, idx: number) => {
-              const metricData: Record<string, { value: unknown; label: string; icon: React.ComponentType<any> }> = {
+              const metricData: Record<string, { value: unknown; label: string; icon: React.ComponentType<unknown> }> = {
                 totalUsers: { value: stats?.totalUsers || 0, label: 'Total de Usuários', icon: Users },
                 totalRevenue: { value: `R$ ${stats?.totalRevenue?.toLocaleString('pt-BR') || '0'}`, label: 'Receita Total', icon: DollarSign },
                 activeClients: { value: stats?.activeClients || 0, label: 'Clientes Ativos', icon: Users },
@@ -758,6 +758,7 @@ const AdminBranding: React.FC = () => {
           </div>
         );
 
+      }
       case 'revenue-card':
         return (
           <Card className="bg-gradient-to-br from-green-900/30 to-green-800/20 border border-green-700">
@@ -878,7 +879,7 @@ const AdminBranding: React.FC = () => {
           </Button>
         );
 
-      case 'text':
+      case 'text': {
         const textSizes: Record<string, string> = { small: 'text-sm', medium: 'text-base', large: 'text-lg', xlarge: 'text-2xl' };
         const textAligns: Record<string, string> = { left: 'text-left', center: 'text-center', right: 'text-right' };
         return (
@@ -887,6 +888,7 @@ const AdminBranding: React.FC = () => {
           </div>
         );
 
+      }
       case 'image':
         return config.src ? (
           <img
@@ -930,7 +932,7 @@ const AdminBranding: React.FC = () => {
           </div>
         );
 
-      case 'columns':
+      case 'columns': {
         const colCount = config.count || 2;
         return (
           <div className={`grid grid-cols-${colCount} gap-${config.gap || 'medium'}`}>
@@ -942,6 +944,7 @@ const AdminBranding: React.FC = () => {
           </div>
         );
 
+      }
       default:
         return (
           <div className="border border-gray-700 rounded p-4 text-gray-400 text-center">
@@ -3399,11 +3402,9 @@ const AdminBranding: React.FC = () => {
               {viewingPage.components && viewingPage.components.length > 0 ? (
                 <div className="space-y-6">
                   {viewingPage.components
-                    .sort((a: any, b: any) => (a.order || 0) - (b.order || 0))
-                    .map((component: any) => {
-                                          .map((component: PageComponent) => {
+                    .sort((a: PageComponent, b: PageComponent) => (a.order || 0) - (b.order || 0))
+                    .map((component: PageComponent) => {
                       // Criar uma função de renderização local que usa viewingPage
-                      const renderViewingComponent = (comp: any) => {
                       const renderViewingComponent = (comp: PageComponent) => {
                         const { type, config } = comp;
                         switch (type) {
