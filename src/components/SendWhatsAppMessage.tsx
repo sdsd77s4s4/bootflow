@@ -4,12 +4,20 @@ import { toast } from 'sonner';
 import { sendMessage, sendTemplateMessage } from '@/services/apiBrasilService';
 import { getErrorMessage } from '@/lib/supabaseClient.agent';
 
+interface Template {
+  id: string;
+  name: string;
+  description: string;
+  parameters: string[];
+  content: string;
+}
+
 interface SendWhatsAppMessageProps {
   token: string;
   profileId: string;
   defaultPhoneNumber?: string;
   defaultMessage?: string;
-  onSendSuccess?: (data: any) => void;
+  onSendSuccess?: (data: Record<string, unknown>) => void;
   className?: string;
   showHeader?: boolean;
   showTemplates?: boolean;
@@ -71,7 +79,7 @@ export function SendWhatsAppMessage({
   const [isGroup, setIsGroup] = useState(false);
   const [showTemplateOptions, setShowTemplateOptions] = useState(false);
   const [templateParams, setTemplateParams] = useState<Record<string, string>>({});
-  const [selectedTemplate, setSelectedTemplate] = useState<any>(null);
+  const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
   const [characterCount, setCharacterCount] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -127,7 +135,7 @@ export function SendWhatsAppMessage({
   };
 
   // Aplicar template
-  const handleApplyTemplate = (template: any) => {
+  const handleApplyTemplate = (template: Template) => {
     setSelectedTemplate(template);
     setMessage(template.content);
     setShowTemplateOptions(false);
@@ -347,6 +355,7 @@ export function SendWhatsAppMessage({
                 onChange={handleFileChange}
                 className="hidden"
                 accept="image/*,.pdf,.doc,.docx,.xls,.xlsx"
+                title="Selecionar arquivo para anexar"
               />
               <button
                 type="button"
