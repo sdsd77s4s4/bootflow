@@ -952,11 +952,12 @@ const AdminBranding: React.FC = () => {
       }
 
       case 'text': {
+        const textConfig = config as Record<string, unknown>;
         const textSizes: Record<string, string> = { small: 'text-sm', medium: 'text-base', large: 'text-lg', xlarge: 'text-2xl' };
         const textAligns: Record<string, string> = { left: 'text-left', center: 'text-center', right: 'text-right' };
         return (
-          <div className={`${textSizes[config.size || 'medium']} ${textAligns[config.align || 'left']} text-white`}>
-            {config.content || 'Digite seu texto aqui'}
+          <div className={`${textSizes[textConfig.size as string || 'medium']} ${textAligns[textConfig.align as string || 'left']} text-white`}>
+            {textConfig.content as string || 'Digite seu texto aqui'}
           </div>
         );
 
