@@ -793,7 +793,9 @@ const AdminDashboard = () => {
       console.log("📤 [AdminDashboard] Dados do usuário a ser adicionado:", newUser);
 
       // Preparar dados do usuário para o Supabase (snake_case)
+      // Normalizar campos para o formato do banco (ex: 'nome')
       const userData = {
+        nome: newUser.realName || newUser.name,
         name: newUser.realName || newUser.name,
         email: newUser.email,
         plan: newUser.plan, // Campo obrigatório
@@ -817,7 +819,7 @@ const AdminDashboard = () => {
 
       // Adicionar usuário usando o hook
       console.log("🔄 [AdminDashboard] Chamando addCliente...");
-      const success = await addCliente(userData as any);
+      const success = await addCliente(userData as unknown as TableInsert<'clientes'>);
       console.log("🔄 [AdminDashboard] addCliente retornou:", success);
 
       // Verificar se a operação foi bem-sucedida
@@ -877,7 +879,7 @@ const AdminDashboard = () => {
         clearTimeout(timeoutId);
       }
       
-      const errorMessage = error?.message || error || "Erro desconhecido ao adicionar usuário.";
+      const errorMessage = getErrorMessage(error) ?? (error instanceof Error ? error.message : String(error)) ?? "Erro desconhecido ao adicionar usuário.";
       
       // Mensagens específicas para diferentes tipos de erro
       if (errorMessage.includes("duplicate key value") || errorMessage.includes("unique constraint")) {
