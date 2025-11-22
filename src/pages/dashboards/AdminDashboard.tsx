@@ -1298,7 +1298,7 @@ const AdminDashboard = () => {
       }
     };
     
-    {/* eslint-disable-next-line no-inline-styles */}
+    
     return (
       <div 
         ref={setNodeRef} 
