@@ -1800,6 +1800,7 @@ const AdminBranding: React.FC = () => {
                 value={config.gap || 'medium'}
                 onChange={(e) => updateConfig('gap', e.target.value)}
                 className="w-full bg-gray-900 border border-gray-700 text-white rounded px-3 py-2"
+                title="Selecionar espaçamento entre colunas"
               >
                 <option value="small">Pequeno</option>
                 <option value="medium">Médio</option>
