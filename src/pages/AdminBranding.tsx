@@ -3499,7 +3499,7 @@ const AdminBranding: React.FC = () => {
                             return (
                               <div className={`grid ${gridCols} gap-4`}>
                                 {config.metrics?.map((metric: string, idx: number) => {
-                                  const metricData: Record<string, { value: any; label: string; icon: React.ComponentType<any> }> = {
+                                  const metricData: Record<string, { value: string | number; label: string; icon: React.ComponentType<Record<string, unknown>> }> = {
                                     totalUsers: { value: stats?.totalUsers || 0, label: 'Total de Usuários', icon: Users },
                                     totalRevenue: { value: `R$ ${stats?.totalRevenue?.toLocaleString('pt-BR') || '0'}`, label: 'Receita Total', icon: DollarSign },
                                     activeClients: { value: stats?.activeClients || 0, label: 'Clientes Ativos', icon: Users },
