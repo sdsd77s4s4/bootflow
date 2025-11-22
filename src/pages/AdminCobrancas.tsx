@@ -627,6 +627,7 @@ export default function AdminCobrancas() {
             />
           </div>
           <select
+            aria-label="Filtrar cobranças por status"
             className="bg-[#1f2937] border border-gray-700 text-gray-300 rounded px-3 py-2"
             value={filtroStatus || ''}
             onChange={e => setFiltroStatus(e.target.value || null)}
@@ -821,6 +822,7 @@ export default function AdminCobrancas() {
                   Cliente <span className="text-red-500">*</span>
                 </label>
                 <select 
+                  aria-label="Selecionar cliente ou revenda"
                   className="w-full bg-[#23272f] border border-gray-600 text-white rounded-lg px-3 py-2 focus:border-purple-500 focus:outline-none"
                   value={nova.cliente}
                   onChange={e => {
@@ -916,6 +918,7 @@ export default function AdminCobrancas() {
                   Status
                 </label>
                 <select 
+                  aria-label="Status da cobrança"
                   className="w-full bg-[#23272f] border border-gray-600 text-white rounded-lg px-3 py-2 focus:border-purple-500 focus:outline-none"
                   value={nova.status}
                   onChange={e => setNova({ ...nova, status: e.target.value })}
@@ -1024,6 +1027,7 @@ export default function AdminCobrancas() {
                 <div className="col-span-1">
                   <label className="block text-gray-300 mb-1 font-medium">Cliente *</label>
                   <select 
+                    aria-label="Selecionar cliente para edição"
                     className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
                     value={edit.cliente}
                     onChange={e => {
@@ -1123,6 +1127,7 @@ export default function AdminCobrancas() {
                 <div className="col-span-1">
                   <label className="block text-gray-300 mb-1 font-medium">Valor *</label>
                   <input 
+                    aria-label="Valor da cobrança (edição)"
                     placeholder="R$ 0,00" 
                     className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
                     value={edit.valor}
@@ -1133,6 +1138,7 @@ export default function AdminCobrancas() {
                 <div className="col-span-1">
                   <label className="block text-gray-300 mb-1 font-medium">Status</label>
                   <select 
+                    aria-label="Status da cobrança (edição)"
                     className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
                     value={edit.status}
                     onChange={e => setEdit({ ...edit, status: e.target.value })}
@@ -1146,6 +1152,7 @@ export default function AdminCobrancas() {
                 <div className="col-span-2">
                   <label className="block text-gray-300 mb-1 font-medium">Data de Vencimento *</label>
                   <input 
+                    aria-label="Data de vencimento (edição)"
                     type="date"
                     className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
                     value={edit.vencimento}
@@ -1172,7 +1179,7 @@ export default function AdminCobrancas() {
                 {/* Classe de Serviço */}
                 <div>
                   <label className="block text-gray-300 mb-1 font-medium">Classe de Serviço</label>
-                  <select className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2">
+                  <select className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2" aria-label="Classe de Serviço">
                     <option value="">Selecione</option>
                     <option value="basico">Básico</option>
                     <option value="premium">Premium</option>
@@ -1181,7 +1188,7 @@ export default function AdminCobrancas() {
                 {/* Plano */}
                 <div>
                   <label className="block text-gray-300 mb-1 font-medium">Plano</label>
-                  <select className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2">
+                  <select className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2" aria-label="Plano de serviço">
                     <option value="mensal">Mensal</option>
                     <option value="anual">Anual</option>
                   </select>
@@ -1189,7 +1196,7 @@ export default function AdminCobrancas() {
                 {/* Status */}
                 <div>
                   <label className="block text-gray-300 mb-1 font-medium">Status</label>
-                  <select className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2">
+                  <select className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2" aria-label="Status do serviço">
                     <option value="ativo">Ativo</option>
                     <option value="inativo">Inativo</option>
                   </select>
@@ -1326,7 +1333,7 @@ export default function AdminCobrancas() {
               <div>
                 <label className="block text-gray-300 mb-2">Período</label>
                 <Select>
-                  <SelectTrigger className="bg-[#23272f] border-gray-700">
+                  <SelectTrigger className="bg-[#23272f] border-gray-700" aria-label="Período do relatório">
                     <SelectValue placeholder="Selecione o período" />
                   </SelectTrigger>
                   <SelectContent className="bg-[#23272f] border-gray-700">
@@ -1340,7 +1347,7 @@ export default function AdminCobrancas() {
               <div>
                 <label className="block text-gray-300 mb-2">Formato</label>
                 <Select>
-                  <SelectTrigger className="bg-[#23272f] border-gray-700">
+                  <SelectTrigger className="bg-[#23272f] border-gray-700" aria-label="Formato do relatório">
                     <SelectValue placeholder="Selecione o formato" />
                   </SelectTrigger>
                   <SelectContent className="bg-[#23272f] border-gray-700">
