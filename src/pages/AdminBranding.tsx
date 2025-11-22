@@ -1603,6 +1603,7 @@ const AdminBranding: React.FC = () => {
                 value={config.type || 'line'}
                 onChange={(e) => updateConfig('type', e.target.value)}
                 className="w-full bg-gray-900 border border-gray-700 text-white rounded px-3 py-2"
+                title="Selecionar tipo de gráfico"
               >
                 <option value="line">Linha</option>
                 <option value="bar">Barras</option>
@@ -1616,6 +1617,7 @@ const AdminBranding: React.FC = () => {
                 value={config.dataSource || 'revenue'}
                 onChange={(e) => updateConfig('dataSource', e.target.value)}
                 className="w-full bg-gray-900 border border-gray-700 text-white rounded px-3 py-2"
+                title="Selecionar fonte de dados"
               >
                 <option value="revenue">Receita</option>
                 <option value="users">Usuários</option>
