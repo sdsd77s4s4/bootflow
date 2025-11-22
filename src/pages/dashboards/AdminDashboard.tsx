@@ -265,6 +265,8 @@ const AdminDashboard = () => {
   // Função para adicionar um novo revendedor
   const addRevenda = useCallback(async (revendaData: any) => {
     try {
+      // supabase client generic types can be strict here; ignore TS for runtime insert
+      // @ts-expect-error TS-compat: runtime insert with flexible object
       const { data, error } = await supabase
         .from('revendas')
         .insert([revendaData])
@@ -1411,7 +1413,7 @@ const AdminDashboard = () => {
                             <div className="bg-red-900/40 border border-red-700 text-red-300 text-xs rounded p-2 mb-2">❌ {extractionError}</div>
                           )}
                           {extractionResult && !extractionError && (
-                            <div className="bg-green-900/40 border border-green-700 text-green-300 text-xs rounded p-2 mb-2">✅ {extractionResult.message}</div>
+                            <div className="bg-green-900/40 border border-green-700 text-green-300 text-xs rounded p-2 mb-2">✅ {(extractionResult as any)?.message}</div>
                           )}
                         </div>
                         
