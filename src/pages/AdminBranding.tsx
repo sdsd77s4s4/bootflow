@@ -3318,6 +3318,7 @@ const AdminBranding: React.FC = () => {
                       value={pageForm.textColor}
                       onChange={(e) => setPageForm({ ...pageForm, textColor: e.target.value })}
                       className="flex-1 bg-gray-900 border border-gray-700 text-white focus:border-blue-500"
+                      title="Cor do texto da página em formato hexadecimal"
                     />
                   </div>
                 </div>
@@ -3338,6 +3339,7 @@ const AdminBranding: React.FC = () => {
                       value={pageForm.primaryColor}
                       onChange={(e) => setPageForm({ ...pageForm, primaryColor: e.target.value })}
                       className="flex-1 bg-gray-900 border border-gray-700 text-white focus:border-blue-500"
+                      title="Cor primária da página em formato hexadecimal"
                     />
                   </div>
                 </div>
@@ -3351,6 +3353,7 @@ const AdminBranding: React.FC = () => {
                     checked={pageForm.showHeader}
                     onChange={(e) => setPageForm({ ...pageForm, showHeader: e.target.checked })}
                     className="accent-blue-500"
+                    title="Mostrar cabeçalho na página"
                   />
                   <Label htmlFor="page-show-header" className="text-gray-300 cursor-pointer">
                     Mostrar Cabeçalho
@@ -3525,21 +3528,21 @@ const AdminBranding: React.FC = () => {
                             return (
                               <Card className="bg-[#181e29] border border-gray-700">
                                 <CardHeader>
-                                  <CardTitle className="text-white text-sm">{config.title || 'Métrica'}</CardTitle>
+                                  <CardTitle className="text-white text-sm">{(config.title as string) || 'Métrica'}</CardTitle>
                                 </CardHeader>
                                 <CardContent>
-                                  <div className="text-3xl font-bold" style={{ color: config.color || viewingPage.primaryColor }}>
-                                    {config.value || '0'}
+                                  <div className="text-3xl font-bold" style={{ color: (config.color as string) || viewingPage.primaryColor }}>
+                                    {(config.value as string | number) || '0'}
                                   </div>
-                                  <div className="text-sm text-gray-400 mt-1">{config.label || 'Descrição'}</div>
+                                  <div className="text-sm text-gray-400 mt-1">{(config.label as string) || 'Descrição'}</div>
                                 </CardContent>
                               </Card>
                             );
                           case 'stats-grid': {
-                            const gridCols = config.columns === 2 ? 'grid-cols-2' : config.columns === 4 ? 'grid-cols-4' : 'grid-cols-3';
+                            const gridCols = (config.columns as number) === 2 ? 'grid-cols-2' : (config.columns as number) === 4 ? 'grid-cols-4' : 'grid-cols-3';
                             return (
                               <div className={`grid ${gridCols} gap-4`}>
-                                {config.metrics?.map((metric: string, idx: number) => {
+                                {(config.metrics as string[])?.map((metric: string, idx: number) => {
                                   const metricData: Record<string, { value: string | number; label: string; icon: React.ComponentType<Record<string, unknown>> }> = {
                                     totalUsers: { value: stats?.totalUsers || 0, label: 'Total de Usuários', icon: Users },
                                     totalRevenue: { value: `R$ ${stats?.totalRevenue?.toLocaleString('pt-BR') || '0'}`, label: 'Receita Total', icon: DollarSign },
@@ -3621,24 +3624,24 @@ const AdminBranding: React.FC = () => {
                             return (
                               <Button
                                 className={`w-full ${
-                                  config.variant === 'primary' ? 'bg-blue-600 hover:bg-blue-700' :
-                                  config.variant === 'secondary' ? 'bg-gray-600 hover:bg-gray-700' :
+                                  (config.variant as string) === 'primary' ? 'bg-blue-600 hover:bg-blue-700' :
+                                  (config.variant as string) === 'secondary' ? 'bg-gray-600 hover:bg-gray-700' :
                                   'bg-green-600 hover:bg-green-700'
                                 } text-white`}
                                 onClick={() => {
-                                  if (config.link) window.open(config.link, '_blank');
-                                  if (config.action) toast.info(`Ação: ${config.action}`);
+                                  if (config.link) window.open(config.link as string, '_blank');
+                                  if (config.action) toast.info(`Ação: ${config.action as string}`);
                                 }}
                               >
-                                {config.text || 'Clique aqui'}
+                                {(config.text as string) || 'Clique aqui'}
                               </Button>
                             );
                           case 'text': {
                             const textSizes: Record<string, string> = { small: 'text-sm', medium: 'text-base', large: 'text-lg', xlarge: 'text-2xl' };
                             const textAligns: Record<string, string> = { left: 'text-left', center: 'text-center', right: 'text-right' };
                             return (
-                              <div className={`${textSizes[config.size || 'medium']} ${textAligns[config.align || 'left']}`} style={{ color: viewingPage.textColor }}>
-                                {config.content || 'Digite seu texto aqui'}
+                              <div className={`${textSizes[(config.size as string) || 'medium']} ${textAligns[(config.align as string) || 'left']}`} style={{ color: viewingPage.textColor }}>
+                                {(config.content as string) || 'Digite seu texto aqui'}
                               </div>
                             );
                           }
