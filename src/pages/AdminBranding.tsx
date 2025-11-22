@@ -3066,6 +3066,7 @@ const AdminBranding: React.FC = () => {
                     value={dashboardForm.color}
                     onChange={(e) => setDashboardForm({ ...dashboardForm, color: e.target.value })}
                     className="w-16 h-12 rounded border border-gray-700 cursor-pointer"
+                    title="Selecionar cor do tema do dashboard"
                   />
                   <Input
                     value={dashboardForm.color}
@@ -3245,6 +3246,7 @@ const AdminBranding: React.FC = () => {
                   value={pageForm.type}
                   onChange={(e) => setPageForm({ ...pageForm, type: e.target.value })}
                   className="w-full bg-gray-900 border border-gray-700 text-white rounded-md px-3 py-2 focus:border-blue-500 focus:outline-none"
+                  title="Selecionar tipo da página"
                 >
                   <option value="afiliado">Afiliado</option>
                   <option value="landing">Landing Page</option>
@@ -3293,6 +3295,7 @@ const AdminBranding: React.FC = () => {
                       value={pageForm.backgroundColor}
                       onChange={(e) => setPageForm({ ...pageForm, backgroundColor: e.target.value })}
                       className="w-12 h-12 rounded border border-gray-700 cursor-pointer"
+                      title="Selecionar cor de fundo da página"
                     />
                     <Input
                       value={pageForm.backgroundColor}
@@ -3314,6 +3317,7 @@ const AdminBranding: React.FC = () => {
                       value={pageForm.textColor}
                       onChange={(e) => setPageForm({ ...pageForm, textColor: e.target.value })}
                       className="w-12 h-12 rounded border border-gray-700 cursor-pointer"
+                      title="Selecionar cor do texto da página"
                     />
                     <Input
                       value={pageForm.textColor}
@@ -3335,6 +3339,7 @@ const AdminBranding: React.FC = () => {
                       value={pageForm.primaryColor}
                       onChange={(e) => setPageForm({ ...pageForm, primaryColor: e.target.value })}
                       className="w-12 h-12 rounded border border-gray-700 cursor-pointer"
+                      title="Selecionar cor primária da página"
                     />
                     <Input
                       value={pageForm.primaryColor}
