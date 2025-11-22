@@ -249,7 +249,7 @@ const NotificacoesContent = ({ notificacoes, setNotificacoes }: { notificacoes: 
           <span className="text-gray-300">Novos clientes</span>
         </div>
         <div className="flex items-center gap-4 mb-2">
-          <Switch checked={notificacoes.cobrancas} onCheckedChange={v => setNotificacoes((n: any) => ({ ...n, cobrancas: v }))} />
+          <Switch checked={notificacoes.cobrancas} onCheckedChange={v => setNotificacoes((n: Notificacoes) => ({ ...n, cobrancas: v }))} />
           <span className="text-gray-300">Cobranças</span>
         </div>
         <div className="flex items-center gap-4 mb-2">
