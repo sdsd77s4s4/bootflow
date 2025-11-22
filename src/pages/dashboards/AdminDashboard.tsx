@@ -155,6 +155,17 @@ const AdminDashboard = () => {
   // Hooks para funções de atualização e dados
   const { clientes: clientesFromHook, fetchClientes, addCliente: addClienteHook } = useClientes();
   const { revendas: revendasFromHook, fetchRevendas } = useRevendas();
+
+  // Helper utilitário para acessar campos em objetos desconhecidos sem usar `any`
+  const getField = <T = unknown>(obj: unknown, key: string): T | undefined => {
+    if (!obj || typeof obj !== 'object') return undefined;
+    return (obj as Record<string, unknown>)[key] as T | undefined;
+  };
+
+  const getStringField = (obj: unknown, key: string): string | undefined => {
+    const v = getField<unknown>(obj, key);
+    return typeof v === 'string' ? v : undefined;
+  };
   
   // Estados locais para os dados
   const [clientes, setClientes] = useState<TableRow<'clientes'>[]>([]);
@@ -173,13 +184,13 @@ const AdminDashboard = () => {
     if (user?.id) {
       if (clientesToUse && Array.isArray(clientesToUse)) {
         clientesToUse = clientesToUse.filter((cliente: TableRow<'clientes'>) => {
-          const adminId = (cliente as any).admin_id ?? (cliente as any).adminId;
+          const adminId = getField<string | number | null>(cliente, 'admin_id') ?? getField<string | number | null>(cliente, 'adminId');
           return adminId === user.id || adminId === null || adminId === undefined;
         }) as unknown as TableRow<'clientes'>[];
       }
       if (revendasToUse && Array.isArray(revendasToUse)) {
         revendasToUse = revendasToUse.filter((revenda: TableRow<'revendas'>) => {
-          const adminId = (revenda as any).admin_id ?? (revenda as any).adminId;
+          const adminId = getField<string | number | null>(revenda, 'admin_id') ?? getField<string | number | null>(revenda, 'adminId');
           return adminId === user.id || adminId === null || adminId === undefined;
         }) as unknown as TableRow<'revendas'>[];
       }
@@ -241,8 +252,8 @@ const AdminDashboard = () => {
       console.log('🔄 [AdminDashboard] addCliente wrapper chamado com:', clienteData);
       
       // Chamar diretamente o hook sem verificar sessão (o hook já faz isso)
-      // cast to any because hook expects specific DB types; wrapper allows flexible input
-      const success = await addClienteHook(clienteData as any);
+      // Pass through to hook (types should align with TableInsert<'clientes'>)
+      const success = await addClienteHook(clienteData);
       
       if (success) {
         toast.success('Cliente adicionado com sucesso!');
@@ -263,12 +274,13 @@ const AdminDashboard = () => {
   }, [addClienteHook]);
   
   // Função para adicionar um novo revendedor
-  const addRevenda = useCallback(async (revendaData: any) => {
+  const addRevenda = useCallback(async (revendaData: TableInsert<'revendas'> | Record<string, unknown>) => {
     try {
-      // supabase client generic types can be strict here; runtime insert may use a flexible object
+      // Ensure we call Supabase with a properly typed insert payload
+      const payload = revendaData as unknown as TableInsert<'revendas'>;
       const { data, error } = await supabase
         .from('revendas')
-        .insert([revendaData])
+        .insert([payload])
         .select();
         
       if (error) throw error;
@@ -308,10 +320,10 @@ const AdminDashboard = () => {
 
   const normalizarDataDeExpiracao = useCallback((cliente: TableRow<'clientes'>) => {
     const rawValue =
-    (cliente as any)?.expiration_date ??
-    (cliente as any)?.expirationDate ??
-    (cliente as any)?.renewalDate ??
-    (cliente as any)?.renewal_date;
+    getField<unknown>(cliente, 'expiration_date') ??
+    getField<unknown>(cliente, 'expirationDate') ??
+    getField<unknown>(cliente, 'renewalDate') ??
+    getField<unknown>(cliente, 'renewal_date');
 
     if (!rawValue) {
       return null;
@@ -385,11 +397,12 @@ const AdminDashboard = () => {
   };
 
   // Helpers para compatibilidade entre formatos de dados (nome/nome, name/nome, username, email)
-  const getDisplayName = (item: any) => {
-    return item?.name ?? item?.nome ?? item?.username ?? item?.email ?? '';
+  const getDisplayName = (item: unknown): string => {
+    const obj = item as Record<string, unknown> | undefined;
+    return (obj && (obj['name'] as string)) ?? (obj && (obj['nome'] as string)) ?? (obj && (obj['username'] as string)) ?? (obj && (obj['email'] as string)) ?? '';
   };
 
-  const isActiveStatus = (s: any) => {
+  const isActiveStatus = (s: unknown): boolean => {
     const str = String(s ?? '').toLowerCase();
     return str === 'ativo' || str === 'active';
   };
@@ -412,7 +425,7 @@ const AdminDashboard = () => {
       type: 'user',
       user: getDisplayName(cliente),
       time: cliente.updated_at ? formatTimeAgo(cliente.updated_at) : 'Há muito tempo',
-      status: isActiveStatus((cliente as any).status) ? 'Online' : 'Offline'
+      status: isActiveStatus(getField<unknown>(cliente, 'status')) ? 'Online' : 'Offline'
     }));
 
     const revendasAtividades = revendas.slice(0, 5).map((revenda, index) => ({
@@ -420,7 +433,7 @@ const AdminDashboard = () => {
       type: 'reseller',
       user: getDisplayName(revenda),
       time: revenda.updated_at ? formatTimeAgo(revenda.updated_at) : 'Há muito tempo',
-      status: isActiveStatus((revenda as any).status) ? 'Online' : 'Offline'
+      status: isActiveStatus(getField<unknown>(revenda, 'status')) ? 'Online' : 'Offline'
     }));
 
     // Combinar e ordenar por data mais recente
@@ -436,7 +449,7 @@ const AdminDashboard = () => {
   // Mapear clientes e revendedores para usuários online
   const onlineUsersUnified = useMemo(() => {
     const clientesOnline = clientes
-      .filter(cliente => isActiveStatus((cliente as any).status))
+      .filter(cliente => isActiveStatus(getField<unknown>(cliente, 'status')))
       .slice(0, 10)
       .map(cliente => ({
         id: `c-${cliente.id}`,
@@ -447,7 +460,7 @@ const AdminDashboard = () => {
       }));
 
     const revendasOnline = revendas
-      .filter(revenda => isActiveStatus((revenda as any).status))
+      .filter(revenda => isActiveStatus(getField<unknown>(revenda, 'status')))
       .slice(0, 10)
       .map(revenda => ({
         id: `r-${revenda.id}`,
@@ -1414,7 +1427,7 @@ const AdminDashboard = () => {
                             <div className="bg-red-900/40 border border-red-700 text-red-300 text-xs rounded p-2 mb-2">❌ {extractionError}</div>
                           )}
                           {extractionResult && !extractionError && (
-                            <div className="bg-green-900/40 border border-green-700 text-green-300 text-xs rounded p-2 mb-2">✅ {(extractionResult as any)?.message}</div>
+                            <div className="bg-green-900/40 border border-green-700 text-green-300 text-xs rounded p-2 mb-2">✅ {getStringField(extractionResult, 'message') ?? ''}</div>
                           )}
                         </div>
                         
@@ -2250,7 +2263,7 @@ const AdminDashboard = () => {
                                 <div className="bg-red-900/40 border border-red-700 text-red-300 text-xs rounded p-2 mb-2">❌ {extractionError}</div>
                               )}
                               {extractionResult && !extractionError && (
-                                <div className="bg-green-900/40 border border-green-700 text-green-300 text-xs rounded p-2 mb-2">✅ {(extractionResult as any)?.message}</div>
+                                <div className="bg-green-900/40 border border-green-700 text-green-300 text-xs rounded p-2 mb-2">✅ {getStringField(extractionResult, 'message') ?? ''}</div>
                               )}
                             </div>
                             
