@@ -39,11 +39,11 @@ function maskKey(s?: string) {
 }
 
 export default function AdminGateways() {
-  const API_BASE = ((typeof import.meta !== 'undefined' && (import.meta as any).env && (import.meta as any).env.VITE_GATEWAY_API_URL) as string) || 'http://localhost:4001';
+  const API_BASE = ((typeof import.meta !== 'undefined' && (import.meta as unknown as { env?: Record<string, string> }).env && (import.meta as unknown as { env?: Record<string, string> }).env.VITE_GATEWAY_API_URL) as string) || 'http://localhost:4001';
   const [apiToken, setApiToken] = useState<string>(
-    ((typeof import.meta !== 'undefined' && (import.meta as any).env && (import.meta as any).env.VITE_GATEWAY_SERVER_TOKEN) as string) || ''
+    ((typeof import.meta !== 'undefined' && (import.meta as unknown as { env?: Record<string, string> }).env && (import.meta as unknown as { env?: Record<string, string> }).env.VITE_GATEWAY_SERVER_TOKEN) as string) || ''
   );
-  const REFRESH_SECRET = ((typeof import.meta !== 'undefined' && (import.meta as any).env && (import.meta as any).env.VITE_GATEWAY_REFRESH_SECRET) as string) || '';
+  const REFRESH_SECRET = ((typeof import.meta !== 'undefined' && (import.meta as unknown as { env?: Record<string, string> }).env && (import.meta as unknown as { env?: Record<string, string> }).env.VITE_GATEWAY_REFRESH_SECRET) as string) || '';
   const [gateways, setGateways] = useState<Gateway[]>(gatewaysMock);
   const [modal, setModal] = useState<{ type: null | 'testar' | 'editar' | 'configurar' | 'desativar', gateway?: Gateway }>({ type: null });
   const [form, setForm] = useState({ nome: '', tipo: '', taxa: '' });

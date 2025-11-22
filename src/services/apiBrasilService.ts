@@ -162,9 +162,11 @@ export async function generateQRCode(
       // Create a new object to avoid mutating the original
       result.data = {
         ...result.data,
-        qrCode: (result.data as any).qrcode,
-      };
-      delete (result.data as any).qrcode;
+        qrCode: (result.data as { qrcode?: string }).qrcode,
+      } as unknown as QRCodeResponse;
+      // delete the original qrcode property safely
+      const _tmp = result.data as unknown as Record<string, unknown>;
+      delete _tmp.qrcode;
     }
     
     if (result.success) {

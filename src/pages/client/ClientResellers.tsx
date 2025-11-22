@@ -993,7 +993,7 @@ export default function ClientResellers() {
                 </div>
                 <div>
                   <Label className="text-sm font-medium text-white">Permissão</Label>
-                  <Select value={editingReseller.permission} onValueChange={(value) => setEditingReseller({...editingReseller, permission: value as any})}>
+                  <Select value={editingReseller.permission} onValueChange={(value) => setEditingReseller({...editingReseller, permission: value as string})}>
                     <SelectTrigger className="bg-[#23272f] border-gray-600 text-white">
                       <SelectValue />
                     </SelectTrigger>

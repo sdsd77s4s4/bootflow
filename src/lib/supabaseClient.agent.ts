@@ -149,7 +149,7 @@ export const createAgentSupabaseClient = (options?: AgentSupabaseOptions): Agent
   const listenRealtime = <T = unknown>(channel: string, event: string, callback: (payload: T) => void) => {
     const subscription = client
       .channel(channel, { config: { broadcast: { ack: true } } })
-      .on(event as any, (payload) => callback((payload as unknown as { payload: T }).payload))
+      .on(event as string, (payload) => callback((payload as unknown as { payload: T }).payload))
       .subscribe((status) => {
         if (status === 'SUBSCRIBED') {
           console.info(`[AgentSupabase] Listening ${channel} for event ${event}`);
