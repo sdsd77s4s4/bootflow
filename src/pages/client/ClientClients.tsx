@@ -306,7 +306,7 @@ export default function ClientClients() {
           setIsAddDialogOpen(false);
           setAddUserSuccess(false);
         }, 1000);
-      } catch (error: any) {
+      } catch (error: unknown) {
         console.error("❌ [DEBUG] Erro ao adicionar usuário:", error);
         
         // Cancelar timeout de segurança já que houve erro
@@ -483,7 +483,7 @@ export default function ClientClients() {
     }
   };
 
-  const openViewModal = (user: any) => {
+  const openViewModal = (user: User) => {
     setViewingUser(user);
     setIsViewDialogOpen(true);
   };
