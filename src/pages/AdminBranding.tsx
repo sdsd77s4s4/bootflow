@@ -982,10 +982,11 @@ const AdminBranding: React.FC = () => {
         );
 
       case 'list':
-        return config.ordered ? (
+        const listConfig = config as Record<string, unknown>;
+        return listConfig.ordered ? (
           <ol className="list-decimal list-inside">
-            {config.items?.length > 0 ? (
-              config.items.map((item: string, idx: number) => (
+            {(listConfig.items as string[])?.length > 0 ? (
+              (listConfig.items as string[]).map((item: string, idx: number) => (
                 <li key={idx} className="text-white mb-1">{item}</li>
               ))
             ) : (
@@ -994,8 +995,8 @@ const AdminBranding: React.FC = () => {
           </ol>
         ) : (
           <ul className="list-disc list-inside">
-            {config.items?.length > 0 ? (
-              config.items.map((item: string, idx: number) => (
+            {(listConfig.items as string[])?.length > 0 ? (
+              (listConfig.items as string[]).map((item: string, idx: number) => (
                 <li key={idx} className="text-white mb-1">{item}</li>
               ))
             ) : (
@@ -1005,9 +1006,10 @@ const AdminBranding: React.FC = () => {
         );
 
       case 'columns': {
-        const colCount = config.count || 2;
+        const columnsConfig = config as Record<string, unknown>;
+        const colCount = (columnsConfig.count as number) || 2;
         return (
-          <div className={`grid grid-cols-${colCount} gap-${config.gap || 'medium'}`}>
+          <div className={`grid grid-cols-${colCount} gap-${columnsConfig.gap as string || 'medium'}`}>
             {Array.from({ length: colCount }).map((_, idx) => (
               <div key={idx} className="border border-gray-700 rounded p-4 bg-gray-900/30">
                 <p className="text-gray-400 text-sm">Coluna {idx + 1}</p>
