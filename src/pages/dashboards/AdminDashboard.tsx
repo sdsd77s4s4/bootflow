@@ -382,22 +382,43 @@ const AdminDashboard = () => {
     });
   };
 
+  // Helpers para compatibilidade entre formatos de dados (nome/nome, name/nome, username, email)
+  const getDisplayName = (item: any) => {
+    return item?.name ?? item?.nome ?? item?.username ?? item?.email ?? '';
+  };
+
+  const isActiveStatus = (s: any) => {
+    const str = String(s ?? '').toLowerCase();
+    return str === 'ativo' || str === 'active';
+  };
+
+  // Handler mínimo para drag end (evita erro de referência). Implementação completa pode ser adicionada depois.
+  const handleDragEnd = (event: DragEndEvent) => {
+    // por enquanto apenas log para evitar erros de compilação
+    try {
+      // no-op: reordenação pode ser implementada futuramente
+      // console.log('Drag ended', event);
+    } catch (e) {
+      // silencioso
+    }
+  };
+
   // Mapear clientes e revendedores para atividade recente
   const recentActivityUnified = useMemo(() => {
     const clientesAtividades = clientes.slice(0, 5).map((cliente, index) => ({
       id: `c-${cliente.id}`,
       type: 'user',
-      user: cliente.name || cliente.email,
+      user: getDisplayName(cliente),
       time: cliente.updated_at ? formatTimeAgo(cliente.updated_at) : 'Há muito tempo',
-      status: cliente.status === 'Ativo' ? 'Online' : 'Offline'
+      status: isActiveStatus((cliente as any).status) ? 'Online' : 'Offline'
     }));
 
     const revendasAtividades = revendas.slice(0, 5).map((revenda, index) => ({
       id: `r-${revenda.id}`,
       type: 'reseller',
-      user: revenda.username || revenda.email,
+      user: getDisplayName(revenda),
       time: revenda.updated_at ? formatTimeAgo(revenda.updated_at) : 'Há muito tempo',
-      status: revenda.status === 'Ativo' ? 'Online' : 'Offline'
+      status: isActiveStatus((revenda as any).status) ? 'Online' : 'Offline'
     }));
 
     // Combinar e ordenar por data mais recente
@@ -413,22 +434,22 @@ const AdminDashboard = () => {
   // Mapear clientes e revendedores para usuários online
   const onlineUsersUnified = useMemo(() => {
     const clientesOnline = clientes
-      .filter(cliente => cliente.status === 'Ativo')
+      .filter(cliente => isActiveStatus((cliente as any).status))
       .slice(0, 10)
       .map(cliente => ({
         id: `c-${cliente.id}`,
-        name: cliente.name || cliente.email,
+        name: getDisplayName(cliente),
         type: 'Cliente',
         status: 'Online',
         lastSeen: cliente.updated_at ? formatTimeAgo(cliente.updated_at) : 'Agora'
       }));
 
     const revendasOnline = revendas
-      .filter(revenda => revenda.status === 'Ativo')
+      .filter(revenda => isActiveStatus((revenda as any).status))
       .slice(0, 10)
       .map(revenda => ({
         id: `r-${revenda.id}`,
-        name: revenda.username || revenda.email,
+        name: getDisplayName(revenda),
         type: 'Revendedor',
         status: 'Online',
         lastSeen: revenda.updated_at ? formatTimeAgo(revenda.updated_at) : 'Agora'
@@ -441,43 +462,7 @@ const AdminDashboard = () => {
   const isRefreshingRef = useRef(false);
   const lastRefreshRef = useRef(0);
 
-  // Função para atualizar clientes
-  const refreshUsers = useCallback(() => {
-    // Evitar múltiplas chamadas simultâneas
-    const now = Date.now();
-    if (isRefreshingRef.current || (now - lastRefreshRef.current < 1000)) {
-      return;
-    }
-    isRefreshingRef.current = true;
-    lastRefreshRef.current = now;
-    
-    if (fetchClientes) {
-      fetchClientes();
-    }
-    
-    setTimeout(() => {
-      isRefreshingRef.current = false;
-    }, 1000);
-  }, [fetchClientes]);
-  
-  // Função para atualizar revendas
-  const refreshResellers = useCallback(() => {
-    // Evitar múltiplas chamadas simultâneas
-    const now = Date.now();
-    if (isRefreshingRef.current || (now - lastRefreshRef.current < 1000)) {
-      return;
-    }
-    isRefreshingRef.current = true;
-    lastRefreshRef.current = now;
-    
-    if (fetchRevendas) {
-      fetchRevendas();
-    }
-    
-    setTimeout(() => {
-      isRefreshingRef.current = false;
-    }, 1000);
-  }, [fetchRevendas]);
+  // refreshUsers / refreshResellers are defined earlier (kept there to avoid redeclare)
 
   // Atualizar estatísticas quando os dados mudarem
   useEffect(() => {
