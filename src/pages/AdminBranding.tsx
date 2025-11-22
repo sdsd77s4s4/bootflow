@@ -1335,6 +1335,7 @@ const AdminBranding: React.FC = () => {
                 value={config.title || ''}
                 onChange={(e) => updateConfig('title', e.target.value)}
                 className="bg-gray-900 border-gray-700 text-white"
+                title="Título da métrica"
               />
             </div>
             <div className="space-y-2">
@@ -1343,6 +1344,7 @@ const AdminBranding: React.FC = () => {
                 value={config.value || ''}
                 onChange={(e) => updateConfig('value', e.target.value)}
                 className="bg-gray-900 border-gray-700 text-white"
+                title="Valor da métrica"
               />
             </div>
             <div className="space-y-2">
@@ -1351,6 +1353,7 @@ const AdminBranding: React.FC = () => {
                 value={config.label || ''}
                 onChange={(e) => updateConfig('label', e.target.value)}
                 className="bg-gray-900 border-gray-700 text-white"
+                title="Rótulo da métrica"
               />
             </div>
             <div className="space-y-2">
@@ -1361,11 +1364,13 @@ const AdminBranding: React.FC = () => {
                   value={config.color || pageForm.primaryColor}
                   onChange={(e) => updateConfig('color', e.target.value)}
                   className="w-12 h-10 rounded border border-gray-700"
+                  title="Selecionar cor"
                 />
                 <Input
                   value={config.color || pageForm.primaryColor}
                   onChange={(e) => updateConfig('color', e.target.value)}
                   className="flex-1 bg-gray-900 border-gray-700 text-white"
+                  title="Hex da cor"
                 />
               </div>
             </div>
@@ -1381,6 +1386,7 @@ const AdminBranding: React.FC = () => {
                 value={config.columns || 3}
                 onChange={(e) => updateConfig('columns', parseInt(e.target.value))}
                 className="w-full bg-gray-900 border border-gray-700 text-white rounded px-3 py-2"
+                title="Número de colunas"
               >
                 <option value={2}>2 Colunas</option>
                 <option value={3}>3 Colunas</option>
@@ -1421,6 +1427,7 @@ const AdminBranding: React.FC = () => {
                 value={config.text || ''}
                 onChange={(e) => updateConfig('text', e.target.value)}
                 className="bg-gray-900 border-gray-700 text-white"
+                title="Texto do botão"
               />
             </div>
             <div className="space-y-2">
@@ -1429,6 +1436,7 @@ const AdminBranding: React.FC = () => {
                 value={config.variant || 'primary'}
                 onChange={(e) => updateConfig('variant', e.target.value)}
                 className="w-full bg-gray-900 border border-gray-700 text-white rounded px-3 py-2"
+                title="Variante do botão"
               >
                 <option value="primary">Primário</option>
                 <option value="secondary">Secundário</option>
@@ -1442,6 +1450,7 @@ const AdminBranding: React.FC = () => {
                 onChange={(e) => updateConfig('link', e.target.value)}
                 className="bg-gray-900 border-gray-700 text-white"
                 placeholder="https://..."
+                title="URL de destino"
               />
             </div>
           </>
@@ -1456,6 +1465,7 @@ const AdminBranding: React.FC = () => {
                 value={config.content || ''}
                 onChange={(e) => updateConfig('content', e.target.value)}
                 className="w-full bg-gray-900 border border-gray-700 text-white rounded p-2 min-h-[100px] focus:border-blue-500 focus:outline-none"
+                title="Conteúdo do texto"
               />
             </div>
             <div className="space-y-2">
@@ -1464,6 +1474,7 @@ const AdminBranding: React.FC = () => {
                 value={config.size || 'medium'}
                 onChange={(e) => updateConfig('size', e.target.value)}
                 className="w-full bg-gray-900 border border-gray-700 text-white rounded px-3 py-2"
+                title="Tamanho do texto"
               >
                 <option value="small">Pequeno</option>
                 <option value="medium">Médio</option>
@@ -1477,6 +1488,7 @@ const AdminBranding: React.FC = () => {
                 value={config.align || 'left'}
                 onChange={(e) => updateConfig('align', e.target.value)}
                 className="w-full bg-gray-900 border border-gray-700 text-white rounded px-3 py-2"
+                title="Alinhamento do texto"
               >
                 <option value="left">Esquerda</option>
                 <option value="center">Centro</option>
@@ -1822,116 +1834,7 @@ const AdminBranding: React.FC = () => {
     setSites(updatedSites);
     toast.success('Site removido com sucesso!');
   };
-        {tab === 'sites' && (
-          <div className="space-y-6">
-            <div className="rounded-2xl border border-green-700/40 bg-gradient-to-br from-green-900/50 to-green-800/30 p-6 shadow-lg">
-              <div className="flex items-center justify-between mb-4">
-                <span className="block text-green-300 font-semibold text-lg">Gestão de Sites/Marcas</span>
-                <Button onClick={openNewSite} className="bg-green-600 hover:bg-green-700 text-white">
-                  <Plus className="w-4 h-4 mr-2" /> Novo Site/Marca
-                </Button>
-              </div>
-              {sites.length === 0 ? (
-                <div className="text-center py-8 text-gray-400">
-                  <Globe className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                  <p className="mb-2">Nenhum site/marca cadastrado ainda.</p>
-                  <p className="text-sm">Clique em "Novo Site/Marca" para adicionar.</p>
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {sites.map(site => (
-                    <Card key={site.id} className="bg-[#181e29] border border-gray-700 hover:border-green-500 transition-colors">
-                      <CardHeader className="pb-3">
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <CardTitle className="text-white text-base mb-1">{site.name}</CardTitle>
-                            <p className="text-xs text-gray-400">Domínio: {site.domain}</p>
-                            <div className="flex items-center gap-2 mt-1">
-                              <span className={`text-xs px-2 py-1 rounded ${site.status === 'ativo' ? 'bg-green-900/30 text-green-300' : 'bg-gray-700 text-gray-400'}`}>{site.status === 'ativo' ? 'Ativo' : 'Inativo'}</span>
-                            </div>
-                            <div className="mt-2">
-                              <span className="text-xs text-gray-400">Dashboards vinculados:</span>
-                              <div className="flex flex-wrap gap-1 mt-1">
-                                {site.dashboards.length === 0 ? (
-                                  <span className="text-xs px-2 py-1 bg-gray-700 text-gray-400 rounded">Nenhum</span>
-                                ) : (
-                                  site.dashboards.map(did => {
-                                    const db = dashboards.find(d => d.id === did);
-                                    return db ? (
-                                      <span key={did} className="text-xs px-2 py-1 bg-green-900/30 text-green-300 rounded">{db.name}</span>
-                                    ) : null;
-                                  })
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </CardHeader>
-                      <CardContent className="pt-0">
-                        <div className="flex gap-2">
-                          <Button variant="outline" size="sm" onClick={() => openEditSite(site)} className="bg-gray-700 hover:bg-gray-600 text-white border-gray-600">
-                            <Edit className="w-3 h-3" />
-                          </Button>
-                          <Button variant="outline" size="sm" onClick={() => { if (confirm('Remover este site/marca?')) removeSite(site.id); }} className="bg-red-600 hover:bg-red-700 text-white border-red-600">
-                            <Trash2 className="w-3 h-3" />
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              )}
-            </div>
-            {/* Modal de Site/Marca */}
-            <Dialog open={siteModal} onOpenChange={setSiteModal}>
-              <DialogContent className="bg-[#232a36] border border-green-700 text-white max-w-md">
-                <DialogHeader>
-                  <DialogTitle className="text-xl font-bold">{editingSite ? 'Editar Site/Marca' : 'Novo Site/Marca'}</DialogTitle>
-                </DialogHeader>
-                <div className="space-y-4 py-4">
-                  <div className="space-y-2">
-                    <Label className="text-gray-300">Nome <span className="text-red-400">*</span></Label>
-                    <Input value={siteForm.name || ''} onChange={e => setSiteForm({ ...siteForm, name: e.target.value })} className="bg-gray-900 border-gray-700 text-white" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-gray-300">Domínio <span className="text-red-400">*</span></Label>
-                    <Input value={siteForm.domain || ''} onChange={e => setSiteForm({ ...siteForm, domain: e.target.value })} className="bg-gray-900 border-gray-700 text-white" placeholder="https://seudominio.com" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-gray-300">Status</Label>
-                    <select value={siteForm.status} onChange={e => setSiteForm({ ...siteForm, status: e.target.value as 'ativo' | 'inativo' })} className="w-full bg-gray-900 border border-gray-700 text-white rounded px-3 py-2">
-                      <option value="ativo">Ativo</option>
-                      <option value="inativo">Inativo</option>
-                    </select>
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-gray-300">Dashboards vinculados</Label>
-                    <div className="flex flex-wrap gap-2">
-                      {dashboards.map(db => (
-                        <label key={db.id} className="flex items-center gap-1 text-xs text-gray-300 bg-gray-800 px-2 py-1 rounded cursor-pointer">
-                          <input type="checkbox" checked={siteForm.dashboards?.includes(db.id)} onChange={e => {
-                            const checked = e.target.checked;
-                            setSiteForm(form => ({
-                              ...form,
-                                                           dashboards: checked
-                                ? [...(form.dashboards || []), db.id]
-                                : (form.dashboards || []).filter(id => id !== db.id)
-                            }));
-                          }} className="accent-green-500" />
-                          {db.name}
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-                <DialogFooter>
-                  <Button variant="outline" onClick={() => setSiteModal(false)} className="bg-gray-700 hover:bg-gray-600 text-white border-gray-600">Cancelar</Button>
-                  <Button onClick={saveSite} className="bg-green-600 hover:bg-green-700 text-white">{editingSite ? 'Salvar Alterações' : 'Criar Site/Marca'}</Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
-          </div>
-        )}
+
 
   const colorClasses = {
     purple: {
@@ -2690,6 +2593,116 @@ const AdminBranding: React.FC = () => {
                 </div>
               )}
             </div>
+          </div>
+        )}
+        {tab === 'sites' && (
+          <div className="space-y-6">
+            <div className="rounded-2xl border border-green-700/40 bg-gradient-to-br from-green-900/50 to-green-800/30 p-6 shadow-lg">
+              <div className="flex items-center justify-between mb-4">
+                <span className="block text-green-300 font-semibold text-lg">Gestão de Sites/Marcas</span>
+                <Button onClick={openNewSite} className="bg-green-600 hover:bg-green-700 text-white">
+                  <Plus className="w-4 h-4 mr-2" /> Novo Site/Marca
+                </Button>
+              </div>
+              {sites.length === 0 ? (
+                <div className="text-center py-8 text-gray-400">
+                  <Globe className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                  <p className="mb-2">Nenhum site/marca cadastrado ainda.</p>
+                  <p className="text-sm">Clique em "Novo Site/Marca" para adicionar.</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {sites.map(site => (
+                    <Card key={site.id} className="bg-[#181e29] border border-gray-700 hover:border-green-500 transition-colors">
+                      <CardHeader className="pb-3">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <CardTitle className="text-white text-base mb-1">{site.name}</CardTitle>
+                            <p className="text-xs text-gray-400">Domínio: {site.domain}</p>
+                            <div className="flex items-center gap-2 mt-1">
+                              <span className={`text-xs px-2 py-1 rounded ${site.status === 'ativo' ? 'bg-green-900/30 text-green-300' : 'bg-gray-700 text-gray-400'}`}>{site.status === 'ativo' ? 'Ativo' : 'Inativo'}</span>
+                            </div>
+                            <div className="mt-2">
+                              <span className="text-xs text-gray-400">Dashboards vinculados:</span>
+                              <div className="flex flex-wrap gap-1 mt-1">
+                                {site.dashboards.length === 0 ? (
+                                  <span className="text-xs px-2 py-1 bg-gray-700 text-gray-400 rounded">Nenhum</span>
+                                ) : (
+                                  site.dashboards.map(did => {
+                                    const db = dashboards.find(d => d.id === did);
+                                    return db ? (
+                                      <span key={did} className="text-xs px-2 py-1 bg-green-900/30 text-green-300 rounded">{db.name}</span>
+                                    ) : null;
+                                  })
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </CardHeader>
+                      <CardContent className="pt-0">
+                        <div className="flex gap-2">
+                          <Button variant="outline" size="sm" onClick={() => openEditSite(site)} className="bg-gray-700 hover:bg-gray-600 text-white border-gray-600">
+                            <Edit className="w-3 h-3" />
+                          </Button>
+                          <Button variant="outline" size="sm" onClick={() => { if (confirm('Remover este site/marca?')) removeSite(site.id); }} className="bg-red-600 hover:bg-red-700 text-white border-red-600">
+                            <Trash2 className="w-3 h-3" />
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
+            </div>
+            {/* Modal de Site/Marca */}
+            <Dialog open={siteModal} onOpenChange={setSiteModal}>
+              <DialogContent className="bg-[#232a36] border border-green-700 text-white max-w-md">
+                <DialogHeader>
+                  <DialogTitle className="text-xl font-bold">{editingSite ? 'Editar Site/Marca' : 'Novo Site/Marca'}</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4 py-4">
+                  <div className="space-y-2">
+                    <Label className="text-gray-300">Nome <span className="text-red-400">*</span></Label>
+                    <Input value={siteForm.name || ''} onChange={e => setSiteForm({ ...siteForm, name: e.target.value })} className="bg-gray-900 border-gray-700 text-white" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-gray-300">Domínio <span className="text-red-400">*</span></Label>
+                    <Input value={siteForm.domain || ''} onChange={e => setSiteForm({ ...siteForm, domain: e.target.value })} className="bg-gray-900 border-gray-700 text-white" placeholder="https://seudominio.com" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-gray-300">Status</Label>
+                    <select value={siteForm.status} onChange={e => setSiteForm({ ...siteForm, status: e.target.value as 'ativo' | 'inativo' })} className="w-full bg-gray-900 border border-gray-700 text-white rounded px-3 py-2">
+                      <option value="ativo">Ativo</option>
+                      <option value="inativo">Inativo</option>
+                    </select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-gray-300">Dashboards vinculados</Label>
+                    <div className="flex flex-wrap gap-2">
+                      {dashboards.map(db => (
+                        <label key={db.id} className="flex items-center gap-1 text-xs text-gray-300 bg-gray-800 px-2 py-1 rounded cursor-pointer">
+                          <input type="checkbox" checked={siteForm.dashboards?.includes(db.id)} onChange={e => {
+                            const checked = e.target.checked;
+                            setSiteForm(form => ({
+                              ...form,
+                                                           dashboards: checked
+                                ? [...(form.dashboards || []), db.id]
+                                : (form.dashboards || []).filter(id => id !== db.id)
+                            }));
+                          }} className="accent-green-500" />
+                          {db.name}
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => setSiteModal(false)} className="bg-gray-700 hover:bg-gray-600 text-white border-gray-600">Cancelar</Button>
+                  <Button onClick={saveSite} className="bg-green-600 hover:bg-green-700 text-white">{editingSite ? 'Salvar Alterações' : 'Criar Site/Marca'}</Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
           </div>
         )}
         {tab === 'paginas' && (
