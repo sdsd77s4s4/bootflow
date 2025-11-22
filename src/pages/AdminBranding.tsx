@@ -1510,6 +1510,7 @@ const AdminBranding: React.FC = () => {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
+                <Label className="text-gray-300">Largura</Label>
                 <Input
                   value={config.width || '100%'}
                   onChange={(e) => updateConfig('width', e.target.value)}
@@ -1590,7 +1591,7 @@ const AdminBranding: React.FC = () => {
                   const items = e.target.value.split('\n').filter(item => item.trim());
                   updateConfig('items', items);
                 }}
-                className="w-full bg-gray-900 border border-gray-700 text-white rounded p-2 min-h-[100px]"
+                className="w-full bg-gray-900 border border-gray-700 text-white rounded p-2 min-h-[100px] focus:border-blue-500 focus:outline-none"
                 placeholder="Item 1&#10;Item 2&#10;Item 3"
               />
             </div>
@@ -1771,7 +1772,7 @@ const AdminBranding: React.FC = () => {
                             const checked = e.target.checked;
                             setSiteForm(form => ({
                               ...form,
-                              dashboards: checked
+                                                           dashboards: checked
                                 ? [...(form.dashboards || []), db.id]
                                 : (form.dashboards || []).filter(id => id !== db.id)
                             }));
@@ -3010,7 +3011,8 @@ const AdminBranding: React.FC = () => {
                       });
                     }}
                     className="bg-gray-900 border border-gray-700 text-white focus:border-blue-500"
-                    placeholder="Ex: Página de Afiliados"
+                    placeholder="Título da página"
+                    title="Título da página"
                   />
                 </div>
                 
@@ -3024,8 +3026,9 @@ const AdminBranding: React.FC = () => {
                       id="page-slug"
                       value={pageForm.slug}
                       onChange={(e) => setPageForm({ ...pageForm, slug: e.target.value.toLowerCase() })}
-                      className="flex-1 bg-gray-900 border border-gray-700 text-white focus:border-blue-500"
+                      className="flex-1 bg-gray-900 border border-gray-700 text-white"
                       placeholder="pagina-afiliados"
+                      title="Parte final da URL (slug)"
                     />
                     <Button
                       variant="ghost"
@@ -3490,4 +3493,4 @@ const AdminBranding: React.FC = () => {
   );
 };
 
-export default AdminBranding; 
+export default AdminBranding;
