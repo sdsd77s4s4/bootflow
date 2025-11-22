@@ -2300,7 +2300,7 @@ const AdminBranding: React.FC = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
                   <label className="block text-gray-300 mb-1 font-medium">Fonte</label>
-                  <select className="w-full bg-gray-900 border border-gray-700 text-white rounded px-3 py-2">
+                  <select className="w-full bg-gray-900 border border-gray-700 text-white rounded px-3 py-2" title="Selecionar fonte">
                     <option>Inter</option>
                     <option>Roboto</option>
                     <option>Montserrat</option>
