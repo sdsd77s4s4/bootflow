@@ -254,8 +254,8 @@ export default function AdminAI() {
                 <Button variant="outline" className="bg-[#1f2937] text-white flex-1" onClick={() => { setTab('clonar'); setModal({ type: 'clonarVoz' }); }}>Clonar Voz</Button>
               </div>
               <div className="mb-4">
-                <label className="block text-gray-300 mb-1 font-medium">Selecionar Voz</label>
-                <select className="w-full bg-[#1f2937] border border-gray-700 text-white rounded px-3 py-2" value={voz} onChange={e => setVoz(e.target.value)}>
+                <label htmlFor="select-voz" className="block text-gray-300 mb-1 font-medium">Selecionar Voz</label>
+                <select id="select-voz" aria-label="Selecionar voz" className="w-full bg-[#1f2937] border border-gray-700 text-white rounded px-3 py-2" value={voz} onChange={e => setVoz(e.target.value)}>
                   <option value="">Escolha uma voz</option>
                   {perfis.map(p => <option key={p.id} value={p.nome}>{p.nome}</option>)}
                 </select>

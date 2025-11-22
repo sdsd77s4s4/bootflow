@@ -55,28 +55,34 @@ export default function RealtimeButtonConfigurator() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium mb-1">Rótulo</label>
+          <label htmlFor="rb-label" className="block text-sm font-medium mb-1">Rótulo</label>
           <input
+            id="rb-label"
             value={label}
             onChange={(e) => setLabel(e.target.value)}
             className="w-full px-3 py-2 rounded border"
+            placeholder="Texto do botão (ex: Entrar com Google)"
+            title="Rótulo do botão"
           />
 
-          <label className="block text-sm font-medium mt-3 mb-1">Classes (Tailwind)</label>
+          <label htmlFor="rb-classes" className="block text-sm font-medium mt-3 mb-1">Classes (Tailwind)</label>
           <textarea
+            id="rb-classes"
             value={classes}
             onChange={(e) => setClasses(e.target.value)}
             rows={6}
             className="w-full px-3 py-2 rounded border font-mono text-xs"
+            placeholder="Cole classes Tailwind aqui"
+            title="Classes Tailwind do botão"
           />
 
           <div className="flex items-center gap-3 mt-3">
-            <label className="flex items-center gap-2">
-              <input type="checkbox" checked={disabled} onChange={(e) => setDisabled(e.target.checked)} />
+            <label className="flex items-center gap-2" htmlFor="rb-disabled">
+              <input id="rb-disabled" type="checkbox" checked={disabled} onChange={(e) => setDisabled(e.target.checked)} />
               <span className="text-sm">Disabled</span>
             </label>
-            <label className="flex items-center gap-2">
-              <input type="checkbox" checked={fullWidth} onChange={(e) => setFullWidth(e.target.checked)} />
+            <label className="flex items-center gap-2" htmlFor="rb-fullwidth">
+              <input id="rb-fullwidth" type="checkbox" checked={fullWidth} onChange={(e) => setFullWidth(e.target.checked)} />
               <span className="text-sm">Width full</span>
             </label>
           </div>
@@ -91,7 +97,7 @@ export default function RealtimeButtonConfigurator() {
         <div>
           <label className="block text-sm font-medium mb-2">Preview</label>
           <div className="p-4 bg-white rounded border">
-            <button className={previewClassName} type="button" disabled={disabled} aria-disabled={disabled}>
+            <button className={previewClassName} type="button" disabled={disabled}>
               <GoogleSvg />
               {label}
             </button>
