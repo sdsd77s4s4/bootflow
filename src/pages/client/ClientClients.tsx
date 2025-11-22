@@ -2017,6 +2017,7 @@ export default function ClientClients() {
                             price: "", // Resetar preço quando plano mudar
                           })
                         }
+                        title="Selecionar plano de cobrança"
                       >
                         <option value="">Selecione um plano</option>
                         <option value="Mensal">Mensal</option>
