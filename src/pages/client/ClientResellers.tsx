@@ -522,6 +522,7 @@ export default function ClientResellers() {
                   <input
                     type="checkbox"
                     id="forcePasswordChange"
+                    title="Forçar mudança de senha"
                     className="rounded border-gray-600 bg-[#23272f] text-blue-500 focus:ring-blue-500"
                     checked={newReseller.force_password_change}
                     onChange={(e) => setNewReseller({...newReseller, force_password_change: e.target.checked})}
@@ -662,6 +663,7 @@ export default function ClientResellers() {
                     <input
                       type="checkbox"
                       id="monthlyReseller"
+                      title="Revenda mensalista"
                       className="rounded border-gray-600 bg-[#23272f] text-blue-500 focus:ring-blue-500"
                       checked={newReseller.monthly_reseller}
                       onChange={(e) => setNewReseller({...newReseller, monthly_reseller: e.target.checked})}
@@ -1034,6 +1036,7 @@ export default function ClientResellers() {
               <div>
                 <Label className="text-sm font-medium text-white">Observações</Label>
                 <textarea
+                  title="Observações"
                   value={editingReseller.observations || ''}
                   onChange={(e) => setEditingReseller({...editingReseller, observations: e.target.value})}
                   className="w-full bg-[#23272f] border border-gray-600 text-white rounded-md px-3 py-2"
