@@ -1542,6 +1542,7 @@ const AdminBranding: React.FC = () => {
                 value={config.period || 'month'}
                 onChange={(e) => updateConfig('period', e.target.value)}
                 className="w-full bg-gray-900 border border-gray-700 text-white rounded px-3 py-2"
+                title="Selecionar período"
               >
                 <option value="day">Dia</option>
                 <option value="week">Semana</option>
