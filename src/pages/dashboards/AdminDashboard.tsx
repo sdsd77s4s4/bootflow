@@ -1270,12 +1270,12 @@ const AdminDashboard = () => {
   }) {
     const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
     const style = {
-      transform: CSS.Transform.toString(transform),
-      transition,
-      zIndex: isDragging ? 50 : 1,
-      opacity: isDragging ? 0.8 : 1,
-      cursor: isDragging ? 'grabbing' : 'grab',
-    };
+      '--transform': CSS.Transform.toString(transform),
+      '--transition': transition,
+      '--z-index': isDragging ? 50 : 1,
+      '--opacity': isDragging ? 0.8 : 1,
+      '--cursor': isDragging ? 'grabbing' : 'grab',
+    } as React.CSSProperties;
     
     const handleClick = (e: React.MouseEvent) => {
       // Prevenir clique durante o drag
@@ -1299,12 +1299,18 @@ const AdminDashboard = () => {
     };
     
     return (
-      /* eslint-disable no-inline-styles */
       <div 
         ref={setNodeRef} 
         style={style}
-        {...attributes} 
         className="select-none touch-manipulation"
+        style={{
+          transform: CSS.Transform.toString(transform),
+          transition: transition as unknown as string,
+          zIndex: isDragging ? 50 : 1,
+          opacity: isDragging ? 0.8 : 1,
+          cursor: isDragging ? 'grabbing' : 'grab',
+        }}
+        {...attributes} 
         data-card-id={id}
       >
         <Card 
