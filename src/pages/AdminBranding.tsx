@@ -892,6 +892,7 @@ const AdminBranding: React.FC = () => {
         );
 
       case 'form':
+        const formConfig = config as Record<string, unknown>;
         return (
           <Card className="bg-[#181e29] border border-gray-700">
             <CardHeader>
@@ -899,8 +900,8 @@ const AdminBranding: React.FC = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {config.fields?.length > 0 ? (
-                  (config.fields as Array<{ label?: string; type?: string; placeholder?: string }>).map((field, idx: number) => (
+                {formConfig.fields ? (
+                  (formConfig.fields as Array<{ label?: string; type?: string; placeholder?: string }>).map((field, idx: number) => (
                     <div key={idx} className="space-y-1">
                       <Label className="text-gray-300">{field.label}</Label>
                       <Input
@@ -914,7 +915,7 @@ const AdminBranding: React.FC = () => {
                   <p className="text-gray-400 text-sm">Nenhum campo configurado. Edite o componente para adicionar campos.</p>
                 )}
                 <Button className="w-full bg-blue-600 hover:bg-blue-700">
-                  {config.submitText || 'Enviar'}
+                  {formConfig.submitText as string || 'Enviar'}
                 </Button>
               </div>
             </CardContent>
@@ -949,11 +950,12 @@ const AdminBranding: React.FC = () => {
 
       }
       case 'image':
-        return config.src ? (
+        const imageConfig = config as Record<string, unknown>;
+        return imageConfig.src ? (
           <img
-            src={config.src}
-            alt={config.alt || ''}
-            style={{ width: config.width || '100%', height: config.height || 'auto' }}
+            src={imageConfig.src as string}
+            alt={imageConfig.alt as string || ''}
+            style={{ width: imageConfig.width as string || '100%', height: imageConfig.height as string || 'auto' }}
             className="rounded-lg"
           />
         ) : (
@@ -964,11 +966,12 @@ const AdminBranding: React.FC = () => {
         );
 
       case 'video':
-        return config.src ? (
+        const videoConfig = config as Record<string, unknown>;
+        return videoConfig.src ? (
           <video
-            src={config.src}
-            controls={config.controls}
-            autoPlay={config.autoplay}
+            src={videoConfig.src as string}
+            controls={videoConfig.controls as boolean}
+            autoPlay={videoConfig.autoplay as boolean}
             className="w-full rounded-lg"
           />
         ) : (
