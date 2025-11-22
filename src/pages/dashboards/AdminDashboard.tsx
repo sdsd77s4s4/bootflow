@@ -1301,7 +1301,6 @@ const AdminDashboard = () => {
     return (
       <div 
         ref={setNodeRef} 
-        style={style}
         className="select-none touch-manipulation"
         style={{
           transform: CSS.Transform.toString(transform),
