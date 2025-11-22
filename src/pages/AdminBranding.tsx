@@ -454,11 +454,11 @@ const AdminBranding: React.FC = () => {
 
     const data = mockData[widgetName as keyof typeof mockData] || { value: '0', label: widgetName, change: '' };
 
+    // eslint-disable-next-line no-inline-styles
     return (
       <Card 
         key={index}
         className="bg-[#181e29] border border-gray-700 hover:border-purple-500 transition-all"
-        {/* eslint-disable-next-line no-inline-styles */}
         style={{ borderTopColor: viewingDashboard?.color }}
       >
         <CardHeader className="pb-3">
