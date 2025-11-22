@@ -12,6 +12,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import useDashboardData from '@/hooks/useDashboardData';
 import { useClientes } from '@/hooks/useClientes';
+import "./AdminBranding.css";
 
 const initialBrand = {
   name: 'Sua Empresa Ltda',
@@ -1313,7 +1314,7 @@ const AdminBranding: React.FC = () => {
               <textarea
                 value={config.content || ''}
                 onChange={(e) => updateConfig('content', e.target.value)}
-                className="w-full bg-gray-900 border border-gray-700 text-white rounded p-2 min-h-[100px]"
+                className="w-full bg-gray-900 border border-gray-700 text-white rounded p-2 min-h-[100px] focus:border-blue-500 focus:outline-none"
               />
             </div>
             <div className="space-y-2">
@@ -1509,7 +1510,6 @@ const AdminBranding: React.FC = () => {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label className="text-gray-300">Largura</Label>
                 <Input
                   value={config.width || '100%'}
                   onChange={(e) => updateConfig('width', e.target.value)}
