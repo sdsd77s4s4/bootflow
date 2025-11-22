@@ -45,7 +45,7 @@ import { ClientSidebar } from "@/components/sidebars/ClientSidebar";
 import { AIModalManager } from "@/components/modals/AIModalManager";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Dialog, DialogContent, DialogTrigger, DialogTitle, DialogDescription, DialogHeader } from '@/components/ui/dialog';
-import { DndContext, closestCenter } from '@dnd-kit/core';
+import { DndContext, closestCenter, type DragEndEvent } from '@dnd-kit/core';
 import { SortableContext, useSortable, rectSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
