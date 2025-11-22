@@ -1,4 +1,5 @@
 import { toast } from 'sonner';
+import { getErrorMessage } from '@/lib/supabaseClient.agent';
 import { 
   shouldUseMock, 
   mockCheckConnectionStatus, 
@@ -114,12 +115,13 @@ export async function sendMessage(
       console.error('Falha ao enviar mensagem:', result.error);
       return result;
     }
-  } catch (error: any) {
-    console.error('Erro ao enviar mensagem:', error);
+  } catch (error: unknown) {
+    const errMsg = getErrorMessage(error);
+    console.error('Erro ao enviar mensagem:', errMsg);
     return { 
       success: false, 
-      error: error.message || 'Erro ao enviar mensagem',
-      message: error.message
+      error: errMsg || 'Erro ao enviar mensagem',
+      message: errMsg
     };
   }
 }
@@ -173,12 +175,12 @@ export async function generateQRCode(
       toast.error(result.error || 'Falha ao gerar QR Code');
       return result;
     }
-  } catch (error: any) {
-    console.error('Erro ao gerar QR Code:', error);
-    const errorMessage = error.message || 'Erro ao gerar QR Code';
-    
+  } catch (error: unknown) {
+    const errMsg = getErrorMessage(error);
+    console.error('Erro ao gerar QR Code:', errMsg);
+
     // Tratamento específico para erros de rede
-    if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
+    if (errMsg.includes('Failed to fetch') || errMsg.includes('TypeError')) {
       const errorMsg = 'Falha na conexão com o servidor. Verifique sua conexão com a internet.';
       toast.error(errorMsg);
       return { 
@@ -187,12 +189,12 @@ export async function generateQRCode(
         message: 'Erro de rede ao tentar gerar QR Code'
       };
     }
-    
-    toast.error(errorMessage);
+
+    toast.error(errMsg);
     return { 
       success: false, 
-      error: errorMessage,
-      message: errorMessage
+      error: errMsg,
+      message: errMsg
     };
   }
 }
@@ -234,12 +236,13 @@ export async function checkConnectionStatus(
         status: data.status || 'disconnected'
       } 
     };
-  } catch (error: any) {
-    console.error('Erro ao verificar status da conexão:', error);
+  } catch (error: unknown) {
+    const errMsg = getErrorMessage(error);
+    console.error('Erro ao verificar status da conexão:', errMsg);
     return { 
       success: false, 
-      error: error.message || 'Erro ao verificar status da conexão',
-      message: error.message
+      error: errMsg || 'Erro ao verificar status da conexão',
+      message: errMsg
     };
   }
 }
@@ -276,12 +279,13 @@ export async function disconnectWhatsApp(
     }
 
     return { success: true, data };
-  } catch (error: any) {
-    console.error('Erro ao desconectar WhatsApp:', error);
+  } catch (error: unknown) {
+    const errMsg = getErrorMessage(error);
+    console.error('Erro ao desconectar WhatsApp:', errMsg);
     return { 
       success: false, 
-      error: error.message || 'Erro ao desconectar WhatsApp',
-      message: error.message
+      error: errMsg || 'Erro ao desconectar WhatsApp',
+      message: errMsg
     };
   }
 }
@@ -332,12 +336,13 @@ export async function sendTemplateMessage(
     }
 
     return { success: true, data };
-  } catch (error: any) {
-    console.error('Erro ao enviar template:', error);
+  } catch (error: unknown) {
+    const errMsg = getErrorMessage(error);
+    console.error('Erro ao enviar template:', errMsg);
     return { 
       success: false, 
-      error: error.message || 'Erro ao enviar template',
-      message: error.message
+      error: errMsg || 'Erro ao enviar template',
+      message: errMsg
     };
   }
 }
