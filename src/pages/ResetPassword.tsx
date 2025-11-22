@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
+import { getErrorMessage } from '@/lib/supabaseClient.agent';
 
 const ResetPassword: React.FC = () => {
   const [password, setPassword] = useState('');
@@ -94,9 +95,10 @@ const ResetPassword: React.FC = () => {
         console.error('Token de acesso não encontrado ou inválido.');
         throw new Error('Link de redefinição inválido ou expirado.');
       }
-    } catch (error: any) {
-      console.error('Erro ao redefinir senha:', error);
-      setError(error.message || 'Erro ao redefinir senha. Tente novamente mais tarde.');
+    } catch (error: unknown) {
+      const errMsg = getErrorMessage(error);
+      console.error('Erro ao redefinir senha:', errMsg);
+      setError(errMsg || 'Erro ao redefinir senha. Tente novamente mais tarde.');
     } finally {
       setLoading(false);
     }

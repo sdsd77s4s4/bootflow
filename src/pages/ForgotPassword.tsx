@@ -7,6 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useAuth } from "@/contexts/AuthContext";
 import { Loader2, Mail, ArrowLeft, Bot, AlertTriangle, CheckCircle } from "lucide-react";
 import { motion } from "framer-motion";
+import { getErrorMessage } from '@/lib/supabaseClient.agent';
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState("");
@@ -50,17 +51,16 @@ export default function ForgotPassword() {
       if (error) throw error;
       
       setSuccess(true);
-    } catch (error: any) {
-      let errorMessage = "Erro ao enviar e-mail de redefinição. Tente novamente.";
-      
-      if (error?.message?.includes('Failed to fetch') || 
-          error?.message?.includes('ERR_NAME_NOT_RESOLVED') ||
-          error?.message?.includes('NetworkError')) {
+    } catch (error: unknown) {
+      const errMsg = getErrorMessage(error);
+      let errorMessage = errMsg || "Erro ao enviar e-mail de redefinição. Tente novamente.";
+
+      if (errMsg.includes('Failed to fetch') ||
+          errMsg.includes('ERR_NAME_NOT_RESOLVED') ||
+          errMsg.includes('NetworkError')) {
         errorMessage = "Erro de conexão: Não foi possível conectar ao servidor. Verifique sua conexão com a internet.";
-      } else if (error?.message) {
-        errorMessage = error.message;
       }
-      
+
       setError(errorMessage);
     } finally {
       setLoading(false);
