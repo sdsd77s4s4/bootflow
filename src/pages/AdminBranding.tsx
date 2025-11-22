@@ -55,6 +55,23 @@ function ensureDualColorClass(bg?: string, text?: string) {
   return id;
 }
 
+// Utility: generate a CSS class for element sizes (width/height) to avoid inline styles
+function ensureSizeClass(width?: string, height?: string) {
+  if (!width && !height) return '';
+  const wSafe = (width || 'auto').replace(/[^a-zA-Z0-9_%.-]/g, '').replace(/%/g, 'pct');
+  const hSafe = (height || 'auto').replace(/[^a-zA-Z0-9_%.-]/g, '').replace(/%/g, 'pct');
+  const id = `brand-size-${wSafe}-${hSafe}`;
+  if (!document.getElementById(id)) {
+    const style = document.createElement('style');
+    style.id = id;
+    style.innerHTML = `
+      .${id} { ${width ? `width: ${width} !important;` : ''} ${height ? `height: ${height} !important;` : ''} }
+    `;
+    document.head.appendChild(style);
+  }
+  return id;
+}
+
 const initialBrand = {
   name: 'Sua Empresa Ltda',
   slogan: 'Seu slogan aqui',
@@ -752,16 +769,27 @@ const AdminBranding: React.FC = () => {
       isDragging,
     } = useSortable({ id: component.id });
 
-    const style = {
-      '--transform': CSS.Transform.toString(transform),
-      '--transition': transition,
-      '--opacity': isDragging ? 0.5 : 1,
+    const localRef = React.useRef<HTMLDivElement | null>(null);
+    const assignRef = (node: HTMLDivElement | null) => {
+      setNodeRef(node);
+      localRef.current = node;
     };
+
+    React.useEffect(() => {
+      const node = localRef.current;
+      if (!node) return;
+      try {
+        node.style.setProperty('--transform', CSS.Transform.toString(transform));
+        if (transition) node.style.setProperty('--transition', transition);
+        node.style.opacity = isDragging ? '0.5' : '1';
+      } catch (e) {
+        // ignore
+      }
+    }, [transform, transition, isDragging]);
 
     return (
       <div
-        ref={setNodeRef}
-        style={style as React.CSSProperties}
+        ref={assignRef}
         className={`relative group border-2 rounded-lg p-4 mb-3 cursor-pointer transition-all ${
           selectedComponent?.id === component.id
             ? 'border-blue-500 bg-blue-900/20'
@@ -809,7 +837,7 @@ const AdminBranding: React.FC = () => {
               <CardTitle className="text-white text-sm">{metricConfig.title as string || 'Métrica'}</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold" style={{ color: metricConfig.color as string || pageForm.primaryColor }}>
+              <div className={`text-3xl font-bold ${ensureColorClass((metricConfig.color as string) || pageForm.primaryColor)} text-dynamic`}>
                 {metricConfig.value as string || '0'}
               </div>
               <div className="text-sm text-gray-400 mt-1">{metricConfig.label as string || 'Descrição'}</div>
@@ -996,8 +1024,7 @@ const AdminBranding: React.FC = () => {
           <img
             src={imageConfig.src as string}
             alt={imageConfig.alt as string || ''}
-            style={{ width: imageConfig.width as string || '100%', height: imageConfig.height as string || 'auto' }}
-            className="rounded-lg"
+            className={`${ensureSizeClass(imageConfig.width as string, imageConfig.height as string)} rounded-lg`}
           />
         ) : (
           <div className="border-2 border-dashed border-gray-700 rounded-lg p-8 text-center text-gray-400">
@@ -1263,13 +1290,7 @@ const AdminBranding: React.FC = () => {
             </TabsContent>
 
             <TabsContent value="preview" className="flex-1 overflow-y-auto p-6">
-              <div
-                className="min-h-full p-8 rounded-lg"
-                style={{
-                  backgroundColor: pageForm.backgroundColor,
-                  color: pageForm.textColor,
-                }}
-              >
+                <div className={`min-h-full p-8 rounded-lg ${ensureDualColorClass(pageForm.backgroundColor, pageForm.textColor)}`}>
                 {pageForm.components.length === 0 ? (
                   <div className="text-center py-12 text-gray-400">
                     <Layout className="w-16 h-16 mx-auto mb-4 opacity-50" />
@@ -1971,8 +1992,7 @@ const AdminBranding: React.FC = () => {
               <div>
                 <h1 className="text-3xl font-bold text-white flex items-center gap-3">
                   <div 
-                    className="w-4 h-4 rounded-full"
-                    style={{ backgroundColor: viewingDashboard.color }}
+                    className={`w-4 h-4 rounded-full ${ensureColorClass(viewingDashboard.color)} bg-dynamic`}
                   />
                   {viewingDashboard.name}
                 </h1>
@@ -2447,8 +2467,7 @@ const AdminBranding: React.FC = () => {
                             <p className="text-xs text-gray-400">Layout: {dashboard.layout}</p>
                           </div>
                           <div 
-                            className="w-4 h-4 rounded-full border-2 border-white"
-                            style={{ backgroundColor: dashboard.color }}
+                            className={`w-4 h-4 rounded-full border-2 border-white ${ensureColorClass(dashboard.color)} bg-dynamic`}
                           />
                         </div>
                       </CardHeader>
@@ -2588,8 +2607,7 @@ const AdminBranding: React.FC = () => {
                             <p className="text-xs text-gray-400">Layout: {dashboard.layout}</p>
                           </div>
                           <div 
-                            className="w-4 h-4 rounded-full border-2 border-white"
-                            style={{ backgroundColor: dashboard.color }}
+                            className={`w-4 h-4 rounded-full border-2 border-white ${ensureColorClass(dashboard.color)} bg-dynamic`}
                           />
                         </div>
                       </CardHeader>
@@ -3543,16 +3561,10 @@ const AdminBranding: React.FC = () => {
                 </Button>
               </div>
             </div>
-            <div 
-              className="p-8"
-              style={{
-                backgroundColor: viewingPage.backgroundColor,
-                color: viewingPage.textColor,
-              }}
-            >
+            <div className={`p-8 ${ensureDualColorClass(viewingPage.backgroundColor, viewingPage.textColor)}`}>
               {viewingPage.showHeader && (
-                <header className="mb-8 pb-4 border-b" style={{ borderColor: viewingPage.primaryColor }}>
-                  <h1 className="text-4xl font-bold mb-2" style={{ color: viewingPage.primaryColor }}>
+                <header className={`mb-8 pb-4 border-b ${ensureColorClass(viewingPage.primaryColor)} border-dynamic`}>
+                  <h1 className={`text-4xl font-bold mb-2 ${ensureColorClass(viewingPage.primaryColor)} text-dynamic`}>
                     {viewingPage.title}
                   </h1>
                   {viewingPage.description && (
@@ -3579,7 +3591,7 @@ const AdminBranding: React.FC = () => {
                                   <CardTitle className="text-white text-sm">{(config.title as string) || 'Métrica'}</CardTitle>
                                 </CardHeader>
                                 <CardContent>
-                                  <div className="text-3xl font-bold" style={{ color: (config.color as string) || viewingPage.primaryColor }}>
+                                  <div className={`text-3xl font-bold ${ensureColorClass((config.color as string) || viewingPage.primaryColor)} text-dynamic`}>
                                     {(config.value as string | number) || '0'}
                                   </div>
                                   <div className="text-sm text-gray-400 mt-1">{(config.label as string) || 'Descrição'}</div>
@@ -3688,7 +3700,7 @@ const AdminBranding: React.FC = () => {
                             const textSizes: Record<string, string> = { small: 'text-sm', medium: 'text-base', large: 'text-lg', xlarge: 'text-2xl' };
                             const textAligns: Record<string, string> = { left: 'text-left', center: 'text-center', right: 'text-right' };
                             return (
-                              <div className={`${textSizes[(config.size as string) || 'medium']} ${textAligns[(config.align as string) || 'left']}`} style={{ color: viewingPage.textColor }}>
+                              <div className={`${textSizes[(config.size as string) || 'medium']} ${textAligns[(config.align as string) || 'left']} ${ensureColorClass(viewingPage.textColor)} text-dynamic`}>
                                 {(config.content as string) || 'Digite seu texto aqui'}
                               </div>
                             );
@@ -3704,16 +3716,16 @@ const AdminBranding: React.FC = () => {
                       );
                     })}
                 </div>
-              ) : (
+                ) : (
                 /* Fallback para conteúdo HTML se não houver componentes */
                 <div 
+                  className={`${ensureColorClass(viewingPage.textColor)} text-dynamic`}
                   dangerouslySetInnerHTML={{ __html: viewingPage.content || '<p>Nenhum conteúdo adicionado ainda.</p>' }}
-                  style={{ color: viewingPage.textColor }}
                 />
               )}
               
               {viewingPage.showFooter && (
-                <footer className="mt-8 pt-4 border-t" style={{ borderColor: viewingPage.primaryColor }}>
+                <footer className={`mt-8 pt-4 border-t ${ensureColorClass(viewingPage.primaryColor)} border-dynamic`}>
                   <p className="text-sm opacity-60">© {new Date().getFullYear()} {brand.name || 'Sua Empresa'}</p>
                 </footer>
               )}
