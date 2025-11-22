@@ -241,7 +241,8 @@ const AdminDashboard = () => {
       console.log('🔄 [AdminDashboard] addCliente wrapper chamado com:', clienteData);
       
       // Chamar diretamente o hook sem verificar sessão (o hook já faz isso)
-      const success = await addClienteHook(clienteData);
+      // cast to any because hook expects specific DB types; wrapper allows flexible input
+      const success = await addClienteHook(clienteData as any);
       
       if (success) {
         toast.success('Cliente adicionado com sucesso!');
