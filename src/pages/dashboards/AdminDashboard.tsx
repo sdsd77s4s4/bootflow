@@ -2015,7 +2015,7 @@ const AdminDashboard = () => {
     }
   };
 
-  const handleDragEnd = (event: any) => {
+  const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     
     if (!active || !over) return;
