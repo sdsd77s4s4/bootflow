@@ -262,7 +262,7 @@ const AdminDashboard = () => {
   }, [addClienteHook]);
   
   // Função para adicionar um novo revendedor
-  const addRevenda = useCallback(async (revendaData: TableInsert<'revendas'>) => {
+  const addRevenda = useCallback(async (revendaData: any) => {
     try {
       const { data, error } = await supabase
         .from('revendas')
@@ -306,10 +306,10 @@ const AdminDashboard = () => {
 
   const normalizarDataDeExpiracao = useCallback((cliente: TableRow<'clientes'>) => {
     const rawValue =
-      cliente?.expiration_date ??
-      cliente?.expirationDate ??
-      cliente?.renewalDate ??
-      cliente?.renewal_date;
+    (cliente as any)?.expiration_date ??
+    (cliente as any)?.expirationDate ??
+    (cliente as any)?.renewalDate ??
+    (cliente as any)?.renewal_date;
 
     if (!rawValue) {
       return null;
@@ -814,7 +814,7 @@ const AdminDashboard = () => {
 
       // Adicionar usuário usando o hook
       console.log("🔄 [AdminDashboard] Chamando addCliente...");
-      const success = await addCliente(userData);
+      const success = await addCliente(userData as any);
       console.log("🔄 [AdminDashboard] addCliente retornou:", success);
 
       // Verificar se a operação foi bem-sucedida
@@ -2246,7 +2246,7 @@ const AdminDashboard = () => {
                                 <div className="bg-red-900/40 border border-red-700 text-red-300 text-xs rounded p-2 mb-2">❌ {extractionError}</div>
                               )}
                               {extractionResult && !extractionError && (
-                                <div className="bg-green-900/40 border border-green-700 text-green-300 text-xs rounded p-2 mb-2">✅ {extractionResult.message}</div>
+                                <div className="bg-green-900/40 border border-green-700 text-green-300 text-xs rounded p-2 mb-2">✅ {(extractionResult as any)?.message}</div>
                               )}
                             </div>
                             
