@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { useClientes } from '@/hooks/useClientes';
 import { useRevendas } from '@/hooks/useRevendas';
 import { useRealtimeClientes, useRealtimeRevendas } from '@/hooks/useRealtime';
+import type { TableRow, TableInsert } from '@/types/supabase.types';
 import useDashboardData from '@/hooks/useDashboardData';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
@@ -170,8 +171,8 @@ const ClientDashboard = () => {
   const { revendas: revendasFromHook, fetchRevendas } = useRevendas();
   
   // Estados locais para os dados
-  const [clientes, setClientes] = useState<any[]>([]);
-  const [revendas, setRevendas] = useState<any[]>([]);
+  const [clientes, setClientes] = useState<TableRow<'clientes'>[]>([]);
+  const [revendas, setRevendas] = useState<TableRow<'revendas'>[]>([]);
   const [loadingClientes, setLoadingClientes] = useState(true);
   const [loadingRevendas, setLoadingRevendas] = useState(true);
   
@@ -185,26 +186,26 @@ const ClientDashboard = () => {
     // Filtrar por admin_id se houver cliente logado (garantir que apenas dados do cliente sejam exibidos)
     if (user?.id) {
       if (clientesToUse && Array.isArray(clientesToUse)) {
-        clientesToUse = clientesToUse.filter((cliente: any) => {
+        clientesToUse = clientesToUse.filter((cliente: TableRow<'clientes'>) => {
           return cliente.admin_id === user.id || cliente.admin_id === null || cliente.admin_id === undefined;
-        }) as unknown as any[];
+        }) as TableRow<'clientes'>[];
       }
       if (revendasToUse && Array.isArray(revendasToUse)) {
-        revendasToUse = revendasToUse.filter((revenda: any) => {
+        revendasToUse = revendasToUse.filter((revenda: TableRow<'revendas'>) => {
           return revenda.admin_id === user.id || revenda.admin_id === null || revenda.admin_id === undefined;
-        }) as unknown as any[];
+        }) as TableRow<'revendas'>[];
       }
       console.log('🔄 [ClientDashboard] Dados filtrados por admin_id:', user.id, 'Clientes:', clientesToUse?.length, 'Revendas:', revendasToUse?.length);
     }
     
     if (clientesToUse) {
-      setClientes(clientesToUse as unknown as any[]);
+      setClientes(clientesToUse as TableRow<'clientes'>[]);
       setLoadingClientes(false);
     }
     
     if (revendasToUse) {
       console.log('✅ [ClientDashboard] Atualizando estado revendas com', revendasToUse.length, 'revendedores');
-      setRevendas(revendasToUse as unknown as any[]);
+      setRevendas(revendasToUse as TableRow<'revendas'>[]);
       setLoadingRevendas(false);
     }
   }, [realtimeClientes, realtimeRevendas, clientesFromHook, revendasFromHook, user?.id]);
@@ -259,11 +260,11 @@ const ClientDashboard = () => {
   }, [addClienteHook]);
   
   // Função para adicionar um novo revendedor
-  const addRevenda = useCallback(async (revendaData: any) => {
+  const addRevenda = useCallback(async (revendaData: TableInsert<'revendas'>) => {
     try {
-      const { data, error } = await (supabase
-        .from('revendas') as unknown as any)
-        .insert([revendaData] as unknown as any)
+      const { data, error } = await supabase
+        .from('revendas')
+        .insert([revendaData])
         .select();
         
       if (error) throw error;

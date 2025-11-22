@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { useClientes } from '@/hooks/useClientes';
 import { useRevendas } from '@/hooks/useRevendas';
 import { useRealtimeClientes, useRealtimeRevendas } from '@/hooks/useRealtime';
-import type { TableRow } from '@/types/supabase.types';
+import type { TableRow, TableInsert } from '@/types/supabase.types';
 import useDashboardData from '@/hooks/useDashboardData';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
@@ -279,11 +279,11 @@ const AdminDashboard = () => {
   }, [addClienteHook]);
   
   // Função para adicionar um novo revendedor
-  const addRevenda = useCallback(async (revendaData: any) => {
+  const addRevenda = useCallback(async (revendaData: TableInsert<'revendas'>) => {
     try {
-      const { data, error } = await (supabase
-        .from('revendas') as unknown as any)
-        .insert([revendaData] as unknown as any)
+      const { data, error } = await supabase
+        .from('revendas')
+        .insert([revendaData])
         .select();
         
       if (error) throw error;
