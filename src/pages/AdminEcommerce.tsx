@@ -1,4 +1,17 @@
 import { useState } from "react";
+interface Category {
+  id: number;
+  name: string;
+}
+
+interface Customer {
+  id: number;
+  name: string;
+  email: string;
+  phone: string;
+  status: string;
+}
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -65,6 +78,51 @@ export default function AdminEcommerce() {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isConfigDialogOpen, setIsConfigDialogOpen] = useState(false);
 
+  // Categorias
+  const [categories, setCategories] = useState<Category[]>([
+    { id: 1, name: "Planos" },
+    { id: 2, name: "Serviços" },
+  ]);
+  const [newCategory, setNewCategory] = useState("");
+  const [isCategoryDialogOpen, setIsCategoryDialogOpen] = useState(false);
+
+  // Clientes
+  const [customers, setCustomers] = useState<Customer[]>([
+    { id: 1, name: "João Silva", email: "joao@email.com", phone: "11999999999", status: "Ativo" },
+    { id: 2, name: "Maria Santos", email: "maria@email.com", phone: "11988888888", status: "Ativo" },
+    { id: 3, name: "Pedro Oliveira", email: "pedro@email.com", phone: "11977777777", status: "Inativo" },
+  ]);
+  const [newCustomer, setNewCustomer] = useState({ name: "", email: "", phone: "", status: "Ativo" });
+  const [isCustomerDialogOpen, setIsCustomerDialogOpen] = useState(false);
+
+  // Filtros
+  const [productFilter, setProductFilter] = useState("");
+  const [customerFilter, setCustomerFilter] = useState("");
+
+  // CRUD Categoria
+  const handleAddCategory = () => {
+    if (newCategory.trim()) {
+      setCategories([...categories, { id: Date.now(), name: newCategory.trim() }]);
+      setNewCategory("");
+      setIsCategoryDialogOpen(false);
+    }
+  };
+  const handleDeleteCategory = (id: number) => {
+    setCategories(categories.filter(c => c.id !== id));
+  };
+
+  // CRUD Cliente
+  const handleAddCustomer = () => {
+    if (newCustomer.name && newCustomer.email) {
+      setCustomers([...customers, { ...newCustomer, id: Date.now() }]);
+      setNewCustomer({ name: "", email: "", phone: "", status: "Ativo" });
+      setIsCustomerDialogOpen(false);
+    }
+  };
+  const handleDeleteCustomer = (id: number) => {
+    setCustomers(customers.filter(c => c.id !== id));
+  };
+
   const handleAddProduct = () => {
     if (newProduct.name && newProduct.price) {
       const product: Product = {
@@ -115,6 +173,16 @@ export default function AdminEcommerce() {
 
   const totalProducts = products.length;
   const activeProducts = products.filter(product => product.status === "Ativo").length;
+
+  // Filtro de produtos
+  const filteredProducts = productFilter
+    ? products.filter(p => p.name.toLowerCase().includes(productFilter.toLowerCase()) || p.category.toLowerCase().includes(productFilter.toLowerCase()))
+    : products;
+
+  // Filtro de clientes
+  const filteredCustomers = customerFilter
+    ? customers.filter(c => c.name.toLowerCase().includes(customerFilter.toLowerCase()) || c.email.toLowerCase().includes(customerFilter.toLowerCase()))
+    : customers;
 
   return (
     <div className="space-y-4 sm:space-y-6 min-h-screen bg-[#09090b] p-3 sm:p-6">
@@ -287,6 +355,41 @@ export default function AdminEcommerce() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              {/* Categorias */}
+              <Card className="bg-[#1f2937] text-white mt-6">
+                <CardHeader>
+                  <CardTitle className="text-white flex items-center justify-between">Categorias
+                    <Button size="sm" className="bg-blue-600 ml-2" onClick={() => setIsCategoryDialogOpen(true)}>
+                      <Plus className="w-4 h-4" />
+                    </Button>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ul className="space-y-2">
+                    {categories.map(cat => (
+                      <li key={cat.id} className="flex items-center justify-between border-b border-gray-700 py-1">
+                        <span>{cat.name}</span>
+                        <Button size="sm" variant="outline" className="border-red-600 text-red-400" onClick={() => handleDeleteCategory(cat.id)}>Excluir</Button>
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
+              <Dialog open={isCategoryDialogOpen} onOpenChange={setIsCategoryDialogOpen}>
+                <DialogContent className="bg-[#1f2937] text-white">
+                  <DialogHeader>
+                    <DialogTitle>Nova Categoria</DialogTitle>
+                  </DialogHeader>
+                  <div className="space-y-2 py-4">
+                    <Label>Nome da Categoria</Label>
+                    <Input value={newCategory} onChange={e => setNewCategory(e.target.value)} className="bg-[#1f2937] border border-gray-700 text-white" />
+                  </div>
+                  <DialogFooter>
+                    <Button variant="outline" className="bg-[#1f2937] text-white" onClick={() => setIsCategoryDialogOpen(false)}>Cancelar</Button>
+                    <Button className="bg-blue-600" onClick={handleAddCategory}>Adicionar</Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
         <Card className="bg-gradient-to-br from-purple-900/50 to-purple-800/30 border border-purple-700/40 text-white">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-gray-300">Receita Total</CardTitle>
@@ -340,10 +443,10 @@ export default function AdminEcommerce() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card className="bg-[#1f2937] text-white">
           <CardHeader>
-            <CardTitle className="text-white">Produtos</CardTitle>
-            <CardDescription className="text-gray-400">
-              Gerencie todos os produtos da loja
-            </CardDescription>
+            <CardTitle className="text-white flex items-center justify-between">Produtos
+              <Input placeholder="Buscar..." value={productFilter} onChange={e => setProductFilter(e.target.value)} className="ml-4 w-40 bg-gray-800 border-gray-700 text-white" />
+            </CardTitle>
+            <CardDescription className="text-gray-400">Gerencie todos os produtos da loja</CardDescription>
           </CardHeader>
           <CardContent>
             <Table>
@@ -359,7 +462,7 @@ export default function AdminEcommerce() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {products.map((product) => (
+                {filteredProducts.map((product) => (
                   <TableRow key={product.id} className="hover:bg-[#232a36] transition-colors">
                     <TableCell className="font-medium text-white">{product.name}</TableCell>
                     <TableCell className="text-gray-300">{product.category}</TableCell>
@@ -389,6 +492,76 @@ export default function AdminEcommerce() {
             </Table>
           </CardContent>
         </Card>
+        {/* Clientes */}
+        <Card className="bg-[#1f2937] text-white">
+          <CardHeader>
+            <CardTitle className="text-white flex items-center justify-between">Clientes
+              <Input placeholder="Buscar..." value={customerFilter} onChange={e => setCustomerFilter(e.target.value)} className="ml-4 w-40 bg-gray-800 border-gray-700 text-white" />
+              <Button size="sm" className="bg-green-600 ml-2" onClick={() => setIsCustomerDialogOpen(true)}>
+                <Plus className="w-4 h-4" />
+              </Button>
+            </CardTitle>
+            <CardDescription className="text-gray-400">Gerencie os clientes cadastrados</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow className="text-gray-400">
+                  <TableHead>Nome</TableHead>
+                  <TableHead>Email</TableHead>
+                  <TableHead>Telefone</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Ações</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredCustomers.map((customer) => (
+                  <TableRow key={customer.id} className="hover:bg-[#232a36] transition-colors">
+                    <TableCell className="font-medium text-white">{customer.name}</TableCell>
+                    <TableCell className="text-gray-300">{customer.email}</TableCell>
+                    <TableCell className="text-gray-300">{customer.phone}</TableCell>
+                    <TableCell>
+                      <Badge className={
+                        customer.status === 'Ativo' ? 'bg-green-700 text-green-200' :
+                        customer.status === 'Inativo' ? 'bg-red-700 text-red-200' :
+                        'bg-gray-700 text-gray-300'
+                      }>{customer.status}</Badge>
+                    </TableCell>
+                    <TableCell>
+                      <Button size="sm" variant="outline" className="border-red-600 text-red-400" onClick={() => handleDeleteCustomer(customer.id)}>
+                        Excluir
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+        <Dialog open={isCustomerDialogOpen} onOpenChange={setIsCustomerDialogOpen}>
+          <DialogContent className="bg-[#1f2937] text-white">
+            <DialogHeader>
+              <DialogTitle>Novo Cliente</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-2 py-4">
+              <Label>Nome</Label>
+              <Input value={newCustomer.name} onChange={e => setNewCustomer({ ...newCustomer, name: e.target.value })} className="bg-[#1f2937] border border-gray-700 text-white" />
+              <Label>Email</Label>
+              <Input value={newCustomer.email} onChange={e => setNewCustomer({ ...newCustomer, email: e.target.value })} className="bg-[#1f2937] border border-gray-700 text-white" />
+              <Label>Telefone</Label>
+              <Input value={newCustomer.phone} onChange={e => setNewCustomer({ ...newCustomer, phone: e.target.value })} className="bg-[#1f2937] border border-gray-700 text-white" />
+              <Label htmlFor="new-customer-status">Status</Label>
+              <select id="new-customer-status" aria-label="Status do cliente" value={newCustomer.status} onChange={e => setNewCustomer({ ...newCustomer, status: e.target.value })} className="w-full bg-[#1f2937] border border-gray-700 text-white rounded px-3 py-2">
+                <option value="Ativo">Ativo</option>
+                <option value="Inativo">Inativo</option>
+              </select>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" className="bg-[#1f2937] text-white" onClick={() => setIsCustomerDialogOpen(false)}>Cancelar</Button>
+              <Button className="bg-green-600" onClick={handleAddCustomer}>Adicionar</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
 
         <Card className="bg-[#1f2937] text-white">
           <CardHeader>

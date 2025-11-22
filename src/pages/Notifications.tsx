@@ -333,11 +333,12 @@ export default function Notifications() {
   );
 
   // Cards resumo
-  const enviados = historico.length;
-  const entregues = historico.filter(h => h.status === 'Entregue').length;
-  const lidos = historico.filter(h => h.status === 'Lido').length;
-  const falhas = historico.filter(h => h.status === 'Falha').length;
-  const taxaEntrega = enviados ? ((entregues / enviados) * 100).toFixed(1) : '0.0';
+  // Cards zerados para modo real
+  const enviados = 0;
+  const entregues = 0;
+  const lidos = 0;
+  const falhas = 0;
+  const taxaEntrega = '0.0';
 
   // Funções dos modais
   const handleNovo = () => {

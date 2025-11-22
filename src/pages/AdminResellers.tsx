@@ -9,7 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Users, Plus, Search, Edit, Trash2, Eye, User, Mail, Calendar, Shield, Activity, CheckCircle, RefreshCw, Maximize2, Moon } from "lucide-react";
-import { useRevendas } from '@/hooks/useRevendas';
+import { useRevendas, Revenda } from '@/hooks/useRevendas';
 import { RLSErrorBannerResellers } from '@/components/RLSErrorBannerResellers';
 
 export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?: boolean }) {
@@ -33,9 +33,9 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
   });
 
   // Estados para os modais
-  const [editingReseller, setEditingReseller] = useState<any | null>(null);
-  const [viewingReseller, setViewingReseller] = useState<any | null>(null);
-  const [deletingReseller, setDeletingReseller] = useState<any | null>(null);
+  const [editingReseller, setEditingReseller] = useState<Revenda | null>(null);
+  const [viewingReseller, setViewingReseller] = useState<Revenda | null>(null);
+  const [deletingReseller, setDeletingReseller] = useState<Revenda | null>(null);
 
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(autoOpenForm);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
@@ -380,17 +380,17 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
     }
   };
 
-  const openViewModal = (revenda: any) => {
+  const openViewModal = (revenda: Revenda) => {
     setViewingReseller(revenda);
     setIsViewDialogOpen(true);
   };
 
-  const openEditModal = (revenda: any) => {
+  const openEditModal = (revenda: Revenda) => {
     setEditingReseller({ ...revenda });
     setIsEditDialogOpen(true);
   };
 
-  const openDeleteModal = (revenda: any) => {
+  const openDeleteModal = (revenda: Revenda) => {
     setDeletingReseller(revenda);
     setIsDeleteDialogOpen(true);
   };
@@ -536,6 +536,7 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
                 className="rounded border-gray-600 bg-[#23272f] text-blue-500 focus:ring-blue-500"
                 checked={newReseller.force_password_change}
                 onChange={(e) => setNewReseller({...newReseller, force_password_change: e.target.checked})}
+                title="Forçar mudança de senha no primeiro login"
               />
               <Label htmlFor="forcePasswordChangeModal" className="text-sm text-gray-300">
                 Forçar revenda a mudar a senha no próximo login
@@ -686,6 +687,7 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
                   className="rounded border-gray-600 bg-[#23272f] text-blue-500 focus:ring-blue-500"
                   checked={newReseller.monthly_reseller}
                   onChange={(e) => setNewReseller({...newReseller, monthly_reseller: e.target.checked})}
+                  title="Habilitar cobrança mensal para este revendedor"
                 />
                 <Label htmlFor="monthlyResellerModal" className="text-sm text-gray-300">
                   Configuração de Revenda Mensalista
@@ -932,6 +934,7 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
                     className="rounded border-gray-600 bg-[#23272f] text-blue-500 focus:ring-blue-500"
                     checked={newReseller.force_password_change}
                     onChange={(e) => setNewReseller({...newReseller, force_password_change: e.target.checked})}
+                    title="Forçar mudança de senha no próximo login"
                   />
                   <Label htmlFor="forcePasswordChange" className="text-sm text-gray-300">
                     Forçar revenda a mudar a senha no próximo login
@@ -1072,6 +1075,7 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
                       className="rounded border-gray-600 bg-[#23272f] text-blue-500 focus:ring-blue-500"
                       checked={newReseller.monthly_reseller}
                       onChange={(e) => setNewReseller({...newReseller, monthly_reseller: e.target.checked})}
+                      title="Habilitar cobrança mensal para este revendedor"
                     />
                     <Label htmlFor="monthlyReseller" className="text-sm text-gray-300">
                       Configuração de Revenda Mensalista
@@ -1405,7 +1409,7 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
                 </div>
                 <div>
                   <Label className="text-sm font-medium text-white">Permissão</Label>
-                  <Select value={editingReseller.permission} onValueChange={(value) => setEditingReseller({...editingReseller, permission: value as any})}>
+                  <Select value={editingReseller.permission} onValueChange={(value) => setEditingReseller({...editingReseller, permission: value as string})}>
                     <SelectTrigger className="bg-[#23272f] border-gray-600 text-white">
                       <SelectValue />
                     </SelectTrigger>
@@ -1450,6 +1454,7 @@ export default function AdminResellers({ autoOpenForm = false }: { autoOpenForm?
                   onChange={(e) => setEditingReseller({...editingReseller, observations: e.target.value})}
                   className="w-full bg-[#23272f] border border-gray-600 text-white rounded-md px-3 py-2"
                   rows={3}
+                  title="Observações sobre o revendedor"
                 />
               </div>
             </div>

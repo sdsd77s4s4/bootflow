@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -33,6 +33,29 @@ export default function AdminAI() {
   const [modal, setModal] = useState<{ type: null | 'upload' | 'novaVoz' | 'testarVoz' | 'detalhes' | 'editarVoz' | 'excluirVoz' | 'gravarVoz' | 'clonarVoz', data?: any }>({ type: null });
   const [perfis, setPerfis] = useState(perfisMock);
   const [transcricoes, setTranscricoes] = useState(transcricoesMock);
+  // Persistência local
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('voice-perfis');
+      if (saved) setPerfis(JSON.parse(saved));
+    } catch (e) {
+      // ignore
+    }
+    try {
+      const savedT = localStorage.getItem('voice-transcricoes');
+      if (savedT) setTranscricoes(JSON.parse(savedT));
+    } catch (e) {
+      // ignore
+    }
+  }, []);
+
+  useEffect(() => {
+    try { localStorage.setItem('voice-perfis', JSON.stringify(perfis)); } catch (e) {}
+  }, [perfis]);
+
+  useEffect(() => {
+    try { localStorage.setItem('voice-transcricoes', JSON.stringify(transcricoes)); } catch (e) {}
+  }, [transcricoes]);
   const [novoPerfil, setNovoPerfil] = useState({ nome: '', genero: '', tom: '', status: 'ativa' });
   const [editPerfil, setEditPerfil] = useState({ nome: '', genero: '', tom: '', status: 'ativa' });
   const [loadingAudio, setLoadingAudio] = useState(false);
@@ -66,6 +89,7 @@ export default function AdminAI() {
   const handleGerarAudio = () => {
     setLoadingAudio(true);
     setTimeout(() => {
+      // Simulação: usar sample mp3 como áudio gerado
       setAudioUrl('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3');
       setLoadingAudio(false);
     }, 1500);
@@ -75,6 +99,36 @@ export default function AdminAI() {
       const audio = new Audio(audioUrl);
       audio.play();
     }
+  };
+
+  // Upload e processamento de arquivo de áudio (simulado)
+  const handleAudioFileUpload = async (file?: File | null) => {
+    if (!file) return;
+    const id = Date.now();
+    const reader = new FileReader();
+    // Adiciona entrada inicial com status processando
+    setTranscricoes(prev => [{ id, nome: file.name, tempo: '0:00', status: 'processando', sentimento: '', texto: '', resumo: '', data: 'agora' }, ...prev]);
+    reader.onload = () => {
+      // Simula envio e processamento
+      setTimeout(() => {
+        const fakeText = `Transcrição automática de ${file.name}: (texto simulado)`;
+        setTranscricoes(prev => prev.map(t => t.id === id ? { ...t, status: 'processado', tempo: '1:23', texto: fakeText, resumo: 'Resumo automático gerado', sentimento: 'neutro' } : t));
+      }, 2200);
+    };
+    reader.readAsArrayBuffer(file);
+  };
+
+  const downloadTranscription = (t: any) => {
+    const content = `Arquivo: ${t.nome}\nData: ${t.data}\nResumo: ${t.resumo || ''}\n\nTranscrição:\n${t.texto || ''}`;
+    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${t.nome}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
   };
 
   // Simulação de gravação de voz
@@ -200,8 +254,8 @@ export default function AdminAI() {
                 <Button variant="outline" className="bg-[#1f2937] text-white flex-1" onClick={() => { setTab('clonar'); setModal({ type: 'clonarVoz' }); }}>Clonar Voz</Button>
               </div>
               <div className="mb-4">
-                <label className="block text-gray-300 mb-1 font-medium">Selecionar Voz</label>
-                <select className="w-full bg-[#1f2937] border border-gray-700 text-white rounded px-3 py-2" value={voz} onChange={e => setVoz(e.target.value)}>
+                <label htmlFor="select-voz" className="block text-gray-300 mb-1 font-medium">Selecionar Voz</label>
+                <select id="select-voz" aria-label="Selecionar voz" className="w-full bg-[#1f2937] border border-gray-700 text-white rounded px-3 py-2" value={voz} onChange={e => setVoz(e.target.value)}>
                   <option value="">Escolha uma voz</option>
                   {perfis.map(p => <option key={p.id} value={p.nome}>{p.nome}</option>)}
                 </select>
@@ -291,7 +345,7 @@ export default function AdminAI() {
                 {t.resumo && <div className="bg-blue-50 dark:bg-blue-900/40 rounded p-2 text-xs text-blue-800 dark:text-blue-200 mt-2">Resumo: {t.resumo}</div>}
                 <div className="flex gap-2 mt-2">
                   <Button size="sm" variant="outline" className="border-blue-600 text-blue-400" onClick={() => setModal({ type: 'detalhes', data: t })}>Detalhes</Button>
-                  <Button size="sm" variant="outline" className="border-green-600 text-green-400">Download</Button>
+                  <Button size="sm" variant="outline" className="border-green-600 text-green-400" onClick={() => downloadTranscription(t)}>Download</Button>
                 </div>
               </div>
             ))}
@@ -306,10 +360,10 @@ export default function AdminAI() {
             <DialogTitle>Upload de Áudio</DialogTitle>
           </DialogHeader>
           <div className="py-4">
-            <Input type="file" accept="audio/*" className="bg-gray-900 border border-gray-700 text-white" />
+            <Input type="file" accept="audio/*" className="bg-gray-900 border border-gray-700 text-white" onChange={e => handleAudioFileUpload(e.target.files?.[0] ?? null)} />
           </div>
           <DialogFooter>
-            <Button className="bg-purple-600 hover:bg-purple-700 text-white" onClick={() => setModal({ type: null })}>OK</Button>
+            <Button className="bg-purple-600 hover:bg-purple-700 text-white" onClick={() => setModal({ type: null })}>Fechar</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -408,7 +462,7 @@ export default function AdminAI() {
             <DialogTitle>Clonar Voz</DialogTitle>
           </DialogHeader>
           <div className="py-4">
-            <Input type="file" accept="audio/*" className="bg-gray-900 border border-gray-700 text-white" />
+            <Input type="file" accept="audio/*" className="bg-gray-900 border border-gray-700 text-white" onChange={e => handleAudioFileUpload(e.target.files?.[0] ?? null)} />
           </div>
           <DialogFooter>
             <Button className="bg-gray-700 text-white" onClick={() => setModal({ type: null })}>Cancelar</Button>

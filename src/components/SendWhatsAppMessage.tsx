@@ -2,13 +2,22 @@ import { useState, useRef, useEffect } from 'react';
 import { Send, Paperclip, Smile, Image, File, X, Loader2, MessageSquare, Check } from 'lucide-react';
 import { toast } from 'sonner';
 import { sendMessage, sendTemplateMessage } from '@/services/apiBrasilService';
+import { getErrorMessage } from '@/lib/supabaseClient.agent';
+
+interface Template {
+  id: string;
+  name: string;
+  description: string;
+  parameters: string[];
+  content: string;
+}
 
 interface SendWhatsAppMessageProps {
   token: string;
   profileId: string;
   defaultPhoneNumber?: string;
   defaultMessage?: string;
-  onSendSuccess?: (data: any) => void;
+  onSendSuccess?: (data: Record<string, unknown>) => void;
   className?: string;
   showHeader?: boolean;
   showTemplates?: boolean;
@@ -70,7 +79,7 @@ export function SendWhatsAppMessage({
   const [isGroup, setIsGroup] = useState(false);
   const [showTemplateOptions, setShowTemplateOptions] = useState(false);
   const [templateParams, setTemplateParams] = useState<Record<string, string>>({});
-  const [selectedTemplate, setSelectedTemplate] = useState<any>(null);
+  const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
   const [characterCount, setCharacterCount] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -116,16 +125,17 @@ export function SendWhatsAppMessage({
       } else {
         throw new Error(error || 'Erro ao enviar mensagem');
       }
-    } catch (error: any) {
-      console.error('Erro ao enviar mensagem:', error);
-      toast.error(`Erro: ${error.message || 'Falha ao enviar mensagem'}`);
+    } catch (error: unknown) {
+      const errMsg = getErrorMessage(error);
+      console.error('Erro ao enviar mensagem:', errMsg);
+      toast.error(`Erro: ${errMsg || 'Falha ao enviar mensagem'}`);
     } finally {
       setIsSending(false);
     }
   };
 
   // Aplicar template
-  const handleApplyTemplate = (template: any) => {
+  const handleApplyTemplate = (template: Template) => {
     setSelectedTemplate(template);
     setMessage(template.content);
     setShowTemplateOptions(false);
@@ -184,9 +194,10 @@ export function SendWhatsAppMessage({
       } else {
         throw new Error(error || 'Erro ao enviar template');
       }
-    } catch (error: any) {
-      console.error('Erro ao enviar template:', error);
-      toast.error(`Erro: ${error.message || 'Falha ao enviar template'}`);
+    } catch (error: unknown) {
+      const errMsg = getErrorMessage(error);
+      console.error('Erro ao enviar template:', errMsg);
+      toast.error(`Erro: ${errMsg || 'Falha ao enviar template'}`);
     } finally {
       setIsSending(false);
     }
@@ -344,6 +355,7 @@ export function SendWhatsAppMessage({
                 onChange={handleFileChange}
                 className="hidden"
                 accept="image/*,.pdf,.doc,.docx,.xls,.xlsx"
+                title="Selecionar arquivo para anexar"
               />
               <button
                 type="button"

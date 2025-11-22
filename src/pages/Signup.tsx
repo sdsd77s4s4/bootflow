@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { useAuth } from "@/contexts/AuthContext";
 import { Loader2, Mail, Lock, Eye, EyeOff, ArrowLeft, User, Bot, AlertTriangle, Phone, Check } from "lucide-react";
 import { motion } from "framer-motion";
+import { getErrorMessage } from '@/lib/supabaseClient.agent';
 
 export default function Signup() {
   const [name, setName] = useState("");
@@ -167,8 +168,9 @@ export default function Signup() {
       // Redireciona para o login após o cadastro bem-sucedido
       // O usuário precisa confirmar o email antes de fazer login
       navigate("/login");
-    } catch (error: any) {
-      setError(error.message || "Erro ao criar conta. Tente novamente.");
+    } catch (error: unknown) {
+      const errMsg = getErrorMessage(error);
+      setError(errMsg || "Erro ao criar conta. Tente novamente.");
     } finally {
       setLoading(false);
     }

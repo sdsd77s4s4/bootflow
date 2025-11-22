@@ -69,6 +69,7 @@ import {
 } from "@/components/ui/popover";
 import React from "react";
 import { useClientes } from "@/hooks/useClientes";
+import { getErrorMessage } from '@/lib/supabaseClient.agent';
 import { useUsers } from "@/hooks/useUsers";
 import { RLSErrorBanner } from "@/components/RLSErrorBanner";
 
@@ -298,16 +299,17 @@ export default function AdminUsers() {
           setIsAddDialogOpen(false);
           setAddUserSuccess(false);
         }, 1000);
-      } catch (error: any) {
-        console.error("❌ [DEBUG] Erro ao adicionar usuário:", error);
-        
+      } catch (error: unknown) {
+        const errMsg = getErrorMessage(error);
+        console.error("❌ [DEBUG] Erro ao adicionar usuário:", errMsg);
+
         // Cancelar timeout de segurança já que houve erro
         if (timeoutId) {
           clearTimeout(timeoutId);
         }
-        
-        const errorMessage = error?.message || error || "Erro desconhecido ao adicionar usuário.";
-        
+
+        const errorMessage = errMsg || "Erro desconhecido ao adicionar usuário.";
+
         // Mensagens específicas para diferentes tipos de erro
         if (errorMessage.includes("duplicate key value") || errorMessage.includes("unique constraint")) {
           alert("❌ Já existe um usuário com este e-mail!");
@@ -1116,6 +1118,7 @@ export default function AdminUsers() {
                           Plano *
                         </label>
                         <select
+                          title="Plano"
                           className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
                           value={newUser.plan}
                           onChange={(e) =>
@@ -1137,6 +1140,7 @@ export default function AdminUsers() {
                             Preço *
                           </label>
                           <select
+                            title="Preço"
                             className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
                             value={newUser.price}
                             onChange={(e) =>
@@ -1186,6 +1190,7 @@ export default function AdminUsers() {
                           Status *
                         </label>
                         <select
+                          title="Status"
                           className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
                           value={newUser.status}
                           onChange={(e) =>
@@ -2022,6 +2027,7 @@ export default function AdminUsers() {
                         Plano *
                       </label>
                       <select
+                        title="Plano"
                         className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
                         value={editingUser.plan}
                         onChange={(e) =>
@@ -2047,6 +2053,7 @@ export default function AdminUsers() {
                           Preço *
                         </label>
                         <select
+                          title="Preço"
                           className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
                           value={editingUser.price}
                           onChange={(e) =>
@@ -2273,7 +2280,7 @@ export default function AdminUsers() {
                       <label className="block text-gray-300 mb-1 font-medium">
                         Classe de Serviço
                       </label>
-                      <select className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2">
+                      <select title="Classe de Serviço" className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2">
                         <option value="">Selecione</option>
                         <option value="basico">Básico</option>
                         <option value="premium">Premium</option>
@@ -2284,7 +2291,7 @@ export default function AdminUsers() {
                       <label className="block text-gray-300 mb-1 font-medium">
                         Plano
                       </label>
-                      <select className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2">
+                      <select title="Plano" className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2">
                         <option value="mensal">Mensal</option>
                         <option value="anual">Anual</option>
                       </select>
@@ -2295,6 +2302,7 @@ export default function AdminUsers() {
                         Status
                       </label>
                       <select
+                        title="Status"
                         value={editingUser.status}
                         onChange={(e) =>
                           setEditingUser({
@@ -2348,6 +2356,9 @@ export default function AdminUsers() {
                         Número de Dispositivos
                       </label>
                       <input
+                        id="editing-devices"
+                        title="Número de dispositivos"
+                        aria-label="Número de dispositivos"
                         type="number"
                         min={1}
                         value={editingUser.devices || 0}
@@ -2357,6 +2368,7 @@ export default function AdminUsers() {
                             devices: parseInt(e.target.value) || 0,
                           })
                         }
+                        placeholder="0"
                         className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
                       />
                     </div>
@@ -2373,6 +2385,9 @@ export default function AdminUsers() {
                           -
                         </button>
                         <input
+                          id="editing-credits"
+                          title="Créditos"
+                          aria-label="Créditos"
                           type="number"
                           min={0}
                           value={editingUser.credits || 0}
@@ -2382,6 +2397,7 @@ export default function AdminUsers() {
                               credits: parseInt(e.target.value) || 0,
                             })
                           }
+                          placeholder="0"
                           className="w-16 bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
                         />
                         <button
@@ -2406,8 +2422,14 @@ export default function AdminUsers() {
                     Informações Adicionais
                   </span>
                   <div className="flex items-center gap-2 mb-2">
-                    <input type="checkbox" className="accent-purple-600" />
-                    <span className="text-gray-300">Notificações via WhatsApp</span>
+                    <input
+                      id="notify-whatsapp"
+                      title="Notificações via WhatsApp"
+                      aria-label="Notificações via WhatsApp"
+                      type="checkbox"
+                      className="accent-purple-600"
+                    />
+                    <label htmlFor="notify-whatsapp" className="text-gray-300">Notificações via WhatsApp</label>
                   </div>
                   <div>
                     <label className="block text-gray-300 mb-1 font-medium">Anotações</label>
@@ -2650,6 +2672,9 @@ function VencimentoDatePicker() {
       <PopoverTrigger asChild>
         <div className="flex gap-2">
           <input
+            id="vencimento-date"
+            title="Data de renovação"
+            aria-label="Data de renovação"
             readOnly
             value={date ? formatDate(date) : ""}
             placeholder="Selecione a data"
@@ -2657,6 +2682,9 @@ function VencimentoDatePicker() {
             onClick={() => setOpen(true)}
           />
           <input
+            id="vencimento-time"
+            title="Hora de renovação"
+            aria-label="Hora de renovação"
             type="time"
             value={time}
             onChange={handleTimeChange}
@@ -2783,6 +2811,9 @@ function VencimentoDatePickerEdit({
       <PopoverTrigger asChild>
         <div className="flex gap-2">
           <input
+            id="vencimento-date-2"
+            title="Data de renovação"
+            aria-label="Data de renovação"
             readOnly
             value={date ? formatDate(date) : ""}
             placeholder="Selecione a data"
@@ -2790,6 +2821,9 @@ function VencimentoDatePickerEdit({
             onClick={() => setOpen(true)}
           />
           <input
+            id="vencimento-time-2"
+            title="Hora de renovação"
+            aria-label="Hora de renovação"
             type="time"
             value={time}
             onChange={handleTimeChange}

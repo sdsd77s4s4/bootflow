@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { useClientes } from '@/hooks/useClientes';
 import { useRevendas } from '@/hooks/useRevendas';
 import { useRealtimeClientes, useRealtimeRevendas } from '@/hooks/useRealtime';
+import type { TableRow, TableInsert } from '@/types/supabase.types';
 import useDashboardData from '@/hooks/useDashboardData';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
@@ -44,7 +45,7 @@ import { ClientSidebar } from "@/components/sidebars/ClientSidebar";
 import { AIModalManager } from "@/components/modals/AIModalManager";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Dialog, DialogContent, DialogTrigger, DialogTitle, DialogDescription, DialogHeader } from '@/components/ui/dialog';
-import { DndContext, closestCenter } from '@dnd-kit/core';
+import { DndContext, closestCenter, type DragEndEvent } from '@dnd-kit/core';
 import { SortableContext, useSortable, rectSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
@@ -157,7 +158,7 @@ const ClientDashboard = () => {
   // Estados para a extração M3U
   const [m3uUrl, setM3uUrl] = useState("");
   const [isExtracting, setIsExtracting] = useState(false);
-  const [extractionResult, setExtractionResult] = useState<any>(null);
+  const [extractionResult, setExtractionResult] = useState<Record<string, unknown> | null>(null);
   const [extractionError, setExtractionError] = useState("");
   const [isAddingUser, setIsAddingUser] = useState(false);
 
@@ -170,8 +171,8 @@ const ClientDashboard = () => {
   const { revendas: revendasFromHook, fetchRevendas } = useRevendas();
   
   // Estados locais para os dados
-  const [clientes, setClientes] = useState<any[]>([]);
-  const [revendas, setRevendas] = useState<any[]>([]);
+  const [clientes, setClientes] = useState<TableRow<'clientes'>[]>([]);
+  const [revendas, setRevendas] = useState<TableRow<'revendas'>[]>([]);
   const [loadingClientes, setLoadingClientes] = useState(true);
   const [loadingRevendas, setLoadingRevendas] = useState(true);
   
@@ -185,26 +186,26 @@ const ClientDashboard = () => {
     // Filtrar por admin_id se houver cliente logado (garantir que apenas dados do cliente sejam exibidos)
     if (user?.id) {
       if (clientesToUse && Array.isArray(clientesToUse)) {
-        clientesToUse = clientesToUse.filter((cliente: any) => {
+        clientesToUse = clientesToUse.filter((cliente: TableRow<'clientes'>) => {
           return cliente.admin_id === user.id || cliente.admin_id === null || cliente.admin_id === undefined;
-        }) as any[];
+        }) as TableRow<'clientes'>[];
       }
       if (revendasToUse && Array.isArray(revendasToUse)) {
-        revendasToUse = revendasToUse.filter((revenda: any) => {
+        revendasToUse = revendasToUse.filter((revenda: TableRow<'revendas'>) => {
           return revenda.admin_id === user.id || revenda.admin_id === null || revenda.admin_id === undefined;
-        }) as any[];
+        }) as TableRow<'revendas'>[];
       }
       console.log('🔄 [ClientDashboard] Dados filtrados por admin_id:', user.id, 'Clientes:', clientesToUse?.length, 'Revendas:', revendasToUse?.length);
     }
     
     if (clientesToUse) {
-      setClientes(clientesToUse as any[]);
+      setClientes(clientesToUse as TableRow<'clientes'>[]);
       setLoadingClientes(false);
     }
     
     if (revendasToUse) {
       console.log('✅ [ClientDashboard] Atualizando estado revendas com', revendasToUse.length, 'revendedores');
-      setRevendas(revendasToUse as any[]);
+      setRevendas(revendasToUse as TableRow<'revendas'>[]);
       setLoadingRevendas(false);
     }
   }, [realtimeClientes, realtimeRevendas, clientesFromHook, revendasFromHook, user?.id]);
@@ -234,7 +235,7 @@ const ClientDashboard = () => {
   }, [clientesError, revendasError]);
   
   // Função para adicionar um novo cliente (usa o hook useClientes)
-  const addCliente = useCallback(async (clienteData: any) => {
+  const addCliente = useCallback(async (clienteData: TableInsert<'clientes'>) => {
     try {
       console.log('🔄 [ClientDashboard] addCliente wrapper chamado com:', clienteData);
       
@@ -251,19 +252,20 @@ const ClientDashboard = () => {
         console.error('Erro ao adicionar cliente - verifique o console para detalhes');
         return false;
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Erro no wrapper addCliente:', error);
-      toast.error(`Erro ao adicionar cliente: ${error?.message || 'Erro desconhecido'}`, { duration: 5000 });
+      const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
+      toast.error(`Erro ao adicionar cliente: ${errorMessage}`, { duration: 5000 });
       return false;
     }
   }, [addClienteHook]);
   
   // Função para adicionar um novo revendedor
-  const addRevenda = useCallback(async (revendaData: any) => {
+  const addRevenda = useCallback(async (revendaData: TableInsert<'revendas'>) => {
     try {
-      const { data, error } = await (supabase
-        .from('revendas') as any)
-        .insert([revendaData] as any)
+      const { data, error } = await supabase
+        .from('revendas')
+        .insert([revendaData])
         .select();
         
       if (error) throw error;
@@ -770,7 +772,7 @@ const ClientDashboard = () => {
 
       // Atualizar dashboard
       setRefreshTrigger(prev => prev + 1);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("❌ [ClientDashboard] Erro ao adicionar usuário:", error);
       
       // Cancelar timeout de segurança já que houve erro
@@ -1105,7 +1107,12 @@ const ClientDashboard = () => {
   }, [revendas, stats.activeResellers]);
 
   // Componente SortableCard
-  function SortableCard({ id, content, body, onClick }: any) {
+  function SortableCard({ id, content, body, onClick }: {
+    id: string;
+    content: React.ReactNode;
+    body: React.ReactNode;
+    onClick?: () => void;
+  }) {
     const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
     const style = {
       transform: CSS.Transform.toString(transform),
@@ -1205,7 +1212,7 @@ const ClientDashboard = () => {
     );
   }
 
-  const handleDragEnd = (event: any) => {
+  const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     
     if (!active || !over) return;
@@ -1492,6 +1499,7 @@ const ClientDashboard = () => {
                                     onChange={(e) =>
                                       setNewUser({ ...newUser, plan: e.target.value, price: "" })
                                     }
+                                    title="Selecionar plano de cobrança"
                                   >
                                     <option value="">Selecione um plano</option>
                                     <option value="Mensal">Mensal</option>
@@ -1513,6 +1521,7 @@ const ClientDashboard = () => {
                                       onChange={(e) =>
                                         setNewUser({ ...newUser, price: e.target.value })
                                       }
+                                      title="Selecionar preço do plano"
                                     >
                                       <option value="">Selecione um preço</option>
                                       {getPlanPrices(newUser.plan).map((price) => (
@@ -1562,6 +1571,7 @@ const ClientDashboard = () => {
                                     onChange={(e) =>
                                       setNewUser({ ...newUser, status: e.target.value })
                                     }
+                                    title="Selecionar status do usuário"
                                   >
                                     <option value="Ativo">Ativo</option>
                                     <option value="Inativo">Inativo</option>

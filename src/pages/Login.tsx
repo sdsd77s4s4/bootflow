@@ -7,6 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useAuth } from "@/contexts/AuthContext";
 import { Loader2, Mail, Lock, Eye, EyeOff, ArrowLeft, Bot, AlertTriangle } from "lucide-react";
 import { motion } from "framer-motion";
+import { getErrorMessage } from '@/lib/supabaseClient.agent';
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -56,20 +57,21 @@ export default function Login() {
       
       // O redirecionamento será feito automaticamente pelo AuthContext baseado no role
       // Não precisa navegar manualmente aqui
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errMsg = getErrorMessage(error);
       // Tratamento específico para erros de conexão/rede
       let errorMessage = "Erro ao fazer login. Verifique suas credenciais.";
-      
-      if (error?.message?.includes('Failed to fetch') || 
-          error?.message?.includes('ERR_NAME_NOT_RESOLVED') ||
-          error?.message?.includes('NetworkError') ||
-          error?.name === 'AuthRetryableFetchError' ||
-          error?.message?.includes('Erro de conexão')) {
+
+      if (errMsg.includes('Failed to fetch') ||
+          errMsg.includes('ERR_NAME_NOT_RESOLVED') ||
+          errMsg.includes('NetworkError') ||
+          errMsg.includes('AuthRetryableFetchError') ||
+          errMsg.includes('Erro de conexão')) {
         errorMessage = "Erro de conexão: Não foi possível conectar ao servidor. Verifique sua conexão com a internet e se o projeto Supabase está ativo.";
-      } else if (error?.message) {
-        errorMessage = error.message;
+      } else if (errMsg) {
+        errorMessage = errMsg;
       }
-      
+
       setError(errorMessage);
     } finally {
       setLoading(false);

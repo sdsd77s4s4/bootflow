@@ -2,6 +2,7 @@ import React, { createContext, useState, useContext, useEffect, ReactNode, useCa
 import { User, Session, AuthError } from '@supabase/supabase-js';
 import { toast } from 'sonner';
 import { supabase, UserProfile } from '@/lib/supabase';
+import { getErrorMessage } from '@/lib/supabaseClient.agent';
 import {
   isDemoMode,
   enableDemoMode,
@@ -304,8 +305,9 @@ export const AuthProvider = ({ children, navigate }: AuthProviderProps) => {
       redirectBasedOnRole(role);
       
       return { error: null };
-    } catch (error: any) {
-      console.error('Erro no login:', error);
+    } catch (error: unknown) {
+      const errMsg = getErrorMessage(error);
+      console.error('Erro no login:', errMsg);
 
       // Tratamento específico para erros de conexão/rede
       let errorMessage = 'Erro ao fazer login. Verifique suas credenciais.';
@@ -313,25 +315,24 @@ export const AuthProvider = ({ children, navigate }: AuthProviderProps) => {
       let showCreateUserHint = false;
       
       // Tratamento específico para email não confirmado
-      if (error?.message?.includes('Email not confirmed') || error?.message?.includes('email_not_confirmed')) {
+      if (errMsg.includes('Email not confirmed') || errMsg.includes('email_not_confirmed')) {
         errorMessage = 'Por favor, confirme seu email antes de fazer login. Verifique sua caixa de entrada e a pasta de spam.';
         toast.error(errorMessage);
         return { error: new Error(errorMessage) };
       }
 
-      if (error?.message?.includes('Failed to fetch') || 
-          error?.message?.includes('ERR_NAME_NOT_RESOLVED') ||
-          error?.message?.includes('NetworkError') ||
-          error?.name === 'AuthRetryableFetchError') {
+      if (errMsg.includes('Failed to fetch') || 
+          errMsg.includes('ERR_NAME_NOT_RESOLVED') ||
+          errMsg.includes('NetworkError') ||
+          errMsg.includes('AuthRetryableFetchError')) {
         errorMessage = 'Erro de conexão: Não foi possível conectar ao servidor.';
         showDemoHint = true;
-      } else if (error?.message?.includes('Invalid login credentials') || 
-                 error?.message?.includes('invalid_credentials') ||
-                 error?.code === 'invalid_credentials') {
+      } else if (errMsg.includes('Invalid login credentials') || 
+                 errMsg.includes('invalid_credentials') ) {
         errorMessage = 'Credenciais inválidas. Verifique se o usuário existe no Supabase.';
         showCreateUserHint = true;
-      } else if (error?.message) {
-        errorMessage = error.message;
+      } else if (errMsg) {
+        errorMessage = errMsg;
       }
 
       toast.error(errorMessage, {
@@ -359,7 +360,7 @@ export const AuthProvider = ({ children, navigate }: AuthProviderProps) => {
         console.log('   5. Veja o arquivo criar_usuario_admin.sql para mais detalhes');
       }
 
-      return { error };
+      return { error: new Error(errMsg) };
     } finally {
       setLoading(false);
     }

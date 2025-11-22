@@ -13,6 +13,7 @@ import { ThemeProvider } from '@/components/theme-provider';
 
 // Pages
 import Landing from "./pages/Landing";
+import HomeRoute from '@/components/HomeRoute';
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import ForgotPassword from "./pages/ForgotPassword";
@@ -25,6 +26,7 @@ import BlogPost from "./pages/BlogPost";
 // Dashboards
 import AdminDashboard from "./pages/dashboards/AdminDashboard";
 import ClientDashboard from "./pages/dashboards/ClientDashboard";
+import RequireAuth from '@/components/RequireAuth';
 
 
 // Internal Pages
@@ -43,6 +45,7 @@ import Channels from "./pages/Channels";
 import VoiceCampaigns from "./pages/VoiceCampaigns";
 import AIConfiguration from "./pages/AIConfiguration";
 import AdminResellers from "./pages/AdminResellers";
+import ButtonConfigurator from "./pages/ButtonConfigurator";
 import { WhatsAppStatusContext } from './pages/AdminWhatsApp';
 
 const queryClient = new QueryClient();
@@ -66,7 +69,7 @@ const App = () => {
               <WhatsAppStatusContext.Provider value={{ isConnected, setIsConnected, connectionStatus, setConnectionStatus }}>
                 <Routes>
                 {/* Rotas públicas */}
-                <Route path="/" element={<Landing />} />
+                <Route path="/" element={<HomeRoute />} />
                 <Route path="/preco" element={<Landing />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/cadastro" element={<Signup />} />
@@ -84,9 +87,9 @@ const App = () => {
                 <Route path="/empresa/blog/:category" element={<Blog />} />
                 <Route path="/blog/:id" element={<BlogPost />} />
 
-                {/* Dashboard Admin - Acesso direto */}
-                <Route path="/admin" element={<AdminDashboard />} />
-                <Route path="/admin/revendedores" element={<AdminResellers />} />
+                {/* Dashboard Admin - Acesso direto (protegido) */}
+                <Route path="/admin" element={<RequireAuth allowedRoles={['admin']}><AdminDashboard /></RequireAuth>} />
+                <Route path="/admin/revendedores" element={<RequireAuth allowedRoles={['admin']}><AdminResellers /></RequireAuth>} />
                 
                 {/* Dashboard Cliente */}
                 <Route path="/dashboard/client" element={<ClientDashboard />} />
@@ -102,6 +105,7 @@ const App = () => {
                 <Route path="/canais" element={<Channels />} />
                 <Route path="/campanhas-voz" element={<VoiceCampaigns />} />
                 <Route path="/ia-config" element={<AIConfiguration />} />
+                <Route path="/button-configurator" element={<ButtonConfigurator />} />
 
                 {/* Rota 404 */}
                 <Route path="*" element={<NotFound />} />

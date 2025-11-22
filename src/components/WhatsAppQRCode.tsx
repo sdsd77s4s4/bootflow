@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { RefreshCw, Check, X, Loader2, MessageSquare, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { generateQRCode, checkConnectionStatus, disconnectWhatsApp } from '@/services/apiBrasilService';
+import { getErrorMessage } from '@/lib/supabaseClient.agent';
 
 // Tipos para o status da conexão
 type ConnectionStatus = 'disconnected' | 'connecting' | 'connected' | 'error';
@@ -71,27 +72,27 @@ export function WhatsAppQRCode({
       } else {
         throw new Error(error || 'Erro ao verificar status da conexão');
       }
-    } catch (error: any) {
-      console.error('Erro ao verificar conexão:', error);
-      
-      const errorMessage = error?.message || 'Falha ao verificar conexão com o servidor';
+    } catch (error: unknown) {
+      const errMsg = getErrorMessage(error);
+      console.error('Erro ao verificar conexão:', errMsg);
+
       setStatus('error');
       setConnectionStatus('Erro de conexão');
-      setConnectionError(errorMessage);
+      setConnectionError(errMsg);
       setIsConnected(false);
-      
+
       if (onConnectionChange) {
         onConnectionChange(false);
       }
-      
+
       // Mostra notificação de erro apenas se não for o carregamento inicial
       if (lastChecked) {
         toast.error('Erro ao verificar conexão', {
-          description: errorMessage,
+          description: errMsg,
           duration: 5000
         });
       }
-      
+
       return false;
     } finally {
       setIsLoading(false);
@@ -158,22 +159,22 @@ export function WhatsAppQRCode({
       } else {
         throw new Error(error || 'Falha ao gerar QR Code');
       }
-    } catch (error: any) {
-      console.error('Erro ao gerar QR Code:', error);
-      const errorMsg = error?.message || 'Não foi possível gerar o QR Code';
-      
+    } catch (error: unknown) {
+      const errMsg = getErrorMessage(error);
+      console.error('Erro ao gerar QR Code:', errMsg);
+
       setStatus('error');
       setConnectionStatus('Falha ao gerar QR Code');
-      setConnectionError(errorMsg);
-      
+      setConnectionError(errMsg);
+
       toast.error('Erro ao gerar QR Code', {
-        description: errorMsg,
+        description: errMsg,
         action: {
           label: 'Tentar novamente',
           onClick: generateNewQRCode
         }
       });
-      
+
       return null;
     } finally {
       setIsLoading(false);
@@ -218,24 +219,24 @@ export function WhatsAppQRCode({
       } else {
         throw new Error(error || 'Falha ao desconectar o WhatsApp');
       }
-    } catch (error: any) {
-      console.error('Erro ao desconectar WhatsApp:', error);
-      
-      const errorMessage = error?.message || 'Não foi possível desconectar o WhatsApp';
+    } catch (error: unknown) {
+      const errMsg = getErrorMessage(error);
+      console.error('Erro ao desconectar WhatsApp:', errMsg);
+
       setStatus('error');
       setConnectionStatus('Erro ao desconectar');
-      setConnectionError(errorMessage);
-      
+      setConnectionError(errMsg);
+
       // Feedback visual para o usuário
       toast.error('Erro ao desconectar WhatsApp', {
-        description: errorMessage,
+        description: errMsg,
         action: {
           label: 'Tentar novamente',
           onClick: handleDisconnect
         },
         duration: 8000
       });
-      
+
       return false;
     } finally {
       setIsLoading(false);

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -16,31 +16,48 @@ interface Gateway {
   taxa: string;
   volume: string;
   ultimaTransacao: string;
+  apiKey?: string;
+  secret?: string;
+  webhook?: string;
 }
 
 const gatewaysMock: Gateway[] = [
-  { id: 1, nome: 'PIX', tipo: 'Pix', status: 'Ativo', configurado: true, taxa: '0.99%', volume: 'R$ 45.678,90', ultimaTransacao: '15/01/2025' },
-  { id: 2, nome: 'Stripe', tipo: 'Cartao', status: 'Ativo', configurado: true, taxa: '2.99% + R$ 0,30', volume: 'R$ 23.456,78', ultimaTransacao: '15/01/2025' },
-  { id: 3, nome: 'Mercado Pago', tipo: 'Cartao', status: 'Ativo', configurado: true, taxa: '1.99% + R$ 0,60', volume: 'R$ 67.890,12', ultimaTransacao: '15/01/2025' },
-  { id: 4, nome: 'Infinitepay', tipo: 'Cartao', status: 'Ativo', configurado: true, taxa: '2.49% + R$ 0,40', volume: 'R$ 34.567,89', ultimaTransacao: '15/01/2025' },
-  { id: 5, nome: 'OpenPix', tipo: 'Pix', status: 'Inativo', configurado: false, taxa: '0.89%', volume: 'R$ 0,00', ultimaTransacao: '-' },
-  { id: 6, nome: 'PicPay', tipo: 'Picpay', status: 'Ativo', configurado: true, taxa: '1.49% + R$ 0,50', volume: 'R$ 28.901,45', ultimaTransacao: '15/01/2025' },
-  { id: 7, nome: 'Asaas', tipo: 'Boleto', status: 'Ativo', configurado: true, taxa: '1.99% + R$ 2,00', volume: 'R$ 12.345,67', ultimaTransacao: '14/01/2025' },
+  { id: 1, nome: 'PIX', tipo: 'Pix', status: 'Ativo', configurado: true, taxa: '0.99%', volume: 'R$ 45.678,90', ultimaTransacao: '15/01/2025', apiKey: '', secret: '', webhook: '' },
+  { id: 2, nome: 'Stripe', tipo: 'Cartao', status: 'Ativo', configurado: true, taxa: '2.99% + R$ 0,30', volume: 'R$ 23.456,78', ultimaTransacao: '15/01/2025', apiKey: '', secret: '', webhook: '' },
+  { id: 3, nome: 'Mercado Pago', tipo: 'Cartao', status: 'Ativo', configurado: true, taxa: '1.99% + R$ 0,60', volume: 'R$ 67.890,12', ultimaTransacao: '15/01/2025', apiKey: '', secret: '', webhook: '' },
+  { id: 4, nome: 'Infinitepay', tipo: 'Cartao', status: 'Ativo', configurado: true, taxa: '2.49% + R$ 0,40', volume: 'R$ 34.567,89', ultimaTransacao: '15/01/2025', apiKey: '', secret: '', webhook: '' },
+  { id: 5, nome: 'OpenPix', tipo: 'Pix', status: 'Inativo', configurado: false, taxa: '0.89%', volume: 'R$ 0,00', ultimaTransacao: '-', apiKey: '', secret: '', webhook: '' },
+  { id: 6, nome: 'PicPay', tipo: 'Picpay', status: 'Ativo', configurado: true, taxa: '1.49% + R$ 0,50', volume: 'R$ 28.901,45', ultimaTransacao: '15/01/2025', apiKey: '', secret: '', webhook: '' },
+  { id: 7, nome: 'Asaas', tipo: 'Boleto', status: 'Ativo', configurado: true, taxa: '1.99% + R$ 2,00', volume: 'R$ 12.345,67', ultimaTransacao: '14/01/2025', apiKey: '', secret: '', webhook: '' },
 ];
 
+function maskKey(s?: string) {
+  if (!s) return '—';
+  const str = String(s);
+  if (str.length <= 8) return str.replace(/.(?=.{4})/g, '*');
+  return `${str.slice(0,4)}...${str.slice(-4)}`;
+}
+
 export default function AdminGateways() {
+  const API_BASE = ((typeof import.meta !== 'undefined' && (import.meta as unknown as { env?: Record<string, string> }).env && (import.meta as unknown as { env?: Record<string, string> }).env.VITE_GATEWAY_API_URL) as string) || 'http://localhost:4001';
+  const [apiToken, setApiToken] = useState<string>(
+    ((typeof import.meta !== 'undefined' && (import.meta as unknown as { env?: Record<string, string> }).env && (import.meta as unknown as { env?: Record<string, string> }).env.VITE_GATEWAY_SERVER_TOKEN) as string) || ''
+  );
+  const REFRESH_SECRET = ((typeof import.meta !== 'undefined' && (import.meta as unknown as { env?: Record<string, string> }).env && (import.meta as unknown as { env?: Record<string, string> }).env.VITE_GATEWAY_REFRESH_SECRET) as string) || '';
   const [gateways, setGateways] = useState<Gateway[]>(gatewaysMock);
   const [modal, setModal] = useState<{ type: null | 'testar' | 'editar' | 'configurar' | 'desativar', gateway?: Gateway }>({ type: null });
   const [form, setForm] = useState({ nome: '', tipo: '', taxa: '' });
   const [config, setConfig] = useState({ apiKey: '', secret: '', webhook: '' });
+  const [showSecrets, setShowSecrets] = useState(false);
+  const [configErrors, setConfigErrors] = useState<{ apiKey?: string; secret?: string; webhook?: string }>({});
   const [testValue, setTestValue] = useState('');
 
-  // Cards resumo
-  const total = gateways.length;
-  const ativos = gateways.filter(g => g.status === 'Ativo').length;
-  const configurados = gateways.filter(g => g.configurado).length;
-  const volumeMensal = 'R$ 212.840,81';
-  const transacoes = 5777;
+  // Cards resumo (zerados para modo real)
+  const total = 0;
+  const ativos = 0;
+  const configurados = 0;
+  const volumeMensal = 'R$ 0,00';
+  const transacoes = 0;
 
   // Funções dos modais
   const handleTestar = () => {
@@ -52,11 +69,130 @@ export default function AdminGateways() {
     setGateways(gateways.map(g => g.id === modal.gateway!.id ? { ...g, nome: form.nome, tipo: form.tipo, taxa: form.taxa } : g));
     setModal({ type: null });
   };
-  const handleConfigurar = () => {
+  const [serverError, setServerError] = useState<string | null>(null);
+
+  const handleConfigurar = async () => {
+    setServerError(null);
     if (!modal.gateway) return;
-    setGateways(gateways.map(g => g.id === modal.gateway!.id ? { ...g, configurado: true, status: 'Ativo' } : g));
-    setConfig({ apiKey: '', secret: '', webhook: '' });
-    setModal({ type: null });
+    // validate fields
+    const errors: typeof configErrors = {};
+    if (!config.apiKey || config.apiKey.trim() === '') errors.apiKey = 'Chave/API Key é obrigatória.';
+    if (!config.secret || config.secret.trim() === '') errors.secret = 'Secret/Token é obrigatório.';
+    if (config.webhook && config.webhook.trim() !== '') {
+      try {
+        // eslint-disable-next-line no-new
+        new URL(config.webhook);
+      } catch (e) {
+        errors.webhook = 'Webhook inválido. Informe uma URL válida.';
+      }
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setConfigErrors(errors);
+      return;
+    }
+
+    // Save credentials into the gateway object
+    setGateways(prev => prev.map(g => g.id === modal.gateway!.id ? {
+      ...g,
+      configurado: true,
+      status: 'Ativo',
+      apiKey: config.apiKey || '',
+      secret: config.secret || '',
+      webhook: config.webhook || ''
+    } : g));
+
+    // send to server
+    async function doRequest(token: string) {
+      const headers: Record<string,string> = { 'Content-Type': 'application/json', 'x-api-key': token };
+      return fetch(`${API_BASE}/credentials/${modal.gateway!.id}`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ apiKey: config.apiKey, secret: config.secret, webhook: config.webhook })
+      });
+    }
+    try {
+      if (!apiToken) {
+        return;
+      }
+      let res = await doRequest(apiToken);
+      if (res.status === 401 && REFRESH_SECRET) {
+        // tentar renovar token
+        const refreshRes = await fetch(`${API_BASE}/auth/refresh-token`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ secret: REFRESH_SECRET })
+        });
+        if (refreshRes.ok) {
+          const { token } = await refreshRes.json();
+          setApiToken(token);
+          res = await doRequest(token);
+        } else {
+          setServerError('Token expirado e não foi possível renovar. Verifique o segredo de renovação.');
+          return;
+        }
+      }
+      if (!res.ok) {
+        const json = await res.json().catch(() => ({}));
+        setServerError(json?.error || `Erro ao salvar credenciais (status ${res.status})`);
+        return;
+      }
+      // update state
+      setGateways(prev => prev.map(g => g.id === modal.gateway!.id ? {
+        ...g,
+        configurado: true,
+        status: 'Ativo',
+        apiKey: config.apiKey || '',
+        secret: config.secret || '',
+        webhook: config.webhook || ''
+      } : g));
+      setConfig({ apiKey: '', secret: '', webhook: '' });
+      setConfigErrors({});
+      setModal({ type: null });
+    } catch (err) {
+      console.error('Erro ao chamar API de credenciais:', err);
+      setServerError(String(err));
+    }
+  };
+  
+  const handleResetCredentials = async (gatewayId?: number) => {
+    setServerError(null);
+    if (!gatewayId) return;
+    async function doDelete(token: string) {
+      const headers: Record<string,string> = { 'x-api-key': token };
+      return fetch(`${API_BASE}/credentials/${gatewayId}`, { method: 'DELETE', headers });
+    }
+    try {
+      if (!apiToken) {
+        return;
+      }
+      let res = await doDelete(apiToken);
+      if (res.status === 401 && REFRESH_SECRET) {
+        const refreshRes = await fetch(`${API_BASE}/auth/refresh-token`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ secret: REFRESH_SECRET })
+        });
+        if (refreshRes.ok) {
+          const { token } = await refreshRes.json();
+          setApiToken(token);
+          res = await doDelete(token);
+        } else {
+          setServerError('Token expirado e não foi possível renovar. Verifique o segredo de renovação.');
+          return;
+        }
+      }
+      if (!res.ok) {
+        const json = await res.json().catch(() => ({}));
+        setServerError(json?.error || `Erro ao remover credenciais (status ${res.status})`);
+        return;
+      }
+      setGateways(prev => prev.map(g => g.id === gatewayId ? { ...g, apiKey: '', secret: '', webhook: '', configurado: false } : g));
+      setModal({ type: null });
+    } catch (err) {
+      console.error('Erro ao chamar API de remoção de credenciais:', err);
+      setServerError(String(err));
+    }
   };
   const handleDesativar = () => {
     if (!modal.gateway) return;
@@ -64,8 +200,65 @@ export default function AdminGateways() {
     setModal({ type: null });
   };
 
+  // Load saved credentials from localStorage (mapping gatewayId -> creds)
+  useEffect(() => {
+    // load credentials from server for each gateway
+    let mounted = true;
+    const loadAll = async () => {
+          for (const g of gatewaysMock) {
+            try {
+              if (!apiToken) {
+                return;
+              }
+              let res = await fetch(`${API_BASE}/credentials/${g.id}`, { headers: { 'x-api-key': apiToken } });
+              if (res.status === 401 && REFRESH_SECRET) {
+                const refreshRes = await fetch(`${API_BASE}/auth/refresh-token`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ secret: REFRESH_SECRET })
+                });
+                if (refreshRes.ok) {
+                  const { token } = await refreshRes.json();
+                  setApiToken(token);
+                  res = await fetch(`${API_BASE}/credentials/${g.id}`, { headers: { 'x-api-key': token } });
+                } else {
+                  setServerError('Token expirado e não foi possível renovar. Verifique o segredo de renovação.');
+                  return;
+                }
+              }
+              if (!res.ok) continue;
+              const resJson = await res.json();
+              if (!mounted) return;
+              const gatewayData = resJson?.data;
+              if (gatewayData) {
+                setGateways(prev => prev.map(p => p.id === g.id ? { ...p, apiKey: gatewayData.apiKey || '', secret: gatewayData.secret || '', webhook: gatewayData.webhook || '', configurado: true } : p));
+              }
+          if (!res.ok) continue; // no creds or server error (skip)
+          const json = await res.json();
+          if (!mounted) return;
+          const data = json?.data;
+          if (data) {
+            setGateways(prev => prev.map(p => p.id === g.id ? { ...p, apiKey: data.apiKey || '', secret: data.secret || '', webhook: data.webhook || '', configurado: true } : p));
+          }
+        } catch (err) {
+          // server unreachable — show message once
+          if (mounted) setServerError('Servidor de credenciais indisponível.');
+          console.error('Erro ao carregar credenciais do servidor:', err);
+          break;
+        }
+      }
+    };
+    loadAll();
+    return () => { mounted = false; };
+  }, []);
+
   return (
     <div className="p-6 min-h-screen bg-[#09090b]">
+      {serverError && (
+        <div className="mb-4 p-3 rounded bg-red-900/80 border border-red-700 text-red-200 font-semibold text-center">
+          {serverError}
+        </div>
+      )}
       <div className="flex items-center gap-3 mb-2">
         <Server className="w-7 h-7 text-purple-400" />
         <h1 className="text-3xl font-bold text-green-400">Gateways de Pagamento</h1>
@@ -143,6 +336,9 @@ export default function AdminGateways() {
                       <div>
                         <div className="font-semibold text-white">{g.nome}</div>
                         <div className="text-xs text-gray-400">{g.configurado ? 'Configurado' : 'Não configurado'}</div>
+                        {g.configurado && (g.apiKey || g.secret) && (
+                          <div className="text-xs text-gray-500 mt-1">Key: <span className="ml-1 text-gray-300">{maskKey(g.apiKey)}</span></div>
+                        )}
                       </div>
                     </div>
                   </TableCell>
@@ -169,7 +365,7 @@ export default function AdminGateways() {
                           </Button>
                         </>
                       ) : (
-                        <Button size="sm" className="bg-[#7e22ce] hover:bg-[#6d1bb7] text-white" onClick={() => { setModal({ type: 'configurar', gateway: g }); setConfig({ apiKey: '', secret: '', webhook: '' }); }}>
+                        <Button size="sm" className="bg-[#7e22ce] hover:bg-[#6d1bb7] text-white" onClick={() => { setModal({ type: 'configurar', gateway: g }); setConfig({ apiKey: g.apiKey || '', secret: g.secret || '', webhook: g.webhook || '' }); setConfigErrors({}); setShowSecrets(false); }}>
                           Configurar
                         </Button>
                       )}
@@ -220,13 +416,32 @@ export default function AdminGateways() {
           <DialogHeader>
             <DialogTitle>Configurar Gateway: {modal.gateway?.nome}</DialogTitle>
           </DialogHeader>
-          <div className="space-y-4 py-2">
-            <Input placeholder="Chave/API Key" className="bg-gray-900 border border-gray-700 text-white" value={config.apiKey} onChange={e => setConfig({ ...config, apiKey: e.target.value })} />
-            <Input placeholder="Secret/Token" className="bg-gray-900 border border-gray-700 text-white" value={config.secret} onChange={e => setConfig({ ...config, secret: e.target.value })} />
-            <Input placeholder="Webhook URL" className="bg-gray-900 border border-gray-700 text-white" value={config.webhook} onChange={e => setConfig({ ...config, webhook: e.target.value })} />
+          <div className="space-y-2 py-2">
+            <div className="flex items-center justify-between">
+              <div className="text-sm text-gray-300">Credenciais</div>
+              <div className="flex items-center gap-2">
+                <label className="text-xs text-gray-400">Mostrar chaves</label>
+                <Button size="sm" variant="outline" onClick={() => setShowSecrets(s => !s)} className="text-gray-300">{showSecrets ? 'Ocultar' : 'Mostrar'}</Button>
+              </div>
+            </div>
+            <div>
+              <Input placeholder="Chave/API Key" type={showSecrets ? 'text' : 'password'} className="bg-gray-900 border border-gray-700 text-white" value={config.apiKey} onChange={e => setConfig({ ...config, apiKey: e.target.value })} />
+              {configErrors.apiKey && <div className="text-xs text-red-400 mt-1">{configErrors.apiKey}</div>}
+            </div>
+            <div>
+              <Input placeholder="Secret/Token" type={showSecrets ? 'text' : 'password'} className="bg-gray-900 border border-gray-700 text-white" value={config.secret} onChange={e => setConfig({ ...config, secret: e.target.value })} />
+              {configErrors.secret && <div className="text-xs text-red-400 mt-1">{configErrors.secret}</div>}
+            </div>
+            <div>
+              <Input placeholder="Webhook URL" className="bg-gray-900 border border-gray-700 text-white" value={config.webhook} onChange={e => setConfig({ ...config, webhook: e.target.value })} />
+              {configErrors.webhook && <div className="text-xs text-red-400 mt-1">{configErrors.webhook}</div>}
+            </div>
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setModal({ type: null })} className="bg-gray-700 text-white">Cancelar</Button>
+          <DialogFooter className="flex items-center justify-between">
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" onClick={() => handleResetCredentials(modal.gateway?.id)} className="bg-red-600 text-white">Resetar Credenciais</Button>
+              <Button variant="outline" onClick={() => setModal({ type: null })} className="bg-gray-700 text-white">Cancelar</Button>
+            </div>
             <Button className="bg-blue-600 hover:bg-blue-700 text-white" onClick={handleConfigurar}>Salvar Configuração</Button>
           </DialogFooter>
         </DialogContent>

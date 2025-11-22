@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
+import { getErrorMessage } from '@/lib/supabaseClient.agent';
 
 const ResetPassword: React.FC = () => {
   const [password, setPassword] = useState('');
@@ -94,9 +95,10 @@ const ResetPassword: React.FC = () => {
         console.error('Token de acesso não encontrado ou inválido.');
         throw new Error('Link de redefinição inválido ou expirado.');
       }
-    } catch (error: any) {
-      console.error('Erro ao redefinir senha:', error);
-      setError(error.message || 'Erro ao redefinir senha. Tente novamente mais tarde.');
+    } catch (error: unknown) {
+      const errMsg = getErrorMessage(error);
+      console.error('Erro ao redefinir senha:', errMsg);
+      setError(errMsg || 'Erro ao redefinir senha. Tente novamente mais tarde.');
     } finally {
       setLoading(false);
     }
@@ -127,8 +129,12 @@ const ResetPassword: React.FC = () => {
         {error && <div className="bg-red-100 text-red-700 rounded px-3 py-2 text-sm">{error}</div>}
         
         <div>
-          <label className="block text-gray-700 mb-1">Nova Senha</label>
+          <label htmlFor="new-password" className="block text-gray-700 mb-1">Nova Senha</label>
           <input
+            id="new-password"
+            title="Nova Senha"
+            aria-label="Nova Senha"
+            placeholder="Digite a nova senha"
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
@@ -141,8 +147,12 @@ const ResetPassword: React.FC = () => {
         </div>
         
         <div>
-          <label className="block text-gray-700 mb-1">Confirmar Nova Senha</label>
+          <label htmlFor="confirm-password" className="block text-gray-700 mb-1">Confirmar Nova Senha</label>
           <input
+            id="confirm-password"
+            title="Confirmar Nova Senha"
+            aria-label="Confirmar Nova Senha"
+            placeholder="Repita a nova senha"
             type="password"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}

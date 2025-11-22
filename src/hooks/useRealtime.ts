@@ -62,7 +62,7 @@ export function useRealtime<T>({
       .on(
         'postgres_changes',
         {
-          event: event as any,
+          event: event as EventType,
           schema,
           table,
           filter,
@@ -74,11 +74,17 @@ export function useRealtime<T>({
               case 'INSERT':
                 return [...currentData, payload.new as T];
               case 'UPDATE':
-                return currentData.map((item: any) =>
-                  item.id === (payload.new as any).id ? (payload.new as T) : item
-                );
+                return currentData.map((item: T) => {
+                  const newItemId = (payload.new as unknown as { id?: string | number }).id;
+                  const itemId = (item as unknown as { id?: string | number }).id;
+                  return itemId === newItemId ? (payload.new as T) : item;
+                });
               case 'DELETE':
-                return currentData.filter((item: any) => item.id !== (payload.old as any).id);
+                return currentData.filter((item: T) => {
+                  const itemId = (item as unknown as { id?: string | number }).id;
+                  const oldId = (payload.old as unknown as { id?: string | number }).id;
+                  return itemId !== oldId;
+                });
               default:
                 return currentData;
             }

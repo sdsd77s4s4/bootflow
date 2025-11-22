@@ -12,6 +12,65 @@ import { CSS } from '@dnd-kit/utilities';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import useDashboardData from '@/hooks/useDashboardData';
 import { useClientes } from '@/hooks/useClientes';
+import "./AdminBranding.css";
+
+// Utility: generate a unique CSS class that applies dynamic color values without using JSX inline `style`.
+function ensureColorClass(color?: string) {
+  if (!color) return '';
+  try {
+    const safe = color.replace(/[^a-zA-Z0-9_-]/g, '').toLowerCase();
+    const id = `brand-color-${safe}`;
+    if (!document.getElementById(id)) {
+      const style = document.createElement('style');
+      style.id = id;
+      style.innerHTML = `
+        .${id} { --dashboard-color: ${color}; }
+        .${id}.bg-dynamic { background-color: var(--dashboard-color) !important; }
+        .${id}.text-dynamic { color: var(--dashboard-color) !important; }
+        .${id}.border-dynamic { border-color: var(--dashboard-color) !important; }
+        .${id}.border-top-dynamic { border-top-color: var(--dashboard-color) !important; }
+        .${id} .icon-color { color: var(--dashboard-color) !important; }
+      `;
+      document.head.appendChild(style);
+    }
+    return id;
+  } catch (e) {
+    return '';
+  }
+}
+
+function ensureDualColorClass(bg?: string, text?: string) {
+  if (!bg && !text) return '';
+  const bgSafe = (bg || '').replace(/[^a-zA-Z0-9_-]/g, '').toLowerCase() || 'bg';
+  const textSafe = (text || '').replace(/[^a-zA-Z0-9_-]/g, '').toLowerCase() || 'txt';
+  const id = `brand-style-${bgSafe}-${textSafe}`;
+  if (!document.getElementById(id)) {
+    const style = document.createElement('style');
+    style.id = id;
+    style.innerHTML = `
+      .${id} { ${bg ? `background-color: ${bg} !important;` : ''} ${text ? `color: ${text} !important;` : ''} }
+    `;
+    document.head.appendChild(style);
+  }
+  return id;
+}
+
+// Utility: generate a CSS class for element sizes (width/height) to avoid inline styles
+function ensureSizeClass(width?: string, height?: string) {
+  if (!width && !height) return '';
+  const wSafe = (width || 'auto').replace(/[^a-zA-Z0-9_%.-]/g, '').replace(/%/g, 'pct');
+  const hSafe = (height || 'auto').replace(/[^a-zA-Z0-9_%.-]/g, '').replace(/%/g, 'pct');
+  const id = `brand-size-${wSafe}-${hSafe}`;
+  if (!document.getElementById(id)) {
+    const style = document.createElement('style');
+    style.id = id;
+    style.innerHTML = `
+      .${id} { ${width ? `width: ${width} !important;` : ''} ${height ? `height: ${height} !important;` : ''} }
+    `;
+    document.head.appendChild(style);
+  }
+  return id;
+}
 
 const initialBrand = {
   name: 'Sua Empresa Ltda',
@@ -36,7 +95,109 @@ const initialDashboards = [
   },
 ];
 
+type Dashboard = {
+  id: number;
+  name: string;
+  layout: string;
+  widgets: string[];
+  order: string[];
+  realtime: boolean;
+  color: string;
+};
+
+type PageComponent = {
+  id: string;
+  type: string;
+  name?: string;
+  config?: ComponentConfig;
+  order?: number;
+};
+type Client = {
+  name?: string;
+  email?: string;
+  status?: string;
+};
+
+// Tipagens para os diferentes configs de componentes do page builder
+type MetricCardConfig = {
+  title?: string;
+  value?: string | number;
+  label?: string;
+  color?: string;
+};
+
+type StatsGridConfig = {
+  columns?: number;
+  metrics?: string[];
+};
+
+type RevenueCardConfig = {
+  showGrowth?: boolean;
+  period?: string;
+};
+
+type UsersTableConfig = {
+  showSearch?: boolean;
+  showPagination?: boolean;
+  pageSize?: number;
+};
+
+type ButtonConfig = {
+  text?: string;
+  variant?: 'primary' | 'secondary' | 'success';
+  action?: string;
+  link?: string;
+};
+
+type TextConfig = {
+  content?: string;
+  size?: 'small' | 'medium' | 'large' | 'xlarge';
+  align?: 'left' | 'center' | 'right';
+};
+
+type ImageConfig = { src?: string; alt?: string; width?: string; height?: string };
+type VideoConfig = { src?: string; autoplay?: boolean; controls?: boolean };
+type ListConfig = { items?: string[]; ordered?: boolean };
+type ColumnsConfig = { count?: number; gap?: string };
+type FormField = { name: string; label?: string; type?: string; placeholder?: string };
+type FormConfig = { fields?: FormField[]; submitText?: string; action?: string };
+
+type ComponentConfig = Record<string, unknown>;
+
+type Page = {
+  id?: number;
+  title: string;
+  slug: string;
+  description: string;
+  content: string;
+  type: string;
+  backgroundColor: string;
+  textColor: string;
+  primaryColor: string;
+  showHeader: boolean;
+  showFooter: boolean;
+  customCSS: string;
+  metaTitle: string;
+  metaDescription: string;
+  isPublished: boolean;
+  components: PageComponent[];
+};
+
+type Site = {
+  id: number;
+  name: string;
+  domain: string;
+  status: 'ativo' | 'inativo';
+  dashboards: number[]; // IDs dos dashboards vinculados
+};
+
 const AdminBranding: React.FC = () => {
+    // Estado para gestão de sites/marcas
+    const [sites, setSites] = useState<Site[]>([]);
+    const [siteModal, setSiteModal] = useState(false);
+    const [editingSite, setEditingSite] = useState<Site | null>(null);
+    const [siteForm, setSiteForm] = useState<Partial<Site>>({ name: '', domain: '', status: 'ativo', dashboards: [] });
+
   const [tab, setTab] = useState('marca');
   const [brand, setBrand] = useState(initialBrand);
   const [originalBrand, setOriginalBrand] = useState(initialBrand);
@@ -45,10 +206,10 @@ const AdminBranding: React.FC = () => {
   const [faviconModal, setFaviconModal] = useState(false);
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [faviconFile, setFaviconFile] = useState<File | null>(null);
-  const [dashboards, setDashboards] = useState(initialDashboards);
+  const [dashboards, setDashboards] = useState<Dashboard[]>(initialDashboards as Dashboard[]);
   const [dashboardModal, setDashboardModal] = useState(false);
-  const [editingDashboard, setEditingDashboard] = useState<any>(null);
-  const [viewingDashboard, setViewingDashboard] = useState<any>(null);
+  const [editingDashboard, setEditingDashboard] = useState<Dashboard | null>(null);
+  const [viewingDashboard, setViewingDashboard] = useState<Dashboard | null>(null);
   const [dashboardForm, setDashboardForm] = useState({
     name: '',
     layout: 'Padrão',
@@ -59,10 +220,10 @@ const AdminBranding: React.FC = () => {
   });
   
   // Estados para páginas personalizadas
-  const [customPages, setCustomPages] = useState<any[]>([]);
+  const [customPages, setCustomPages] = useState<Page[]>([]);
   const [pageModal, setPageModal] = useState(false);
-  const [editingPage, setEditingPage] = useState<any>(null);
-  const [viewingPage, setViewingPage] = useState<any>(null);
+  const [editingPage, setEditingPage] = useState<Page | null>(null);
+  const [viewingPage, setViewingPage] = useState<Page | null>(null);
   const [pageForm, setPageForm] = useState({
     title: '',
     slug: '',
@@ -78,11 +239,11 @@ const AdminBranding: React.FC = () => {
     metaTitle: '',
     metaDescription: '',
     isPublished: false,
-    components: [] as any[], // Array de componentes do page builder
+    components: [] as PageComponent[], // Array de componentes do page builder
   });
   
   const [builderMode, setBuilderMode] = useState(false);
-  const [selectedComponent, setSelectedComponent] = useState<any>(null);
+  const [selectedComponent, setSelectedComponent] = useState<PageComponent | null>(null);
   
   // Hooks para dados reais
   const { stats } = useDashboardData();
@@ -262,7 +423,8 @@ const AdminBranding: React.FC = () => {
     });
     setDashboardModal(true);
   };
-  const openEditDashboard = (db: any) => {
+  const openEditDashboard = (db: Dashboard | null) => {
+    if (!db) return;
     setEditingDashboard(db);
     setDashboardForm({
       name: db.name,
@@ -323,7 +485,7 @@ const AdminBranding: React.FC = () => {
 
   // Função para renderizar widgets do dashboard
   const renderWidget = (widgetName: string, index: number) => {
-    const widgetIcons: { [key: string]: any } = {
+    const widgetIcons: Record<string, React.ComponentType<unknown>> = {
       'Métricas': BarChart3,
       'Gráficos': TrendingUp,
       'Atividades Recentes': Activity,
@@ -353,13 +515,12 @@ const AdminBranding: React.FC = () => {
     return (
       <Card 
         key={index}
-        className="bg-[#181e29] border border-gray-700 hover:border-purple-500 transition-all"
-        style={{ borderTopColor: viewingDashboard?.color }}
+        className={`bg-[#181e29] border border-gray-700 hover:border-purple-500 transition-all ${viewingDashboard?.color ? ensureColorClass(viewingDashboard.color) + ' border-top-dynamic' : ''}`}
       >
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Icon className="w-5 h-5" style={{ color: viewingDashboard?.color }} />
+              <Icon className="w-5 h-5 icon-color" />
               <CardTitle className="text-white text-base">{widgetName}</CardTitle>
             </div>
             {viewingDashboard?.realtime && (
@@ -371,7 +532,7 @@ const AdminBranding: React.FC = () => {
         </CardHeader>
         <CardContent>
           <div className="space-y-2">
-            <div className="text-3xl font-bold" style={{ color: viewingDashboard?.color }}>
+            <div className={`text-3xl font-bold ${viewingDashboard?.color ? ensureColorClass(viewingDashboard.color) + ' text-dynamic' : ''}`}>
               {data.value}
             </div>
             <div className="text-sm text-gray-400">{data.label}</div>
@@ -427,12 +588,13 @@ const AdminBranding: React.FC = () => {
     setPageModal(true);
   };
 
-  const openEditPage = (page: any) => {
+  const openEditPage = (page: Page | null) => {
+    if (!page) return;
     setEditingPage(page);
     setPageForm({ 
       ...page,
       components: page.components || []
-    });
+    } as Page);
     setBuilderMode(false);
     setPageModal(true);
   };
@@ -500,7 +662,7 @@ const AdminBranding: React.FC = () => {
   };
 
   // Atualizar componente
-  const updateComponent = (componentId: string, config: any) => {
+  const updateComponent = (componentId: string, config: Partial<ComponentConfig>) => {
     setPageForm({
       ...pageForm,
       components: pageForm.components.map(c => 
@@ -514,8 +676,8 @@ const AdminBranding: React.FC = () => {
     const { active, over } = event;
     if (!over || active.id === over.id) return;
 
-    const oldIndex = pageForm.components.findIndex((c: any) => c.id === active.id);
-    const newIndex = pageForm.components.findIndex((c: any) => c.id === over.id);
+    const oldIndex = pageForm.components.findIndex((c: PageComponent) => c.id === active.id);
+    const newIndex = pageForm.components.findIndex((c: PageComponent) => c.id === over.id);
 
     const newComponents = [...pageForm.components];
     const [removed] = newComponents.splice(oldIndex, 1);
@@ -592,7 +754,12 @@ const AdminBranding: React.FC = () => {
   };
 
   // Componente SortableItem para drag and drop
-  const SortableComponentItem = ({ component, onSelect, onRemove }: any) => {
+  type SortableComponentItemProps = {
+    component: PageComponent;
+    onSelect: (c: PageComponent) => void;
+    onRemove: (id: string) => void;
+  };
+  const SortableComponentItem = ({ component, onSelect, onRemove }: SortableComponentItemProps) => {
     const {
       attributes,
       listeners,
@@ -602,16 +769,27 @@ const AdminBranding: React.FC = () => {
       isDragging,
     } = useSortable({ id: component.id });
 
-    const style = {
-      transform: CSS.Transform.toString(transform),
-      transition,
-      opacity: isDragging ? 0.5 : 1,
+    const localRef = React.useRef<HTMLDivElement | null>(null);
+    const assignRef = (node: HTMLDivElement | null) => {
+      setNodeRef(node);
+      localRef.current = node;
     };
+
+    React.useEffect(() => {
+      const node = localRef.current;
+      if (!node) return;
+      try {
+        node.style.setProperty('--transform', CSS.Transform.toString(transform));
+        if (transition) node.style.setProperty('--transition', transition);
+        node.style.opacity = isDragging ? '0.5' : '1';
+      } catch (e) {
+        // ignore
+      }
+    }, [transform, transition, isDragging]);
 
     return (
       <div
-        ref={setNodeRef}
-        style={style}
+        ref={assignRef}
         className={`relative group border-2 rounded-lg p-4 mb-3 cursor-pointer transition-all ${
           selectedComponent?.id === component.id
             ? 'border-blue-500 bg-blue-900/20'
@@ -646,31 +824,35 @@ const AdminBranding: React.FC = () => {
   };
 
   // Renderizar componente na preview
-  const renderComponent = (component: any) => {
-    const { type, config } = component;
+  const renderComponent = (component: PageComponent) => {
+    const { type } = component as PageComponent;
+    const config = (component.config ?? ({} as ComponentConfig));
 
     switch (type) {
-      case 'metric-card':
+      case 'metric-card': {
+        const metricConfig = config as Record<string, unknown>;
         return (
           <Card className="bg-[#181e29] border border-gray-700">
             <CardHeader>
-              <CardTitle className="text-white text-sm">{config.title || 'Métrica'}</CardTitle>
+              <CardTitle className="text-white text-sm">{metricConfig.title as string || 'Métrica'}</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold" style={{ color: config.color || pageForm.primaryColor }}>
-                {config.value || '0'}
+              <div className={`text-3xl font-bold ${ensureColorClass((metricConfig.color as string) || pageForm.primaryColor)} text-dynamic`}>
+                {metricConfig.value as string || '0'}
               </div>
-              <div className="text-sm text-gray-400 mt-1">{config.label || 'Descrição'}</div>
+              <div className="text-sm text-gray-400 mt-1">{metricConfig.label as string || 'Descrição'}</div>
             </CardContent>
           </Card>
         );
+      }
 
-      case 'stats-grid':
-        const gridCols = config.columns === 2 ? 'grid-cols-2' : config.columns === 4 ? 'grid-cols-4' : 'grid-cols-3';
+      case 'stats-grid': {
+        const statsConfig = config as Record<string, unknown>;
+        const gridCols = (statsConfig.columns as number) === 2 ? 'grid-cols-2' : (statsConfig.columns as number) === 4 ? 'grid-cols-4' : 'grid-cols-3';
         return (
           <div className={`grid ${gridCols} gap-4`}>
-            {config.metrics?.map((metric: string, idx: number) => {
-              const metricData: any = {
+            {(statsConfig.metrics as string[])?.map((metric: string, idx: number) => {
+              const metricData: Record<string, { value: string | number; label: string; icon: React.ComponentType<Record<string, unknown>> }> = {
                 totalUsers: { value: stats?.totalUsers || 0, label: 'Total de Usuários', icon: Users },
                 totalRevenue: { value: `R$ ${stats?.totalRevenue?.toLocaleString('pt-BR') || '0'}`, label: 'Receita Total', icon: DollarSign },
                 activeClients: { value: stats?.activeClients || 0, label: 'Clientes Ativos', icon: Users },
@@ -694,7 +876,9 @@ const AdminBranding: React.FC = () => {
           </div>
         );
 
-      case 'revenue-card':
+      }
+      case 'revenue-card': {
+        const revenueConfig = config as Record<string, unknown>;
         return (
           <Card className="bg-gradient-to-br from-green-900/30 to-green-800/20 border border-green-700">
             <CardHeader>
@@ -704,7 +888,7 @@ const AdminBranding: React.FC = () => {
               <div className="text-4xl font-bold text-white mb-2">
                 R$ {stats?.totalRevenue?.toLocaleString('pt-BR') || '0'}
               </div>
-              {config.showGrowth && (
+              {revenueConfig.showGrowth && (
                 <div className="text-sm text-green-400 flex items-center gap-1">
                   <TrendingUp className="w-4 h-4" />
                   Crescimento este mês
@@ -713,8 +897,10 @@ const AdminBranding: React.FC = () => {
             </CardContent>
           </Card>
         );
+      }
 
-      case 'users-table':
+      case 'users-table': {
+        const usersConfig = config as Record<string, unknown>;
         return (
           <Card className="bg-[#181e29] border border-gray-700">
             <CardHeader>
@@ -731,7 +917,7 @@ const AdminBranding: React.FC = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {clientes.slice(0, config.pageSize || 5).map((cliente: any, idx: number) => (
+                    {clientes.slice(0, (usersConfig.pageSize as number) || 5).map((cliente: { name?: string; email?: string; status?: string }, idx: number) => (
                       <tr key={idx} className="border-b border-gray-800">
                         <td className="p-2 text-white">{cliente.name || 'N/A'}</td>
                         <td className="p-2 text-gray-400">{cliente.email || 'N/A'}</td>
@@ -748,26 +934,30 @@ const AdminBranding: React.FC = () => {
             </CardContent>
           </Card>
         );
+      }
 
-      case 'chart':
+      case 'chart': {
+        const chartConfig = config as Record<string, unknown>;
         return (
           <Card className="bg-[#181e29] border border-gray-700">
             <CardHeader>
-              <CardTitle className="text-white">Gráfico - {config.type || 'Line'}</CardTitle>
+              <CardTitle className="text-white">Gráfico - {chartConfig.type as string || 'Line'}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="h-64 flex items-center justify-center bg-gray-900/50 rounded border border-gray-800">
                 <div className="text-center text-gray-400">
                   <TrendingUp className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                  <p>Gráfico {config.type || 'Line'}</p>
-                  <p className="text-xs">Fonte: {config.dataSource || 'revenue'}</p>
+                  <p>Gráfico {chartConfig.type as string || 'Line'}</p>
+                  <p className="text-xs">Fonte: {chartConfig.dataSource as string || 'revenue'}</p>
                 </div>
               </div>
             </CardContent>
           </Card>
         );
+      }
 
-      case 'form':
+      case 'form': {
+        const formConfig = config as Record<string, unknown>;
         return (
           <Card className="bg-[#181e29] border border-gray-700">
             <CardHeader>
@@ -775,8 +965,8 @@ const AdminBranding: React.FC = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {config.fields?.length > 0 ? (
-                  config.fields.map((field: any, idx: number) => (
+                {formConfig.fields ? (
+                  (formConfig.fields as Array<{ label?: string; type?: string; placeholder?: string }>).map((field, idx: number) => (
                     <div key={idx} className="space-y-1">
                       <Label className="text-gray-300">{field.label}</Label>
                       <Input
@@ -790,46 +980,51 @@ const AdminBranding: React.FC = () => {
                   <p className="text-gray-400 text-sm">Nenhum campo configurado. Edite o componente para adicionar campos.</p>
                 )}
                 <Button className="w-full bg-blue-600 hover:bg-blue-700">
-                  {config.submitText || 'Enviar'}
+                  {formConfig.submitText as string || 'Enviar'}
                 </Button>
               </div>
             </CardContent>
           </Card>
         );
+      }
 
-      case 'button':
+      case 'button': {
+        const buttonConfig = config as Record<string, unknown>;
         return (
           <Button
             className={`w-full ${
-              config.variant === 'primary' ? 'bg-blue-600 hover:bg-blue-700' :
-              config.variant === 'secondary' ? 'bg-gray-600 hover:bg-gray-700' :
+              buttonConfig.variant === 'primary' ? 'bg-blue-600 hover:bg-blue-700' :
+              buttonConfig.variant === 'secondary' ? 'bg-gray-600 hover:bg-gray-700' :
               'bg-green-600 hover:bg-green-700'
             } text-white`}
             onClick={() => {
-              if (config.link) window.open(config.link, '_blank');
-              if (config.action) toast.info(`Ação: ${config.action}`);
+              if (buttonConfig.link) window.open(buttonConfig.link as string, '_blank');
+              if (buttonConfig.action) toast.info(`Ação: ${buttonConfig.action as string}`);
             }}
           >
-            {config.text || 'Clique aqui'}
+            {buttonConfig.text as string || 'Clique aqui'}
           </Button>
         );
+      }
 
-      case 'text':
-        const textSizes: any = { small: 'text-sm', medium: 'text-base', large: 'text-lg', xlarge: 'text-2xl' };
-        const textAligns: any = { left: 'text-left', center: 'text-center', right: 'text-right' };
+      case 'text': {
+        const textConfig = config as Record<string, unknown>;
+        const textSizes: Record<string, string> = { small: 'text-sm', medium: 'text-base', large: 'text-lg', xlarge: 'text-2xl' };
+        const textAligns: Record<string, string> = { left: 'text-left', center: 'text-center', right: 'text-right' };
         return (
-          <div className={`${textSizes[config.size || 'medium']} ${textAligns[config.align || 'left']} text-white`}>
-            {config.content || 'Digite seu texto aqui'}
+          <div className={`${textSizes[textConfig.size as string || 'medium']} ${textAligns[textConfig.align as string || 'left']} text-white`}>
+            {textConfig.content as string || 'Digite seu texto aqui'}
           </div>
         );
 
-      case 'image':
-        return config.src ? (
+      }
+      case 'image': {
+        const imageConfig = config as Record<string, unknown>;
+        return imageConfig.src ? (
           <img
-            src={config.src}
-            alt={config.alt || ''}
-            style={{ width: config.width || '100%', height: config.height || 'auto' }}
-            className="rounded-lg"
+            src={imageConfig.src as string}
+            alt={imageConfig.alt as string || ''}
+            className={`${ensureSizeClass(imageConfig.width as string, imageConfig.height as string)} rounded-lg`}
           />
         ) : (
           <div className="border-2 border-dashed border-gray-700 rounded-lg p-8 text-center text-gray-400">
@@ -837,13 +1032,15 @@ const AdminBranding: React.FC = () => {
             <p>Nenhuma imagem configurada</p>
           </div>
         );
+      }
 
-      case 'video':
-        return config.src ? (
+      case 'video': {
+        const videoConfig = config as Record<string, unknown>;
+        return videoConfig.src ? (
           <video
-            src={config.src}
-            controls={config.controls}
-            autoPlay={config.autoplay}
+            src={videoConfig.src as string}
+            controls={videoConfig.controls as boolean}
+            autoPlay={videoConfig.autoplay as boolean}
             className="w-full rounded-lg"
           />
         ) : (
@@ -852,24 +1049,38 @@ const AdminBranding: React.FC = () => {
             <p>Nenhum vídeo configurado</p>
           </div>
         );
+      }
 
-      case 'list':
-        return (
-          <div className={config.ordered ? 'list-decimal list-inside' : 'list-disc list-inside'}>
-            {config.items?.length > 0 ? (
-              config.items.map((item: string, idx: number) => (
+      case 'list': {
+        const listConfig = config as Record<string, unknown>;
+        return listConfig.ordered ? (
+          <ol className="list-decimal list-inside">
+            {(listConfig.items as string[])?.length > 0 ? (
+              (listConfig.items as string[]).map((item: string, idx: number) => (
                 <li key={idx} className="text-white mb-1">{item}</li>
               ))
             ) : (
-              <p className="text-gray-400 text-sm">Nenhum item na lista. Edite o componente para adicionar itens.</p>
+              <li className="text-gray-400 text-sm">Nenhum item na lista. Edite o componente para adicionar itens.</li>
             )}
-          </div>
+          </ol>
+        ) : (
+          <ul className="list-disc list-inside">
+            {(listConfig.items as string[])?.length > 0 ? (
+              (listConfig.items as string[]).map((item: string, idx: number) => (
+                <li key={idx} className="text-white mb-1">{item}</li>
+              ))
+            ) : (
+              <li className="text-gray-400 text-sm">Nenhum item na lista. Edite o componente para adicionar itens.</li>
+            )}
+          </ul>
         );
+      }
 
-      case 'columns':
-        const colCount = config.count || 2;
+      case 'columns': {
+        const columnsConfig = config as Record<string, unknown>;
+        const colCount = (columnsConfig.count as number) || 2;
         return (
-          <div className={`grid grid-cols-${colCount} gap-${config.gap || 'medium'}`}>
+          <div className={`grid grid-cols-${colCount} gap-${columnsConfig.gap as string || 'medium'}`}>
             {Array.from({ length: colCount }).map((_, idx) => (
               <div key={idx} className="border border-gray-700 rounded p-4 bg-gray-900/30">
                 <p className="text-gray-400 text-sm">Coluna {idx + 1}</p>
@@ -878,6 +1089,7 @@ const AdminBranding: React.FC = () => {
           </div>
         );
 
+      }
       default:
         return (
           <div className="border border-gray-700 rounded p-4 text-gray-400 text-center">
@@ -888,6 +1100,23 @@ const AdminBranding: React.FC = () => {
   };
 
   // Componente PageBuilderContent
+  type PageBuilderContentProps = {
+    pageForm: Page;
+    setPageForm: (p: Page) => void;
+    availableComponents: typeof availableComponents;
+    addComponent: (t: string) => void;
+    removeComponent: (id: string) => void;
+    updateComponent: (id: string, cfg: Partial<ComponentConfig>) => void;
+    selectedComponent: PageComponent | null;
+    setSelectedComponent: (c: PageComponent | null) => void;
+    handleDragEnd: (e: DragEndEvent) => void;
+    sensors: ReturnType<typeof useSensors> | undefined;
+    stats: { totalUsers?: number; totalRevenue?: number; activeClients?: number } | undefined;
+    clientes: Client[];
+    generateSlug: (t: string) => string;
+    renderComponent: (c: PageComponent) => JSX.Element | null;
+  };
+
   const PageBuilderContent = ({
     pageForm,
     setPageForm,
@@ -903,8 +1132,8 @@ const AdminBranding: React.FC = () => {
     clientes,
     generateSlug,
     renderComponent,
-  }: any) => {
-    const categories = Array.from(new Set(availableComponents.map((c: any) => c.category)));
+  }: PageBuilderContentProps) => {
+    const categories = Array.from(new Set(availableComponents.map((c) => c.category)));
 
     return (
       <div className="flex h-[calc(95vh-100px)]">
@@ -923,8 +1152,8 @@ const AdminBranding: React.FC = () => {
                 <h4 className="text-xs font-semibold text-gray-400 uppercase mb-2">{category}</h4>
                 <div className="space-y-1">
                   {availableComponents
-                    .filter((c: any) => c.category === category)
-                    .map((component: any) => (
+                    .filter((c) => c.category === category)
+                    .map((component) => (
                       <button
                         key={component.id}
                         onClick={() => addComponent(component.id)}
@@ -953,69 +1182,86 @@ const AdminBranding: React.FC = () => {
               <div className="space-y-4 max-w-2xl">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label className="text-gray-300">Título <span className="text-red-400">*</span></Label>
-                    <Input
-                      value={pageForm.title}
-                      onChange={(e) => {
-                        setPageForm({
-                          ...pageForm,
-                          title: e.target.value,
-                          slug: pageForm.slug || generateSlug(e.target.value),
-                        });
-                      }}
-                      className="bg-gray-900 border-gray-700 text-white"
-                    />
-                  </div>
+                      <Label htmlFor="page-title" className="text-gray-300">Título <span className="text-red-400">*</span></Label>
+                      <Input
+                        id="page-title"
+                        value={pageForm.title}
+                        onChange={(e) => {
+                          setPageForm({
+                            ...pageForm,
+                            title: e.target.value,
+                            slug: pageForm.slug || generateSlug(e.target.value),
+                          });
+                        }}
+                        className="bg-gray-900 border-gray-700 text-white"
+                        placeholder="Título da página"
+                        title="Título da página"
+                      />
+                    </div>
                   <div className="space-y-2">
-                    <Label className="text-gray-300">URL <span className="text-red-400">*</span></Label>
+                    <Label htmlFor="page-slug" className="text-gray-300">URL <span className="text-red-400">*</span></Label>
                     <div className="flex items-center gap-2">
                       <span className="text-gray-400 text-sm">/page/</span>
                       <Input
+                        id="page-slug"
                         value={pageForm.slug}
                         onChange={(e) => setPageForm({ ...pageForm, slug: e.target.value.toLowerCase() })}
                         className="flex-1 bg-gray-900 border-gray-700 text-white"
+                        placeholder="slug-da-pagina"
+                        title="Parte final da URL (slug)"
                       />
                     </div>
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-gray-300">Descrição</Label>
+                  <Label htmlFor="page-description" className="text-gray-300">Descrição</Label>
                   <Input
+                    id="page-description"
                     value={pageForm.description}
                     onChange={(e) => setPageForm({ ...pageForm, description: e.target.value })}
                     className="bg-gray-900 border-gray-700 text-white"
+                    placeholder="Breve descrição da página"
+                    title="Descrição da página"
                   />
                 </div>
                 <div className="grid grid-cols-3 gap-4">
                   <div className="space-y-2">
                     <Label className="text-gray-300">Cor de Fundo</Label>
                     <div className="flex gap-2">
-                      <input
-                        type="color"
-                        value={pageForm.backgroundColor}
-                        onChange={(e) => setPageForm({ ...pageForm, backgroundColor: e.target.value })}
-                        className="w-12 h-10 rounded border border-gray-700"
-                      />
-                      <Input
-                        value={pageForm.backgroundColor}
-                        onChange={(e) => setPageForm({ ...pageForm, backgroundColor: e.target.value })}
-                        className="flex-1 bg-gray-900 border-gray-700 text-white"
-                      />
+                        <input
+                          aria-label="Selecionar cor de fundo"
+                          type="color"
+                          value={pageForm.backgroundColor}
+                          onChange={(e) => setPageForm({ ...pageForm, backgroundColor: e.target.value })}
+                          className="w-12 h-10 rounded border border-gray-700"
+                        />
+                        <Input
+                          id="page-bg-hex"
+                          value={pageForm.backgroundColor}
+                          onChange={(e) => setPageForm({ ...pageForm, backgroundColor: e.target.value })}
+                          className="flex-1 bg-gray-900 border-gray-700 text-white"
+                          placeholder="#000000"
+                          title="Cor de fundo (hex)"
+                        />
                     </div>
                   </div>
                   <div className="space-y-2">
                     <Label className="text-gray-300">Cor do Texto</Label>
                     <div className="flex gap-2">
                       <input
+                        aria-label="Selecionar cor do texto"
                         type="color"
                         value={pageForm.textColor}
                         onChange={(e) => setPageForm({ ...pageForm, textColor: e.target.value })}
                         className="w-12 h-10 rounded border border-gray-700"
                       />
                       <Input
+                        id="page-text-hex"
                         value={pageForm.textColor}
                         onChange={(e) => setPageForm({ ...pageForm, textColor: e.target.value })}
                         className="flex-1 bg-gray-900 border-gray-700 text-white"
+                        placeholder="#ffffff"
+                        title="Cor do texto (hex)"
                       />
                     </div>
                   </div>
@@ -1023,15 +1269,19 @@ const AdminBranding: React.FC = () => {
                     <Label className="text-gray-300">Cor Primária</Label>
                     <div className="flex gap-2">
                       <input
+                        aria-label="Selecionar cor primária"
                         type="color"
                         value={pageForm.primaryColor}
                         onChange={(e) => setPageForm({ ...pageForm, primaryColor: e.target.value })}
                         className="w-12 h-10 rounded border border-gray-700"
                       />
                       <Input
+                        id="page-primary-hex"
                         value={pageForm.primaryColor}
                         onChange={(e) => setPageForm({ ...pageForm, primaryColor: e.target.value })}
                         className="flex-1 bg-gray-900 border-gray-700 text-white"
+                        placeholder="#7c3aed"
+                        title="Cor primária (hex)"
                       />
                     </div>
                   </div>
@@ -1040,13 +1290,7 @@ const AdminBranding: React.FC = () => {
             </TabsContent>
 
             <TabsContent value="preview" className="flex-1 overflow-y-auto p-6">
-              <div
-                className="min-h-full p-8 rounded-lg"
-                style={{
-                  backgroundColor: pageForm.backgroundColor,
-                  color: pageForm.textColor,
-                }}
-              >
+                <div className={`min-h-full p-8 rounded-lg ${ensureDualColorClass(pageForm.backgroundColor, pageForm.textColor)}`}>
                 {pageForm.components.length === 0 ? (
                   <div className="text-center py-12 text-gray-400">
                     <Layout className="w-16 h-16 mx-auto mb-4 opacity-50" />
@@ -1060,12 +1304,12 @@ const AdminBranding: React.FC = () => {
                     onDragEnd={handleDragEnd}
                   >
                     <SortableContext
-                      items={pageForm.components.map((c: any) => c.id)}
+                      items={pageForm.components.map((c: PageComponent) => c.id)}
                       strategy={verticalListSortingStrategy}
                     >
                       {pageForm.components
-                        .sort((a: any, b: any) => a.order - b.order)
-                        .map((component: any) => (
+                        .sort((a: PageComponent, b: PageComponent) => (a.order || 0) - (b.order || 0))
+                        .map((component: PageComponent) => (
                           <div key={component.id} className="mb-4">
                             {renderComponent(component)}
                           </div>
@@ -1094,12 +1338,12 @@ const AdminBranding: React.FC = () => {
                   onDragEnd={handleDragEnd}
                 >
                   <SortableContext
-                    items={pageForm.components.map((c: any) => c.id)}
+                    items={pageForm.components.map((c: PageComponent) => c.id)}
                     strategy={verticalListSortingStrategy}
                   >
                     {pageForm.components
-                      .sort((a: any, b: any) => a.order - b.order)
-                      .map((component: any) => (
+                      .sort((a: PageComponent, b: PageComponent) => (a.order || 0) - (b.order || 0))
+                      .map((component: PageComponent) => (
                         <SortableComponentItem
                           key={component.id}
                           component={component}
@@ -1131,7 +1375,7 @@ const AdminBranding: React.FC = () => {
             <div className="p-4 space-y-4">
               <ComponentPropertiesEditor
                 component={selectedComponent}
-                onUpdate={(config: any) => updateComponent(selectedComponent.id, config)}
+                onUpdate={(config) => updateComponent(selectedComponent!.id, config)}
               />
             </div>
           </div>
@@ -1141,11 +1385,16 @@ const AdminBranding: React.FC = () => {
   };
 
   // Editor de Propriedades do Componente
-  const ComponentPropertiesEditor = ({ component, onUpdate }: any) => {
-    const { type, config } = component;
+  type ComponentPropertiesEditorProps = {
+    component: PageComponent;
+    onUpdate: (cfg: Partial<ComponentConfig>) => void;
+  };
+  const ComponentPropertiesEditor = ({ component, onUpdate }: ComponentPropertiesEditorProps) => {
+    const { type } = component;
+    const config = (component.config ?? ({} as ComponentConfig));
 
-    const updateConfig = (key: string, value: any) => {
-      onUpdate({ [key]: value });
+    const updateConfig = (key: string, value: unknown) => {
+      onUpdate({ [key]: value } as Partial<ComponentConfig>);
     };
 
     switch (type) {
@@ -1155,25 +1404,28 @@ const AdminBranding: React.FC = () => {
             <div className="space-y-2">
               <Label className="text-gray-300">Título</Label>
               <Input
-                value={config.title || ''}
+                value={(config.title as string) || ''}
                 onChange={(e) => updateConfig('title', e.target.value)}
                 className="bg-gray-900 border-gray-700 text-white"
+                title="Título da métrica"
               />
             </div>
             <div className="space-y-2">
               <Label className="text-gray-300">Valor</Label>
               <Input
-                value={config.value || ''}
+                value={(config.value as string | number) || ''}
                 onChange={(e) => updateConfig('value', e.target.value)}
                 className="bg-gray-900 border-gray-700 text-white"
+                title="Valor da métrica"
               />
             </div>
             <div className="space-y-2">
               <Label className="text-gray-300">Label</Label>
               <Input
-                value={config.label || ''}
+                value={(config.label as string) || ''}
                 onChange={(e) => updateConfig('label', e.target.value)}
                 className="bg-gray-900 border-gray-700 text-white"
+                title="Rótulo da métrica"
               />
             </div>
             <div className="space-y-2">
@@ -1181,14 +1433,16 @@ const AdminBranding: React.FC = () => {
               <div className="flex gap-2">
                 <input
                   type="color"
-                  value={config.color || pageForm.primaryColor}
+                  value={(config.color as string) || pageForm.primaryColor}
                   onChange={(e) => updateConfig('color', e.target.value)}
                   className="w-12 h-10 rounded border border-gray-700"
+                  title="Selecionar cor"
                 />
                 <Input
-                  value={config.color || pageForm.primaryColor}
+                  value={(config.color as string) || pageForm.primaryColor}
                   onChange={(e) => updateConfig('color', e.target.value)}
                   className="flex-1 bg-gray-900 border-gray-700 text-white"
+                  title="Hex da cor"
                 />
               </div>
             </div>
@@ -1201,9 +1455,10 @@ const AdminBranding: React.FC = () => {
             <div className="space-y-2">
               <Label className="text-gray-300">Colunas</Label>
               <select
-                value={config.columns || 3}
+                value={(config.columns as number) || 3}
                 onChange={(e) => updateConfig('columns', parseInt(e.target.value))}
                 className="w-full bg-gray-900 border border-gray-700 text-white rounded px-3 py-2"
+                title="Número de colunas"
               >
                 <option value={2}>2 Colunas</option>
                 <option value={3}>3 Colunas</option>
@@ -1217,9 +1472,9 @@ const AdminBranding: React.FC = () => {
                   <label key={metric} className="flex items-center gap-2 text-sm text-gray-300">
                     <input
                       type="checkbox"
-                      checked={config.metrics?.includes(metric) || false}
+                      checked={(config.metrics as string[])?.includes(metric) || false}
                       onChange={(e) => {
-                        const current = config.metrics || [];
+                        const current = (config.metrics as string[]) || [];
                         const updated = e.target.checked
                           ? [...current, metric]
                           : current.filter((m: string) => m !== metric);
@@ -1241,17 +1496,19 @@ const AdminBranding: React.FC = () => {
             <div className="space-y-2">
               <Label className="text-gray-300">Texto</Label>
               <Input
-                value={config.text || ''}
+                value={(config.text as string) || ''}
                 onChange={(e) => updateConfig('text', e.target.value)}
                 className="bg-gray-900 border-gray-700 text-white"
+                title="Texto do botão"
               />
             </div>
             <div className="space-y-2">
               <Label className="text-gray-300">Variante</Label>
               <select
-                value={config.variant || 'primary'}
+                value={(config.variant as string) || 'primary'}
                 onChange={(e) => updateConfig('variant', e.target.value)}
                 className="w-full bg-gray-900 border border-gray-700 text-white rounded px-3 py-2"
+                title="Variante do botão"
               >
                 <option value="primary">Primário</option>
                 <option value="secondary">Secundário</option>
@@ -1261,10 +1518,11 @@ const AdminBranding: React.FC = () => {
             <div className="space-y-2">
               <Label className="text-gray-300">Link (URL)</Label>
               <Input
-                value={config.link || ''}
+                value={(config.link as string) || ''}
                 onChange={(e) => updateConfig('link', e.target.value)}
                 className="bg-gray-900 border-gray-700 text-white"
                 placeholder="https://..."
+                title="URL de destino"
               />
             </div>
           </>
@@ -1278,15 +1536,17 @@ const AdminBranding: React.FC = () => {
               <textarea
                 value={config.content || ''}
                 onChange={(e) => updateConfig('content', e.target.value)}
-                className="w-full bg-gray-900 border border-gray-700 text-white rounded p-2 min-h-[100px]"
+                className="w-full bg-gray-900 border border-gray-700 text-white rounded p-2 min-h-[100px] focus:border-blue-500 focus:outline-none"
+                title="Conteúdo do texto"
               />
             </div>
             <div className="space-y-2">
               <Label className="text-gray-300">Tamanho</Label>
               <select
-                value={config.size || 'medium'}
+                value={(config.size as string) || 'medium'}
                 onChange={(e) => updateConfig('size', e.target.value)}
                 className="w-full bg-gray-900 border border-gray-700 text-white rounded px-3 py-2"
+                title="Tamanho do texto"
               >
                 <option value="small">Pequeno</option>
                 <option value="medium">Médio</option>
@@ -1297,9 +1557,10 @@ const AdminBranding: React.FC = () => {
             <div className="space-y-2">
               <Label className="text-gray-300">Alinhamento</Label>
               <select
-                value={config.align || 'left'}
+                value={(config.align as string) || 'left'}
                 onChange={(e) => updateConfig('align', e.target.value)}
                 className="w-full bg-gray-900 border border-gray-700 text-white rounded px-3 py-2"
+                title="Alinhamento do texto"
               >
                 <option value="left">Esquerda</option>
                 <option value="center">Centro</option>
@@ -1320,6 +1581,7 @@ const AdminBranding: React.FC = () => {
                   checked={config.showGrowth || false}
                   onChange={(e) => updateConfig('showGrowth', e.target.checked)}
                   className="accent-blue-500"
+                  title="Mostrar indicador de crescimento"
                 />
                 <span className="text-sm text-gray-300">Exibir indicador de crescimento</span>
               </div>
@@ -1330,6 +1592,7 @@ const AdminBranding: React.FC = () => {
                 value={config.period || 'month'}
                 onChange={(e) => updateConfig('period', e.target.value)}
                 className="w-full bg-gray-900 border border-gray-700 text-white rounded px-3 py-2"
+                title="Selecionar período"
               >
                 <option value="day">Dia</option>
                 <option value="week">Semana</option>
@@ -1351,6 +1614,7 @@ const AdminBranding: React.FC = () => {
                   checked={config.showSearch || false}
                   onChange={(e) => updateConfig('showSearch', e.target.checked)}
                   className="accent-blue-500"
+                  title="Habilitar campo de busca"
                 />
                 <span className="text-sm text-gray-300">Habilitar campo de busca</span>
               </div>
@@ -1363,6 +1627,7 @@ const AdminBranding: React.FC = () => {
                   checked={config.showPagination || false}
                   onChange={(e) => updateConfig('showPagination', e.target.checked)}
                   className="accent-blue-500"
+                  title="Habilitar paginação"
                 />
                 <span className="text-sm text-gray-300">Habilitar paginação</span>
               </div>
@@ -1390,6 +1655,7 @@ const AdminBranding: React.FC = () => {
                 value={config.type || 'line'}
                 onChange={(e) => updateConfig('type', e.target.value)}
                 className="w-full bg-gray-900 border border-gray-700 text-white rounded px-3 py-2"
+                title="Selecionar tipo de gráfico"
               >
                 <option value="line">Linha</option>
                 <option value="bar">Barras</option>
@@ -1403,6 +1669,7 @@ const AdminBranding: React.FC = () => {
                 value={config.dataSource || 'revenue'}
                 onChange={(e) => updateConfig('dataSource', e.target.value)}
                 className="w-full bg-gray-900 border border-gray-700 text-white rounded px-3 py-2"
+                title="Selecionar fonte de dados"
               >
                 <option value="revenue">Receita</option>
                 <option value="users">Usuários</option>
@@ -1415,6 +1682,7 @@ const AdminBranding: React.FC = () => {
                 value={config.period || 'month'}
                 onChange={(e) => updateConfig('period', e.target.value)}
                 className="w-full bg-gray-900 border border-gray-700 text-white rounded px-3 py-2"
+                title="Selecionar período do gráfico"
               >
                 <option value="day">Dia</option>
                 <option value="week">Semana</option>
@@ -1513,6 +1781,7 @@ const AdminBranding: React.FC = () => {
                   checked={config.controls !== false}
                   onChange={(e) => updateConfig('controls', e.target.checked)}
                   className="accent-blue-500"
+                  title="Mostrar controles do vídeo"
                 />
                 <span className="text-sm text-gray-300">Mostrar controles</span>
               </div>
@@ -1525,6 +1794,7 @@ const AdminBranding: React.FC = () => {
                   checked={config.autoplay || false}
                   onChange={(e) => updateConfig('autoplay', e.target.checked)}
                   className="accent-blue-500"
+                  title="Reproduzir vídeo automaticamente"
                 />
                 <span className="text-sm text-gray-300">Reproduzir automaticamente</span>
               </div>
@@ -1543,6 +1813,7 @@ const AdminBranding: React.FC = () => {
                   checked={config.ordered || false}
                   onChange={(e) => updateConfig('ordered', e.target.checked)}
                   className="accent-blue-500"
+                  title="Lista ordenada (numerada)"
                 />
                 <span className="text-sm text-gray-300">Usar numeração</span>
               </div>
@@ -1555,7 +1826,7 @@ const AdminBranding: React.FC = () => {
                   const items = e.target.value.split('\n').filter(item => item.trim());
                   updateConfig('items', items);
                 }}
-                className="w-full bg-gray-900 border border-gray-700 text-white rounded p-2 min-h-[100px]"
+                className="w-full bg-gray-900 border border-gray-700 text-white rounded p-2 min-h-[100px] focus:border-blue-500 focus:outline-none"
                 placeholder="Item 1&#10;Item 2&#10;Item 3"
               />
             </div>
@@ -1571,6 +1842,7 @@ const AdminBranding: React.FC = () => {
                 value={config.count || 2}
                 onChange={(e) => updateConfig('count', parseInt(e.target.value))}
                 className="w-full bg-gray-900 border border-gray-700 text-white rounded px-3 py-2"
+                title="Selecionar número de colunas"
               >
                 <option value={2}>2 Colunas</option>
                 <option value={3}>3 Colunas</option>
@@ -1583,6 +1855,7 @@ const AdminBranding: React.FC = () => {
                 value={config.gap || 'medium'}
                 onChange={(e) => updateConfig('gap', e.target.value)}
                 className="w-full bg-gray-900 border border-gray-700 text-white rounded px-3 py-2"
+                title="Selecionar espaçamento entre colunas"
               >
                 <option value="small">Pequeno</option>
                 <option value="medium">Médio</option>
@@ -1607,8 +1880,45 @@ const AdminBranding: React.FC = () => {
     { id: 'avancado', title: 'Avançado', icon: Code, description: 'Domínio, scripts e SEO.', color: 'blue' },
     { id: 'funcionalidades', title: 'Funcionalidades', icon: Sliders, description: 'Módulos e integrações.', color: 'yellow' },
     { id: 'whitelabel', title: 'WhiteLabel', icon: Star, description: 'Sua marca própria.', color: 'red' },
+    { id: 'sites', title: 'Gestão de Sites', icon: Globe, description: 'Gerencie múltiplos sites/marcas.', color: 'green' },
     { id: 'paginas', title: 'Páginas', icon: Globe, description: 'Criar páginas personalizadas.', color: 'blue' },
   ];
+  // CRUD de sites
+  const openNewSite = () => {
+    setEditingSite(null);
+    setSiteForm({ name: '', domain: '', status: 'ativo', dashboards: [] });
+    setSiteModal(true);
+  };
+  const openEditSite = (site: Site) => {
+    setEditingSite(site);
+    setSiteForm(site);
+    setSiteModal(true);
+  };
+  const saveSite = () => {
+    if (!siteForm.name?.trim() || !siteForm.domain?.trim()) {
+      toast.error('Nome e domínio são obrigatórios');
+      return;
+    }
+    let updatedSites;
+    let savedSite;
+    if (editingSite) {
+      savedSite = { ...editingSite, ...siteForm } as Site;
+      updatedSites = sites.map(s => s.id === editingSite.id ? savedSite : s);
+      toast.success('Site atualizado com sucesso!');
+    } else {
+      savedSite = { ...siteForm, id: Date.now(), dashboards: siteForm.dashboards || [] } as Site;
+      updatedSites = [...sites, savedSite];
+      toast.success('Site criado com sucesso!');
+    }
+    setSites(updatedSites);
+    setSiteModal(false);
+  };
+  const removeSite = (id: number) => {
+    const updatedSites = sites.filter(s => s.id !== id);
+    setSites(updatedSites);
+    toast.success('Site removido com sucesso!');
+  };
+
 
   const colorClasses = {
     purple: {
@@ -1682,8 +1992,7 @@ const AdminBranding: React.FC = () => {
               <div>
                 <h1 className="text-3xl font-bold text-white flex items-center gap-3">
                   <div 
-                    className="w-4 h-4 rounded-full"
-                    style={{ backgroundColor: viewingDashboard.color }}
+                    className={`w-4 h-4 rounded-full ${ensureColorClass(viewingDashboard.color)} bg-dynamic`}
                   />
                   {viewingDashboard.name}
                 </h1>
@@ -2032,20 +2341,20 @@ const AdminBranding: React.FC = () => {
           <div className="max-w-2xl space-y-6">
             <div className="rounded-2xl border border-purple-700/40 bg-gradient-to-br from-purple-900/50 to-purple-800/30 p-6 shadow-lg">
               <span className="block text-purple-300 font-semibold mb-4 text-lg">Cores e Aparência</span>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
                   <label className="block text-gray-300 mb-1 font-medium">Cor Primária</label>
-                  <input type="color" className="w-12 h-12 p-0 border-none bg-transparent" />
+                  <input id="brand-primary-color" title="Cor Primária" aria-label="Cor Primária" type="color" className="w-12 h-12 p-0 border-none bg-transparent" />
                 </div>
                 <div>
                   <label className="block text-gray-300 mb-1 font-medium">Cor Secundária</label>
-                  <input type="color" className="w-12 h-12 p-0 border-none bg-transparent" />
+                  <input id="brand-secondary-color" title="Cor Secundária" aria-label="Cor Secundária" type="color" className="w-12 h-12 p-0 border-none bg-transparent" />
                 </div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
                   <label className="block text-gray-300 mb-1 font-medium">Fonte</label>
-                  <select className="w-full bg-gray-900 border border-gray-700 text-white rounded px-3 py-2">
+                  <select className="w-full bg-gray-900 border border-gray-700 text-white rounded px-3 py-2" title="Selecionar fonte">
                     <option>Inter</option>
                     <option>Roboto</option>
                     <option>Montserrat</option>
@@ -2053,8 +2362,8 @@ const AdminBranding: React.FC = () => {
                   </select>
                 </div>
                 <div className="flex items-center gap-3 mt-6">
-                  <input type="checkbox" className="accent-purple-500" />
-                  <span className="text-gray-300">Modo escuro</span>
+                  <input id="brand-dark-mode" title="Modo escuro" aria-label="Modo escuro" type="checkbox" className="accent-purple-500" />
+                  <label htmlFor="brand-dark-mode" className="text-gray-300">Modo escuro</label>
                 </div>
               </div>
               <div className="mt-6">
@@ -2087,8 +2396,8 @@ const AdminBranding: React.FC = () => {
                 <textarea className="w-full bg-gray-900 border border-gray-700 text-white rounded p-2 min-h-[60px]" placeholder="Cole aqui seu script..."></textarea>
               </div>
               <div className="flex items-center gap-3 mt-2">
-                <input type="checkbox" className="accent-purple-500" />
-                <span className="text-gray-300">Ativar CDN de performance</span>
+                <input id="enable-cdn" title="Ativar CDN de performance" aria-label="Ativar CDN de performance" type="checkbox" className="accent-purple-500" />
+                <label htmlFor="enable-cdn" className="text-gray-300">Ativar CDN de performance</label>
               </div>
             </div>
           </div>
@@ -2100,27 +2409,27 @@ const AdminBranding: React.FC = () => {
               <span className="block text-purple-300 font-semibold mb-4 text-lg">Módulos e Funcionalidades</span>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="flex items-center gap-3">
-                  <input type="checkbox" className="accent-purple-500" defaultChecked />
+                  <input type="checkbox" className="accent-purple-500" defaultChecked title="Módulo E-commerce" />
                   <span className="text-gray-300">E-commerce</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <input type="checkbox" className="accent-purple-500" defaultChecked />
+                  <input type="checkbox" className="accent-purple-500" defaultChecked title="Módulo Gamificação" />
                   <span className="text-gray-300">Gamificação</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <input type="checkbox" className="accent-purple-500" />
+                  <input type="checkbox" className="accent-purple-500" title="Módulo Notificações" />
                   <span className="text-gray-300">Notificações</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <input type="checkbox" className="accent-purple-500" />
+                  <input type="checkbox" className="accent-purple-500" title="Módulo Exportação de Dados" />
                   <span className="text-gray-300">Exportação de Dados</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <input type="checkbox" className="accent-purple-500" />
+                  <input type="checkbox" className="accent-purple-500" title="Módulo Relatórios Avançados" />
                   <span className="text-gray-300">Relatórios Avançados</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <input type="checkbox" className="accent-purple-500" defaultChecked />
+                  <input type="checkbox" className="accent-purple-500" defaultChecked title="Módulo Chatbot IA" />
                   <span className="text-gray-300">Chatbot IA</span>
                 </div>
               </div>
@@ -2158,8 +2467,7 @@ const AdminBranding: React.FC = () => {
                             <p className="text-xs text-gray-400">Layout: {dashboard.layout}</p>
                           </div>
                           <div 
-                            className="w-4 h-4 rounded-full border-2 border-white"
-                            style={{ backgroundColor: dashboard.color }}
+                            className={`w-4 h-4 rounded-full border-2 border-white ${ensureColorClass(dashboard.color)} bg-dynamic`}
                           />
                         </div>
                       </CardHeader>
@@ -2234,8 +2542,8 @@ const AdminBranding: React.FC = () => {
               <span className="block text-green-300 font-semibold mb-4 text-lg">Configurações WhiteLabel</span>
               <div className="mb-4">
                 <label className="block text-gray-300 mb-1 font-medium">Remover menção à plataforma original</label>
-                <input type="checkbox" className="accent-green-500" />
-                <span className="ml-2 text-gray-400 text-sm">Oculta qualquer referência à Symphonic Growth Hub</span>
+                <input id="whitelabel-remove-mention" title="Remover menção à plataforma original" aria-label="Remover menção à plataforma original" type="checkbox" className="accent-green-500" />
+                <label htmlFor="whitelabel-remove-mention" className="ml-2 text-gray-400 text-sm">Oculta qualquer referência à Symphonic Growth Hub</label>
               </div>
               <div className="mb-4">
                 <label className="block text-gray-300 mb-1 font-medium">Domínio personalizado exclusivo</label>
@@ -2252,13 +2560,13 @@ const AdminBranding: React.FC = () => {
               <div className="mb-4">
                 <label className="block text-gray-300 mb-1 font-medium">Cores e logotipo exclusivos</label>
                 <div className="flex gap-4 items-center mt-2">
-                  <input type="color" className="w-10 h-10 p-0 border-none bg-transparent" />
+                  <input id="whitelabel-color" title="Cor Whitelabel" aria-label="Cor Whitelabel" type="color" className="w-10 h-10 p-0 border-none bg-transparent" />
                   <Button className="bg-green-600 hover:bg-green-700 text-white">Upload Logo</Button>
                 </div>
               </div>
               <div className="mb-4">
                 <label className="block text-gray-300 mb-1 font-medium">Remover links de documentação padrão</label>
-                <input type="checkbox" className="accent-green-500" />
+                <input id="whitelabel-remove-links" title="Remover links de documentação padrão" aria-label="Remover links de documentação padrão" type="checkbox" className="accent-green-500" />
               </div>
               <div className="flex justify-end gap-2 mt-6">
                 <Button variant="outline" className="bg-gray-700 text-white px-6 py-2 rounded font-semibold">Cancelar</Button>
@@ -2299,8 +2607,7 @@ const AdminBranding: React.FC = () => {
                             <p className="text-xs text-gray-400">Layout: {dashboard.layout}</p>
                           </div>
                           <div 
-                            className="w-4 h-4 rounded-full border-2 border-white"
-                            style={{ backgroundColor: dashboard.color }}
+                            className={`w-4 h-4 rounded-full border-2 border-white ${ensureColorClass(dashboard.color)} bg-dynamic`}
                           />
                         </div>
                       </CardHeader>
@@ -2367,6 +2674,116 @@ const AdminBranding: React.FC = () => {
                 </div>
               )}
             </div>
+          </div>
+        )}
+        {tab === 'sites' && (
+          <div className="space-y-6">
+            <div className="rounded-2xl border border-green-700/40 bg-gradient-to-br from-green-900/50 to-green-800/30 p-6 shadow-lg">
+              <div className="flex items-center justify-between mb-4">
+                <span className="block text-green-300 font-semibold text-lg">Gestão de Sites/Marcas</span>
+                <Button onClick={openNewSite} className="bg-green-600 hover:bg-green-700 text-white">
+                  <Plus className="w-4 h-4 mr-2" /> Novo Site/Marca
+                </Button>
+              </div>
+              {sites.length === 0 ? (
+                <div className="text-center py-8 text-gray-400">
+                  <Globe className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                  <p className="mb-2">Nenhum site/marca cadastrado ainda.</p>
+                  <p className="text-sm">Clique em "Novo Site/Marca" para adicionar.</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {sites.map(site => (
+                    <Card key={site.id} className="bg-[#181e29] border border-gray-700 hover:border-green-500 transition-colors">
+                      <CardHeader className="pb-3">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <CardTitle className="text-white text-base mb-1">{site.name}</CardTitle>
+                            <p className="text-xs text-gray-400">Domínio: {site.domain}</p>
+                            <div className="flex items-center gap-2 mt-1">
+                              <span className={`text-xs px-2 py-1 rounded ${site.status === 'ativo' ? 'bg-green-900/30 text-green-300' : 'bg-gray-700 text-gray-400'}`}>{site.status === 'ativo' ? 'Ativo' : 'Inativo'}</span>
+                            </div>
+                            <div className="mt-2">
+                              <span className="text-xs text-gray-400">Dashboards vinculados:</span>
+                              <div className="flex flex-wrap gap-1 mt-1">
+                                {site.dashboards.length === 0 ? (
+                                  <span className="text-xs px-2 py-1 bg-gray-700 text-gray-400 rounded">Nenhum</span>
+                                ) : (
+                                  site.dashboards.map(did => {
+                                    const db = dashboards.find(d => d.id === did);
+                                    return db ? (
+                                      <span key={did} className="text-xs px-2 py-1 bg-green-900/30 text-green-300 rounded">{db.name}</span>
+                                    ) : null;
+                                  })
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </CardHeader>
+                      <CardContent className="pt-0">
+                        <div className="flex gap-2">
+                          <Button variant="outline" size="sm" onClick={() => openEditSite(site)} className="bg-gray-700 hover:bg-gray-600 text-white border-gray-600">
+                            <Edit className="w-3 h-3" />
+                          </Button>
+                          <Button variant="outline" size="sm" onClick={() => { if (confirm('Remover este site/marca?')) removeSite(site.id); }} className="bg-red-600 hover:bg-red-700 text-white border-red-600">
+                            <Trash2 className="w-3 h-3" />
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
+            </div>
+            {/* Modal de Site/Marca */}
+            <Dialog open={siteModal} onOpenChange={setSiteModal}>
+              <DialogContent className="bg-[#232a36] border border-green-700 text-white max-w-md">
+                <DialogHeader>
+                  <DialogTitle className="text-xl font-bold">{editingSite ? 'Editar Site/Marca' : 'Novo Site/Marca'}</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4 py-4">
+                  <div className="space-y-2">
+                    <Label className="text-gray-300">Nome <span className="text-red-400">*</span></Label>
+                    <Input value={siteForm.name || ''} onChange={e => setSiteForm({ ...siteForm, name: e.target.value })} className="bg-gray-900 border-gray-700 text-white" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-gray-300">Domínio <span className="text-red-400">*</span></Label>
+                    <Input value={siteForm.domain || ''} onChange={e => setSiteForm({ ...siteForm, domain: e.target.value })} className="bg-gray-900 border-gray-700 text-white" placeholder="https://seudominio.com" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-gray-300">Status</Label>
+                    <select value={siteForm.status} onChange={e => setSiteForm({ ...siteForm, status: e.target.value as 'ativo' | 'inativo' })} className="w-full bg-gray-900 border border-gray-700 text-white rounded px-3 py-2" title="Selecionar status do site">
+                      <option value="ativo">Ativo</option>
+                      <option value="inativo">Inativo</option>
+                    </select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-gray-300">Dashboards vinculados</Label>
+                    <div className="flex flex-wrap gap-2">
+                      {dashboards.map(db => (
+                        <label key={db.id} className="flex items-center gap-1 text-xs text-gray-300 bg-gray-800 px-2 py-1 rounded cursor-pointer">
+                          <input type="checkbox" checked={siteForm.dashboards?.includes(db.id)} onChange={e => {
+                            const checked = e.target.checked;
+                            setSiteForm(form => ({
+                              ...form,
+                                                           dashboards: checked
+                                ? [...(form.dashboards || []), db.id]
+                                : (form.dashboards || []).filter(id => id !== db.id)
+                            }));
+                          }} className="accent-green-500" />
+                          {db.name}
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => setSiteModal(false)} className="bg-gray-700 hover:bg-gray-600 text-white border-gray-600">Cancelar</Button>
+                  <Button onClick={saveSite} className="bg-green-600 hover:bg-green-700 text-white">{editingSite ? 'Salvar Alterações' : 'Criar Site/Marca'}</Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
           </div>
         )}
         {tab === 'paginas' && (
@@ -2614,6 +3031,7 @@ const AdminBranding: React.FC = () => {
                 value={dashboardForm.layout}
                 onChange={(e) => setDashboardForm({ ...dashboardForm, layout: e.target.value })}
                 className="w-full bg-gray-900 border border-gray-700 text-white rounded-md px-3 py-2 focus:border-purple-500 focus:outline-none"
+                title="Selecionar layout do dashboard"
               >
                 <option value="Padrão">Padrão</option>
                 <option value="Compacto">Compacto</option>
@@ -2644,6 +3062,7 @@ const AdminBranding: React.FC = () => {
                   >
                     <input
                       type="checkbox"
+                      aria-label={widget}
                       checked={dashboardForm.widgets.includes(widget)}
                       onChange={() => {}}
                       className="accent-purple-500"
@@ -2705,12 +3124,14 @@ const AdminBranding: React.FC = () => {
                     value={dashboardForm.color}
                     onChange={(e) => setDashboardForm({ ...dashboardForm, color: e.target.value })}
                     className="w-16 h-12 rounded border border-gray-700 cursor-pointer"
+                    title="Selecionar cor do tema do dashboard"
                   />
                   <Input
                     value={dashboardForm.color}
                     onChange={(e) => setDashboardForm({ ...dashboardForm, color: e.target.value })}
                     className="flex-1 bg-gray-900 border border-gray-700 text-white focus:border-purple-500"
                     placeholder="#7c3aed"
+                    title="Cor do dashboard em formato hexadecimal"
                   />
                 </div>
               </div>
@@ -2723,6 +3144,7 @@ const AdminBranding: React.FC = () => {
                     checked={dashboardForm.realtime}
                     onChange={(e) => setDashboardForm({ ...dashboardForm, realtime: e.target.checked })}
                     className="accent-purple-500"
+                    title="Habilitar atualização em tempo real do dashboard"
                   />
                   <Label htmlFor="dashboard-realtime" className="text-gray-300 cursor-pointer">
                     Atualização em Tempo Real
@@ -2829,7 +3251,8 @@ const AdminBranding: React.FC = () => {
                       });
                     }}
                     className="bg-gray-900 border border-gray-700 text-white focus:border-blue-500"
-                    placeholder="Ex: Página de Afiliados"
+                    placeholder="Título da página"
+                    title="Título da página"
                   />
                 </div>
                 
@@ -2843,8 +3266,9 @@ const AdminBranding: React.FC = () => {
                       id="page-slug"
                       value={pageForm.slug}
                       onChange={(e) => setPageForm({ ...pageForm, slug: e.target.value.toLowerCase() })}
-                      className="flex-1 bg-gray-900 border border-gray-700 text-white focus:border-blue-500"
+                      className="flex-1 bg-gray-900 border border-gray-700 text-white"
                       placeholder="pagina-afiliados"
+                      title="Parte final da URL (slug)"
                     />
                     <Button
                       variant="ghost"
@@ -2880,6 +3304,7 @@ const AdminBranding: React.FC = () => {
                   value={pageForm.type}
                   onChange={(e) => setPageForm({ ...pageForm, type: e.target.value })}
                   className="w-full bg-gray-900 border border-gray-700 text-white rounded-md px-3 py-2 focus:border-blue-500 focus:outline-none"
+                  title="Selecionar tipo da página"
                 >
                   <option value="afiliado">Afiliado</option>
                   <option value="landing">Landing Page</option>
@@ -2928,11 +3353,13 @@ const AdminBranding: React.FC = () => {
                       value={pageForm.backgroundColor}
                       onChange={(e) => setPageForm({ ...pageForm, backgroundColor: e.target.value })}
                       className="w-12 h-12 rounded border border-gray-700 cursor-pointer"
+                      title="Selecionar cor de fundo da página"
                     />
                     <Input
                       value={pageForm.backgroundColor}
                       onChange={(e) => setPageForm({ ...pageForm, backgroundColor: e.target.value })}
                       className="flex-1 bg-gray-900 border border-gray-700 text-white focus:border-blue-500"
+                      title="Cor de fundo da página em formato hexadecimal"
                     />
                   </div>
                 </div>
@@ -2948,11 +3375,13 @@ const AdminBranding: React.FC = () => {
                       value={pageForm.textColor}
                       onChange={(e) => setPageForm({ ...pageForm, textColor: e.target.value })}
                       className="w-12 h-12 rounded border border-gray-700 cursor-pointer"
+                      title="Selecionar cor do texto da página"
                     />
                     <Input
                       value={pageForm.textColor}
                       onChange={(e) => setPageForm({ ...pageForm, textColor: e.target.value })}
                       className="flex-1 bg-gray-900 border border-gray-700 text-white focus:border-blue-500"
+                      title="Cor do texto da página em formato hexadecimal"
                     />
                   </div>
                 </div>
@@ -2968,11 +3397,13 @@ const AdminBranding: React.FC = () => {
                       value={pageForm.primaryColor}
                       onChange={(e) => setPageForm({ ...pageForm, primaryColor: e.target.value })}
                       className="w-12 h-12 rounded border border-gray-700 cursor-pointer"
+                      title="Selecionar cor primária da página"
                     />
                     <Input
                       value={pageForm.primaryColor}
                       onChange={(e) => setPageForm({ ...pageForm, primaryColor: e.target.value })}
                       className="flex-1 bg-gray-900 border border-gray-700 text-white focus:border-blue-500"
+                      title="Cor primária da página em formato hexadecimal"
                     />
                   </div>
                 </div>
@@ -2986,6 +3417,7 @@ const AdminBranding: React.FC = () => {
                     checked={pageForm.showHeader}
                     onChange={(e) => setPageForm({ ...pageForm, showHeader: e.target.checked })}
                     className="accent-blue-500"
+                    title="Mostrar cabeçalho na página"
                   />
                   <Label htmlFor="page-show-header" className="text-gray-300 cursor-pointer">
                     Mostrar Cabeçalho
@@ -2999,6 +3431,7 @@ const AdminBranding: React.FC = () => {
                     checked={pageForm.showFooter}
                     onChange={(e) => setPageForm({ ...pageForm, showFooter: e.target.checked })}
                     className="accent-blue-500"
+                    title="Mostrar rodapé na página"
                   />
                   <Label htmlFor="page-show-footer" className="text-gray-300 cursor-pointer">
                     Mostrar Rodapé
@@ -3060,6 +3493,7 @@ const AdminBranding: React.FC = () => {
                 checked={pageForm.isPublished}
                 onChange={(e) => setPageForm({ ...pageForm, isPublished: e.target.checked })}
                 className="accent-blue-500"
+                title="Publicar página e torná-la acessível publicamente"
               />
               <Label htmlFor="page-is-published" className="text-gray-300 cursor-pointer">
                 Publicar página (tornar acessível publicamente)
@@ -3127,16 +3561,10 @@ const AdminBranding: React.FC = () => {
                 </Button>
               </div>
             </div>
-            <div 
-              className="p-8"
-              style={{
-                backgroundColor: viewingPage.backgroundColor,
-                color: viewingPage.textColor,
-              }}
-            >
+            <div className={`p-8 ${ensureDualColorClass(viewingPage.backgroundColor, viewingPage.textColor)}`}>
               {viewingPage.showHeader && (
-                <header className="mb-8 pb-4 border-b" style={{ borderColor: viewingPage.primaryColor }}>
-                  <h1 className="text-4xl font-bold mb-2" style={{ color: viewingPage.primaryColor }}>
+                <header className={`mb-8 pb-4 border-b ${ensureColorClass(viewingPage.primaryColor)} border-dynamic`}>
+                  <h1 className={`text-4xl font-bold mb-2 ${ensureColorClass(viewingPage.primaryColor)} text-dynamic`}>
                     {viewingPage.title}
                   </h1>
                   {viewingPage.description && (
@@ -3149,32 +3577,33 @@ const AdminBranding: React.FC = () => {
               {viewingPage.components && viewingPage.components.length > 0 ? (
                 <div className="space-y-6">
                   {viewingPage.components
-                    .sort((a: any, b: any) => (a.order || 0) - (b.order || 0))
-                    .map((component: any) => {
+                    .sort((a: PageComponent, b: PageComponent) => (a.order || 0) - (b.order || 0))
+                    .map((component: PageComponent) => {
                       // Criar uma função de renderização local que usa viewingPage
-                      const renderViewingComponent = (comp: any) => {
-                        const { type, config } = comp;
+                      const renderViewingComponent = (comp: PageComponent) => {
+                        const { type } = comp;
+                        const config = (comp.config ?? ({} as ComponentConfig));
                         switch (type) {
                           case 'metric-card':
                             return (
                               <Card className="bg-[#181e29] border border-gray-700">
                                 <CardHeader>
-                                  <CardTitle className="text-white text-sm">{config.title || 'Métrica'}</CardTitle>
+                                  <CardTitle className="text-white text-sm">{(config.title as string) || 'Métrica'}</CardTitle>
                                 </CardHeader>
                                 <CardContent>
-                                  <div className="text-3xl font-bold" style={{ color: config.color || viewingPage.primaryColor }}>
-                                    {config.value || '0'}
+                                  <div className={`text-3xl font-bold ${ensureColorClass((config.color as string) || viewingPage.primaryColor)} text-dynamic`}>
+                                    {(config.value as string | number) || '0'}
                                   </div>
-                                  <div className="text-sm text-gray-400 mt-1">{config.label || 'Descrição'}</div>
+                                  <div className="text-sm text-gray-400 mt-1">{(config.label as string) || 'Descrição'}</div>
                                 </CardContent>
                               </Card>
                             );
-                          case 'stats-grid':
-                            const gridCols = config.columns === 2 ? 'grid-cols-2' : config.columns === 4 ? 'grid-cols-4' : 'grid-cols-3';
+                          case 'stats-grid': {
+                            const gridCols = (config.columns as number) === 2 ? 'grid-cols-2' : (config.columns as number) === 4 ? 'grid-cols-4' : 'grid-cols-3';
                             return (
                               <div className={`grid ${gridCols} gap-4`}>
-                                {config.metrics?.map((metric: string, idx: number) => {
-                                  const metricData: any = {
+                                {(config.metrics as string[])?.map((metric: string, idx: number) => {
+                                  const metricData: Record<string, { value: string | number; label: string; icon: React.ComponentType<Record<string, unknown>> }> = {
                                     totalUsers: { value: stats?.totalUsers || 0, label: 'Total de Usuários', icon: Users },
                                     totalRevenue: { value: `R$ ${stats?.totalRevenue?.toLocaleString('pt-BR') || '0'}`, label: 'Receita Total', icon: DollarSign },
                                     activeClients: { value: stats?.activeClients || 0, label: 'Clientes Ativos', icon: Users },
@@ -3197,6 +3626,7 @@ const AdminBranding: React.FC = () => {
                                 })}
                               </div>
                             );
+                          }
                           case 'revenue-card':
                             return (
                               <Card className="bg-gradient-to-br from-green-900/30 to-green-800/20 border border-green-700">
@@ -3233,7 +3663,7 @@ const AdminBranding: React.FC = () => {
                                         </tr>
                                       </thead>
                                       <tbody>
-                                        {clientes.slice(0, config.pageSize || 5).map((cliente: any, idx: number) => (
+                                        {clientes.slice(0, (config.pageSize as number) || 5).map((cliente: Client, idx: number) => (
                                           <tr key={idx} className="border-b border-gray-800">
                                             <td className="p-2 text-white">{cliente.name || 'N/A'}</td>
                                             <td className="p-2 text-gray-400">{cliente.email || 'N/A'}</td>
@@ -3254,26 +3684,27 @@ const AdminBranding: React.FC = () => {
                             return (
                               <Button
                                 className={`w-full ${
-                                  config.variant === 'primary' ? 'bg-blue-600 hover:bg-blue-700' :
-                                  config.variant === 'secondary' ? 'bg-gray-600 hover:bg-gray-700' :
+                                  (config.variant as string) === 'primary' ? 'bg-blue-600 hover:bg-blue-700' :
+                                  (config.variant as string) === 'secondary' ? 'bg-gray-600 hover:bg-gray-700' :
                                   'bg-green-600 hover:bg-green-700'
                                 } text-white`}
                                 onClick={() => {
-                                  if (config.link) window.open(config.link, '_blank');
-                                  if (config.action) toast.info(`Ação: ${config.action}`);
+                                  if (config.link) window.open(config.link as string, '_blank');
+                                  if (config.action) toast.info(`Ação: ${config.action as string}`);
                                 }}
                               >
-                                {config.text || 'Clique aqui'}
+                                {(config.text as string) || 'Clique aqui'}
                               </Button>
                             );
-                          case 'text':
-                            const textSizes: any = { small: 'text-sm', medium: 'text-base', large: 'text-lg', xlarge: 'text-2xl' };
-                            const textAligns: any = { left: 'text-left', center: 'text-center', right: 'text-right' };
+                          case 'text': {
+                            const textSizes: Record<string, string> = { small: 'text-sm', medium: 'text-base', large: 'text-lg', xlarge: 'text-2xl' };
+                            const textAligns: Record<string, string> = { left: 'text-left', center: 'text-center', right: 'text-right' };
                             return (
-                              <div className={`${textSizes[config.size || 'medium']} ${textAligns[config.align || 'left']}`} style={{ color: viewingPage.textColor }}>
-                                {config.content || 'Digite seu texto aqui'}
+                              <div className={`${textSizes[(config.size as string) || 'medium']} ${textAligns[(config.align as string) || 'left']} ${ensureColorClass(viewingPage.textColor)} text-dynamic`}>
+                                {(config.content as string) || 'Digite seu texto aqui'}
                               </div>
                             );
+                          }
                           default:
                             return renderComponent(comp);
                         }
@@ -3285,16 +3716,16 @@ const AdminBranding: React.FC = () => {
                       );
                     })}
                 </div>
-              ) : (
+                ) : (
                 /* Fallback para conteúdo HTML se não houver componentes */
                 <div 
+                  className={`${ensureColorClass(viewingPage.textColor)} text-dynamic`}
                   dangerouslySetInnerHTML={{ __html: viewingPage.content || '<p>Nenhum conteúdo adicionado ainda.</p>' }}
-                  style={{ color: viewingPage.textColor }}
                 />
               )}
               
               {viewingPage.showFooter && (
-                <footer className="mt-8 pt-4 border-t" style={{ borderColor: viewingPage.primaryColor }}>
+                <footer className={`mt-8 pt-4 border-t ${ensureColorClass(viewingPage.primaryColor)} border-dynamic`}>
                   <p className="text-sm opacity-60">© {new Date().getFullYear()} {brand.name || 'Sua Empresa'}</p>
                 </footer>
               )}
@@ -3309,4 +3740,4 @@ const AdminBranding: React.FC = () => {
   );
 };
 
-export default AdminBranding; 
+export default AdminBranding;

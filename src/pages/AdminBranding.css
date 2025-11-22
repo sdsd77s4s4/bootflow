@@ -1,0 +1,23 @@
+/* layout */
+.af-row { display: flex; flex-direction: row; gap: 8px; align-items: center; }
+.af-col { display: flex; flex-direction: column; gap: 8px; }
+.af-center { display: flex; justify-content: center; align-items: center; }
+
+/* spacing */
+.af-mt-sm { margin-top: 8px; }
+.af-mt-md { margin-top: 16px; }
+.af-mr-sm { margin-right: 8px; }
+
+/* modal/footer */
+.af-modal-footer { display: flex; justify-content: flex-end; gap: 12px; padding: 12px 0; }
+
+/* text */
+.af-muted { color: #6b6b6b; }
+
+/* inputs */
+.af-input { padding: 8px 10px; border: 1px solid #d0d0d0; border-radius: 4px; }
+
+/* utility */
+.af-hidden { display: none; }
+
+/* Add or adjust classes as needed to match exact visual requirements */

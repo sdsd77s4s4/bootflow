@@ -9,6 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { toast } from 'sonner';
+import { getErrorMessage } from '@/lib/supabaseClient.agent';
 import { CheckCircle, MessageSquare, Clock, FileText, Zap, Settings, Trash2, Edit, Plus, Eye, EyeOff, Download, Upload, Users, Loader2 } from 'lucide-react';
 import { APIBrasilRealtimeSection } from '@/components/APIBrasilRealtimeSection';
 import { checkConnectionStatus, MOCK_CREDENTIALS } from '@/services/apiBrasilService';
@@ -210,16 +211,12 @@ const AdminWhatsApp: React.FC = () => {
         timestamp: new Date().toISOString()
       };
       
-    } catch (error: any) {
-      console.error('Erro ao enviar mensagem via API Brasil:', error);
-      
-      let errorMessage = 'Erro ao enviar mensagem';
-      if (error.message) {
-        errorMessage = error.message;
-      } else if (typeof error === 'string') {
-        errorMessage = error;
-      }
-      
+    } catch (error: unknown) {
+      const errMsg = getErrorMessage(error);
+      console.error('Erro ao enviar mensagem via API Brasil:', errMsg);
+
+      let errorMessage = errMsg || 'Erro ao enviar mensagem';
+
       // Tratamento de erros comuns
       if (errorMessage.includes('401')) {
         errorMessage = 'Token de acesso inválido ou expirado';
@@ -230,7 +227,7 @@ const AdminWhatsApp: React.FC = () => {
       } else if (errorMessage.includes('500')) {
         errorMessage = 'Erro interno do servidor. Tente novamente mais tarde';
       }
-      
+
       toast.error(`Falha ao enviar mensagem: ${errorMessage}`, {
         duration: 8000,
         action: {
@@ -238,16 +235,16 @@ const AdminWhatsApp: React.FC = () => {
           onClick: () => sendWhatsAppMessage(phoneNumber, message)
         }
       });
-      
+
       // Atualiza o estado com a mensagem de erro
       setApiBrasilConfig(prev => ({
         ...prev,
         error: errorMessage,
         isLoading: false
       }));
-      
-      return { 
-        success: false, 
+
+      return {
+        success: false,
         error: errorMessage,
         message: errorMessage,
         phoneNumber: phoneNumber,
@@ -318,10 +315,11 @@ const AdminWhatsApp: React.FC = () => {
       
       return result;
       
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errMsg = getErrorMessage(error);
       // Tratamento de erros
-      const errorMessage = error.message || 'Erro desconhecido ao enviar mensagem de teste';
-      
+      const errorMessage = errMsg || 'Erro desconhecido ao enviar mensagem de teste';
+
       // Atualiza o toast para erro
       toast.error(`Falha no teste: ${errorMessage}`, {
         id: toastId,
@@ -331,7 +329,7 @@ const AdminWhatsApp: React.FC = () => {
           onClick: handleTestMessage
         }
       });
-      
+
       // Atualiza o status de erro
       setApiBrasilConfig(prev => ({
         ...prev,
@@ -340,7 +338,7 @@ const AdminWhatsApp: React.FC = () => {
       }));
       setConnectionStatus('disconnected');
       setIsConnected(false);
-      
+
       return { success: false, error: errorMessage };
     }
   };
@@ -422,22 +420,22 @@ const AdminWhatsApp: React.FC = () => {
 
       return { success: true, connected: isConnected, data };
       
-    } catch (error: any) {
-      console.error('Erro ao testar conexão com API Brasil:', error);
-      const errorMsg = error.message || 'Erro desconhecido ao conectar com a API Brasil';
-      
+    } catch (error: unknown) {
+      const errMsg = getErrorMessage(error);
+      console.error('Erro ao testar conexão com API Brasil:', errMsg);
+
       setApiBrasilConfig(prev => ({
         ...prev,
-        error: errorMsg,
+        error: errMsg,
         isConnected: false,
         isLoading: false
       }));
-      
-      toast.error(`Erro na conexão: ${errorMsg}`);
+
+      toast.error(`Erro na conexão: ${errMsg}`);
       setIsConnected(false);
       setConnectionStatus('disconnected');
-      
-      return { success: false, error: errorMsg };
+
+      return { success: false, error: errMsg };
     }
   };
 
@@ -557,6 +555,7 @@ const AdminWhatsApp: React.FC = () => {
   return (
     <WhatsAppStatusContext.Provider value={{ isConnected, connectionStatus, setIsConnected, setConnectionStatus }}>
       <div className="p-6 space-y-6">
+
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-2">
           <div>
@@ -583,6 +582,50 @@ const AdminWhatsApp: React.FC = () => {
               Novo Template
             </Button>
           </div>
+        </div>
+
+        {/* Dashboard Admin - Cards de Métricas WhatsApp */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 mb-6">
+          <Card className="bg-[#181825] border border-green-900">
+            <CardHeader>
+              <CardTitle className="text-green-300 text-sm">Total Enviados</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-white">0</div>
+            </CardContent>
+          </Card>
+          <Card className="bg-[#181825] border border-green-900">
+            <CardHeader>
+              <CardTitle className="text-green-300 text-sm">Entregues</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-white">0</div>
+            </CardContent>
+          </Card>
+          <Card className="bg-[#181825] border border-green-900">
+            <CardHeader>
+              <CardTitle className="text-green-300 text-sm">Lidos</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-white">0</div>
+            </CardContent>
+          </Card>
+          <Card className="bg-[#181825] border border-green-900">
+            <CardHeader>
+              <CardTitle className="text-green-300 text-sm">Falhas</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-white">0</div>
+            </CardContent>
+          </Card>
+          <Card className="bg-[#181825] border border-green-900">
+            <CardHeader>
+              <CardTitle className="text-green-300 text-sm">Taxa Entrega</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-white">0%</div>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Modal de Configuração */}

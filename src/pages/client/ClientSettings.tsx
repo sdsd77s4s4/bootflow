@@ -7,6 +7,44 @@ import { DialogWrapper } from '@/components/ui/DialogWrapper';
 import { Card, CardHeader, CardTitle } from '@/components/ui/card';
 import { User, Bell, Link, CreditCard, Shield } from 'lucide-react';
 
+interface Perfil {
+  nome: string;
+  sobrenome: string;
+  email: string;
+  empresa: string;
+  telefone: string;
+  fuso: string;
+}
+
+interface Notificacoes {
+  email: boolean;
+  whatsapp: boolean;
+  push: boolean;
+  sms: boolean;
+  clientes: boolean;
+  cobrancas: boolean;
+  promocoes: boolean;
+}
+
+interface Integracoes {
+  whatsapp: boolean;
+  google: boolean;
+  zapier: boolean;
+}
+
+interface Fatura {
+  id: number;
+  data: string;
+  valor: string;
+  status: string;
+}
+
+interface Senha {
+  atual: string;
+  nova: string;
+  confirmar: string;
+}
+
 const perfisMock = {
   nome: 'João',
   sobrenome: 'Silva',
@@ -18,25 +56,25 @@ const perfisMock = {
 
 export default function ClientSettings() {
   const [tab, setTab] = useState('perfil');
-  const [perfil, setPerfil] = useState(perfisMock);
+  const [perfil, setPerfil] = useState<Perfil>(perfisMock);
   // Notificações
-  const [notificacoes, setNotificacoes] = useState({ email: true, whatsapp: true, push: false, sms: false, clientes: true, cobrancas: true, promocoes: false });
+  const [notificacoes, setNotificacoes] = useState<Notificacoes>({ email: true, whatsapp: true, push: false, sms: false, clientes: true, cobrancas: true, promocoes: false });
   // Integrações
-  const [integracoes, setIntegracoes] = useState({ whatsapp: false, google: false, zapier: false });
+  const [integracoes, setIntegracoes] = useState<Integracoes>({ whatsapp: false, google: false, zapier: false });
   const [modalIntegracao, setModalIntegracao] = useState<string | null>(null);
   // Faturamento
   const [plano, setPlano] = useState('Pro');
-  const [faturas] = useState([
+  const [faturas] = useState<Fatura[]>([
     { id: 1, data: '10/06/2024', valor: 'R$ 99,90', status: 'Paga' },
     { id: 2, data: '10/05/2024', valor: 'R$ 99,90', status: 'Paga' },
     { id: 3, data: '10/04/2024', valor: 'R$ 99,90', status: 'Paga' },
   ]);
   // Segurança
-  const [senha, setSenha] = useState({ atual: '', nova: '', confirmar: '' });
+  const [senha, setSenha] = useState<Senha>({ atual: '', nova: '', confirmar: '' });
   const [modal2FA, setModal2FA] = useState(false);
   const [modalExcluir, setModalExcluir] = useState(false);
 
-  const handleChange = (e: any) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPerfil({ ...perfil, [e.target.name]: e.target.value });
   };
 
@@ -146,7 +184,7 @@ export default function ClientSettings() {
   );
 }
 
-const PerfilContent = ({ perfil, handleChange }: { perfil: any, handleChange: any }) => {
+const PerfilContent = ({ perfil, handleChange }: { perfil: Perfil, handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void }) => {
   return (
     <div className="bg-gradient-to-br from-purple-900/50 to-purple-800/30 rounded-xl p-3 sm:p-6 border border-purple-700/40 mt-4">
       <h2 className="text-lg sm:text-xl font-bold text-white mb-2 flex items-center gap-2">👤 Informações Pessoais</h2>
@@ -181,7 +219,7 @@ const PerfilContent = ({ perfil, handleChange }: { perfil: any, handleChange: an
   );
 };
 
-const NotificacoesContent = ({ notificacoes, setNotificacoes }: { notificacoes: any, setNotificacoes: any }) => {
+const NotificacoesContent = ({ notificacoes, setNotificacoes }: { notificacoes: Notificacoes, setNotificacoes: React.Dispatch<React.SetStateAction<Notificacoes>> }) => {
   return (
     <div className="bg-gradient-to-br from-purple-900/50 to-purple-800/30 rounded-xl p-3 sm:p-6 border border-purple-700/40 mt-4">
       <h2 className="text-lg sm:text-xl font-bold text-white mb-2">Notificações</h2>
@@ -189,33 +227,33 @@ const NotificacoesContent = ({ notificacoes, setNotificacoes }: { notificacoes: 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-4">
         <div className="flex items-center justify-between">
           <span className="text-gray-300">E-mail</span>
-          <Switch checked={notificacoes.email} onCheckedChange={v => setNotificacoes((n: any) => ({ ...n, email: v }))} />
+          <Switch checked={notificacoes.email} onCheckedChange={v => setNotificacoes((n: Notificacoes) => ({ ...n, email: v }))} />
         </div>
         <div className="flex items-center justify-between">
           <span className="text-gray-300">WhatsApp</span>
-          <Switch checked={notificacoes.whatsapp} onCheckedChange={v => setNotificacoes((n: any) => ({ ...n, whatsapp: v }))} />
+          <Switch checked={notificacoes.whatsapp} onCheckedChange={v => setNotificacoes((n: Notificacoes) => ({ ...n, whatsapp: v }))} />
         </div>
         <div className="flex items-center justify-between">
           <span className="text-gray-300">Push</span>
-          <Switch checked={notificacoes.push} onCheckedChange={v => setNotificacoes((n: any) => ({ ...n, push: v }))} />
+          <Switch checked={notificacoes.push} onCheckedChange={v => setNotificacoes((n: Notificacoes) => ({ ...n, push: v }))} />
         </div>
         <div className="flex items-center justify-between">
           <span className="text-gray-300">SMS</span>
-          <Switch checked={notificacoes.sms} onCheckedChange={v => setNotificacoes((n: any) => ({ ...n, sms: v }))} />
+          <Switch checked={notificacoes.sms} onCheckedChange={v => setNotificacoes((n: Notificacoes) => ({ ...n, sms: v }))} />
         </div>
       </div>
       <div className="mb-4">
         <span className="block text-gray-300 font-medium mb-2">Alertas</span>
         <div className="flex items-center gap-4 mb-2">
-          <Switch checked={notificacoes.clientes} onCheckedChange={v => setNotificacoes((n: any) => ({ ...n, clientes: v }))} />
+          <Switch checked={notificacoes.clientes} onCheckedChange={v => setNotificacoes((n: Notificacoes) => ({ ...n, clientes: v }))} />
           <span className="text-gray-300">Novos clientes</span>
         </div>
         <div className="flex items-center gap-4 mb-2">
-          <Switch checked={notificacoes.cobrancas} onCheckedChange={v => setNotificacoes((n: any) => ({ ...n, cobrancas: v }))} />
+          <Switch checked={notificacoes.cobrancas} onCheckedChange={v => setNotificacoes((n: Notificacoes) => ({ ...n, cobrancas: v }))} />
           <span className="text-gray-300">Cobranças</span>
         </div>
         <div className="flex items-center gap-4 mb-2">
-          <Switch checked={notificacoes.promocoes} onCheckedChange={v => setNotificacoes((n: any) => ({ ...n, promocoes: v }))} />
+          <Switch checked={notificacoes.promocoes} onCheckedChange={v => setNotificacoes((n: Notificacoes) => ({ ...n, promocoes: v }))} />
           <span className="text-gray-300">Promoções</span>
         </div>
       </div>
@@ -224,7 +262,7 @@ const NotificacoesContent = ({ notificacoes, setNotificacoes }: { notificacoes: 
   );
 };
 
-const IntegracoesContent = ({ integracoes, setIntegracoes, modalIntegracao, setModalIntegracao }: { integracoes: any, setIntegracoes: any, modalIntegracao: string | null, setModalIntegracao: any }) => {
+const IntegracoesContent = ({ integracoes, setIntegracoes, modalIntegracao, setModalIntegracao }: { integracoes: Integracoes, setIntegracoes: React.Dispatch<React.SetStateAction<Integracoes>>, modalIntegracao: string | null, setModalIntegracao: React.Dispatch<React.SetStateAction<string | null>> }) => {
   return (
     <div className="bg-gradient-to-br from-purple-900/50 to-purple-800/30 rounded-xl p-6 border border-purple-700/40 mt-4">
       <h2 className="text-xl font-bold text-white mb-2">Integrações</h2>
@@ -268,7 +306,7 @@ const IntegracoesContent = ({ integracoes, setIntegracoes, modalIntegracao, setM
           <Button 
             className="bg-[#7e22ce] hover:bg-[#6d1bb7] text-white" 
             onClick={() => { 
-              setIntegracoes((i: any) => ({ ...i, [modalIntegracao!]: !i[modalIntegracao!] })); 
+              setIntegracoes((i: Integracoes) => ({ ...i, [modalIntegracao!]: !i[modalIntegracao!] })); 
               setModalIntegracao(null); 
             }}
             aria-label={`${integracoes[modalIntegracao!] ? 'Desconectar' : 'Conectar'} a integração`}
@@ -281,7 +319,7 @@ const IntegracoesContent = ({ integracoes, setIntegracoes, modalIntegracao, setM
   );
 };
 
-const FaturamentoContent = ({ plano, faturas }: { plano: string, faturas: any[] }) => {
+const FaturamentoContent = ({ plano, faturas }: { plano: string, faturas: Fatura[] }) => {
   return (
     <div className="bg-gradient-to-br from-purple-900/50 to-purple-800/30 rounded-xl p-6 border border-purple-700/40 mt-4">
       <h2 className="text-xl font-bold text-white mb-2">Faturamento</h2>
@@ -323,7 +361,7 @@ const FaturamentoContent = ({ plano, faturas }: { plano: string, faturas: any[] 
   );
 };
 
-const SegurancaContent = ({ senha, setSenha, modal2FA, setModal2FA, modalExcluir, setModalExcluir }: { senha: any, setSenha: any, modal2FA: boolean, setModal2FA: any, modalExcluir: boolean, setModalExcluir: any }) => {
+const SegurancaContent = ({ senha, setSenha, modal2FA, setModal2FA, modalExcluir, setModalExcluir }: { senha: Senha, setSenha: React.Dispatch<React.SetStateAction<Senha>>, modal2FA: boolean, setModal2FA: React.Dispatch<React.SetStateAction<boolean>>, modalExcluir: boolean, setModalExcluir: React.Dispatch<React.SetStateAction<boolean>> }) => {
   return (
     <div className="bg-gradient-to-br from-purple-900/50 to-purple-800/30 rounded-xl p-6 border border-purple-700/40 mt-4">
       <h2 className="text-xl font-bold text-white mb-2">Segurança</h2>

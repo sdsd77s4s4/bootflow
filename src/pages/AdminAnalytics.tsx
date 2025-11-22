@@ -5,6 +5,20 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { BarChart3, TrendingUp, Users, DollarSign, Eye, Download, Calendar } from "lucide-react";
 
+// Helper to generate a CSS class for a specific width (percentage) to avoid inline styles
+function ensureWidthClass(width: string) {
+  if (!width) return '';
+  const safe = String(width).replace(/[^a-zA-Z0-9.%-]/g, '').replace(/%/g, 'pct');
+  const id = `bar-w-${safe}`;
+  if (!document.getElementById(id)) {
+    const style = document.createElement('style');
+    style.id = id;
+    style.innerHTML = `.${id} { width: ${width} !important; }`;
+    document.head.appendChild(style);
+  }
+  return id;
+}
+
 export default function AdminAnalytics() {
   const [timeRange, setTimeRange] = useState("7d");
 
@@ -168,10 +182,7 @@ export default function AdminAnalytics() {
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="w-32 bg-gray-700 rounded-full h-2">
-                      <div 
-                        className="bg-blue-600 h-2 rounded-full" 
-                        style={{ width: `${(activity.users / 250) * 100}%` }}
-                      ></div>
+                      <div className={`${ensureWidthClass(`${(activity.users / 250) * 100}%`)} bg-blue-600 h-2 rounded-full`} />
                     </div>
                     <span className="text-sm text-gray-400 w-12 text-right">
                       {activity.users}
@@ -215,7 +226,7 @@ export default function AdminAnalytics() {
                 <span className="text-sm text-gray-400">Plano Básico</span>
                 <div className="flex items-center gap-2">
                   <div className="w-20 bg-gray-700 rounded-full h-2">
-                    <div className="bg-green-600 h-2 rounded-full" style={{ width: '60%' }}></div>
+                    <div className={`${ensureWidthClass('60%')} bg-green-600 h-2 rounded-full`} />
                   </div>
                   <span className="text-sm font-medium text-green-400">60%</span>
                 </div>
@@ -224,7 +235,7 @@ export default function AdminAnalytics() {
                 <span className="text-sm text-gray-400">Plano Pro</span>
                 <div className="flex items-center gap-2">
                   <div className="w-20 bg-gray-700 rounded-full h-2">
-                    <div className="bg-blue-600 h-2 rounded-full" style={{ width: '30%' }}></div>
+                    <div className={`${ensureWidthClass('30%')} bg-blue-600 h-2 rounded-full`} />
                   </div>
                   <span className="text-sm font-medium text-blue-400">30%</span>
                 </div>
@@ -233,7 +244,7 @@ export default function AdminAnalytics() {
                 <span className="text-sm text-gray-400">Plano Enterprise</span>
                 <div className="flex items-center gap-2">
                   <div className="w-20 bg-gray-700 rounded-full h-2">
-                    <div className="bg-purple-600 h-2 rounded-full" style={{ width: '10%' }}></div>
+                    <div className={`${ensureWidthClass('10%')} bg-purple-600 h-2 rounded-full`} />
                   </div>
                   <span className="text-sm font-medium text-purple-400">10%</span>
                 </div>
