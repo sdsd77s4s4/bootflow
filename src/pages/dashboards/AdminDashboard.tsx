@@ -2183,7 +2183,6 @@ const AdminDashboard = () => {
         <main className="flex-1 p-6 max-w-full w-full overflow-x-auto">
           <div className="max-w-7xl mx-auto space-y-6">
             {currentPage === "dashboard" && (
-              <>
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                   <div className="text-center sm:text-left">
                     <h1 className="text-2xl sm:text-3xl font-bold text-white">Dashboard Admin</h1>
@@ -2839,6 +2838,7 @@ const AdminDashboard = () => {
                 </CardContent>
               </Card>
             </div>
+          )}
           </div>
         </main>
 
