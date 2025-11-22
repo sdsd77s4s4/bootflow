@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { getErrorMessage } from './supabaseClient.agent';
 import type { Database } from '@/types/supabase.types';
 
 // Configuração do cliente Supabase
@@ -49,8 +50,8 @@ export const testSupabaseConnection = async (): Promise<{ success: boolean; erro
       console.error('❌ Erro ao conectar com Supabase:', response.status, response.statusText);
       return { success: false, error: `HTTP ${response.status}: ${response.statusText}` };
     }
-  } catch (error: any) {
-    const errorMsg = error.message || 'Erro desconhecido';
+  } catch (error: unknown) {
+    const errorMsg = getErrorMessage(error);
     console.error('❌ Erro de conexão:', errorMsg);
     
     if (errorMsg.includes('ERR_NAME_NOT_RESOLVED') || errorMsg.includes('Failed to fetch')) {
@@ -126,8 +127,8 @@ export const getProfile = async (userId: string): Promise<UserProfile | null> =>
 
     if (error) throw error;
     return data;
-  } catch (error) {
-    console.error('Erro ao buscar perfil:', error);
+  } catch (error: unknown) {
+    console.error('Erro ao buscar perfil:', getErrorMessage(error));
     return null;
   }
 };
@@ -149,9 +150,10 @@ export const updateUserProfile = async (userId: string, updates: UserProfileUpda
 
     if (error) throw error;
     return data;
-  } catch (error) {
-    console.error('Erro ao atualizar perfil:', error);
-    throw error;
+  } catch (error: unknown) {
+    const msg = getErrorMessage(error);
+    console.error('Erro ao atualizar perfil:', msg);
+    throw new Error(msg);
   }
 };
 
@@ -162,7 +164,7 @@ export const signOut = async (): Promise<void> => {
   try {
     const { error } = await supabase.auth.signOut();
     if (error) throw error;
-  } catch (error) {
-    console.error('Erro ao fazer logout:', error);
+  } catch (error: unknown) {
+    console.error('Erro ao fazer logout:', getErrorMessage(error));
   }
 };
