@@ -54,13 +54,13 @@ type PageComponent = {
   config?: Record<string, unknown>;
   order?: number;
 };
+type Client = {
+  name?: string;
+  email?: string;
+  status?: string;
+};
 
 type Page = {
-  type Client = {
-    name?: string;
-    email?: string;
-    status?: string;
-  };
   id?: number;
   title: string;
   slug: string;
