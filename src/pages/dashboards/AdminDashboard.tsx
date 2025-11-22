@@ -1457,6 +1457,7 @@ const AdminDashboard = () => {
                                 Plano *
                               </label>
                               <select
+                                title="Plano"
                                 className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
                                 value={newUser.plan}
                                 onChange={(e) =>
@@ -1478,6 +1479,7 @@ const AdminDashboard = () => {
                                   Preço *
                                 </label>
                                 <select
+                                  title="Preço"
                                   className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
                                   value={newUser.price}
                                   onChange={(e) =>
@@ -1527,6 +1529,7 @@ const AdminDashboard = () => {
                                 Status *
                               </label>
                               <select
+                                title="Status"
                                 className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
                                 value={newUser.status}
                                 onChange={(e) =>
@@ -2299,6 +2302,7 @@ const AdminDashboard = () => {
                                     Plano *
                                   </label>
                                   <select
+                                    title="Plano"
                                     className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
                                     value={newUser.plan}
                                     onChange={(e) =>
@@ -2320,6 +2324,7 @@ const AdminDashboard = () => {
                                       Preço *
                                     </label>
                                     <select
+                                      title="Preço"
                                       className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
                                       value={newUser.price}
                                       onChange={(e) =>
