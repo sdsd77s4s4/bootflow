@@ -69,6 +69,7 @@ import {
 } from "@/components/ui/popover";
 import React from "react";
 import { useClientes } from "@/hooks/useClientes";
+import { getErrorMessage } from '@/lib/supabaseClient.agent';
 import { useUsers } from "@/hooks/useUsers";
 import { RLSErrorBanner } from "@/components/RLSErrorBanner";
 
@@ -298,16 +299,17 @@ export default function AdminUsers() {
           setIsAddDialogOpen(false);
           setAddUserSuccess(false);
         }, 1000);
-      } catch (error: any) {
-        console.error("❌ [DEBUG] Erro ao adicionar usuário:", error);
-        
+      } catch (error: unknown) {
+        const errMsg = getErrorMessage(error);
+        console.error("❌ [DEBUG] Erro ao adicionar usuário:", errMsg);
+
         // Cancelar timeout de segurança já que houve erro
         if (timeoutId) {
           clearTimeout(timeoutId);
         }
-        
-        const errorMessage = error?.message || error || "Erro desconhecido ao adicionar usuário.";
-        
+
+        const errorMessage = errMsg || "Erro desconhecido ao adicionar usuário.";
+
         // Mensagens específicas para diferentes tipos de erro
         if (errorMessage.includes("duplicate key value") || errorMessage.includes("unique constraint")) {
           alert("❌ Já existe um usuário com este e-mail!");
