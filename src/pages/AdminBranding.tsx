@@ -1630,6 +1630,7 @@ const AdminBranding: React.FC = () => {
                 value={config.period || 'month'}
                 onChange={(e) => updateConfig('period', e.target.value)}
                 className="w-full bg-gray-900 border border-gray-700 text-white rounded px-3 py-2"
+                title="Selecionar período do gráfico"
               >
                 <option value="day">Dia</option>
                 <option value="week">Semana</option>
@@ -1786,6 +1787,7 @@ const AdminBranding: React.FC = () => {
                 value={config.count || 2}
                 onChange={(e) => updateConfig('count', parseInt(e.target.value))}
                 className="w-full bg-gray-900 border border-gray-700 text-white rounded px-3 py-2"
+                title="Selecionar número de colunas"
               >
                 <option value={2}>2 Colunas</option>
                 <option value={3}>3 Colunas</option>
