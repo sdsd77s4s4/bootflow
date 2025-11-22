@@ -770,7 +770,7 @@ const AdminBranding: React.FC = () => {
   // Renderizar componente na preview
   const renderComponent = (component: PageComponent) => {
     const { type } = component as PageComponent;
-    const config = (component.config ?? {}) as any;
+    const config = (component.config ?? ({} as ComponentConfig));
 
     switch (type) {
       case 'metric-card':
@@ -1321,7 +1321,7 @@ const AdminBranding: React.FC = () => {
   };
   const ComponentPropertiesEditor = ({ component, onUpdate }: ComponentPropertiesEditorProps) => {
     const { type } = component;
-    const config = (component.config ?? {}) as any;
+    const config = (component.config ?? ({} as ComponentConfig));
 
     const updateConfig = (key: string, value: unknown) => {
       onUpdate({ [key]: value } as Partial<ComponentConfig>);
@@ -3495,7 +3495,7 @@ const AdminBranding: React.FC = () => {
                       // Criar uma função de renderização local que usa viewingPage
                       const renderViewingComponent = (comp: PageComponent) => {
                         const { type } = comp;
-                        const config = (comp.config ?? {}) as any;
+                        const config = (comp.config ?? ({} as ComponentConfig));
                         switch (type) {
                           case 'metric-card':
                             return (
