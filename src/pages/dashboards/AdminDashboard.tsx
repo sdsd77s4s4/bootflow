@@ -11,6 +11,7 @@ import useDashboardData from '@/hooks/useDashboardData';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
+import { getErrorMessage } from '@/lib/supabaseClient.agent';
 import { 
   Brain, 
   Users, 
@@ -268,9 +269,10 @@ const AdminDashboard = () => {
         console.error('Erro ao adicionar cliente - verifique o console para detalhes');
         return false;
       }
-    } catch (error: any) {
-      console.error('Erro no wrapper addCliente:', error);
-      toast.error(`Erro ao adicionar cliente: ${error?.message || 'Erro desconhecido'}`, { duration: 5000 });
+    } catch (error: unknown) {
+      const errMsg = getErrorMessage(error);
+      console.error('Erro no wrapper addCliente:', errMsg);
+      toast.error(`Erro ao adicionar cliente: ${errMsg || 'Erro desconhecido'}`, { duration: 5000 });
       return false;
     }
   }, [addClienteHook]);
