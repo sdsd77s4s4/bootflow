@@ -46,7 +46,7 @@ import { AdminSidebar } from "@/components/sidebars/AdminSidebar";
 import { AIModalManager } from "@/components/modals/AIModalManager";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Dialog, DialogContent, DialogTrigger, DialogTitle, DialogDescription, DialogHeader } from '@/components/ui/dialog';
-import { DndContext, closestCenter } from '@dnd-kit/core';
+import { DndContext, closestCenter, DragEndEvent } from '@dnd-kit/core';
 import { SortableContext, useSortable, rectSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
@@ -163,7 +163,7 @@ const AdminDashboard = () => {
   // Estados para a extração M3U
   const [m3uUrl, setM3uUrl] = useState("");
   const [isExtracting, setIsExtracting] = useState(false);
-  const [extractionResult, setExtractionResult] = useState<any>(null);
+  const [extractionResult, setExtractionResult] = useState<Record<string, unknown> | null>(null);
   const [extractionError, setExtractionError] = useState("");
   const [isAddingUser, setIsAddingUser] = useState(false);
 
@@ -253,7 +253,7 @@ const AdminDashboard = () => {
   }, [clientesError, revendasError]);
   
   // Função para adicionar um novo cliente (usa o hook useClientes)
-  const addCliente = useCallback(async (clienteData: any) => {
+  const addCliente = useCallback(async (clienteData: TableInsert<'clientes'>) => {
     try {
       console.log('🔄 [AdminDashboard] addCliente wrapper chamado com:', clienteData);
       
