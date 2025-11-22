@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Send, Paperclip, Smile, Image, File, X, Loader2, MessageSquare, Check } from 'lucide-react';
 import { toast } from 'sonner';
 import { sendMessage, sendTemplateMessage } from '@/services/apiBrasilService';
+import { getErrorMessage } from '@/lib/supabaseClient.agent';
 
 interface SendWhatsAppMessageProps {
   token: string;
@@ -116,9 +117,10 @@ export function SendWhatsAppMessage({
       } else {
         throw new Error(error || 'Erro ao enviar mensagem');
       }
-    } catch (error: any) {
-      console.error('Erro ao enviar mensagem:', error);
-      toast.error(`Erro: ${error.message || 'Falha ao enviar mensagem'}`);
+    } catch (error: unknown) {
+      const errMsg = getErrorMessage(error);
+      console.error('Erro ao enviar mensagem:', errMsg);
+      toast.error(`Erro: ${errMsg || 'Falha ao enviar mensagem'}`);
     } finally {
       setIsSending(false);
     }
@@ -184,9 +186,10 @@ export function SendWhatsAppMessage({
       } else {
         throw new Error(error || 'Erro ao enviar template');
       }
-    } catch (error: any) {
-      console.error('Erro ao enviar template:', error);
-      toast.error(`Erro: ${error.message || 'Falha ao enviar template'}`);
+    } catch (error: unknown) {
+      const errMsg = getErrorMessage(error);
+      console.error('Erro ao enviar template:', errMsg);
+      toast.error(`Erro: ${errMsg || 'Falha ao enviar template'}`);
     } finally {
       setIsSending(false);
     }
