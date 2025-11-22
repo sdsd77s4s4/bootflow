@@ -1066,6 +1066,7 @@ export default function AdminCobrancas() {
                 <div className="col-span-1">
                   <label className="block text-gray-300 mb-1 font-medium">Nome</label>
                   <input 
+                    aria-label="Nome do cliente (edição)"
                     placeholder="Nome do cliente" 
                     className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
                     value={edit.nomeCliente}
@@ -1076,6 +1077,7 @@ export default function AdminCobrancas() {
                 <div className="col-span-1">
                   <label className="block text-gray-300 mb-1 font-medium">E-mail *</label>
                   <input 
+                    aria-label="Email do cliente (edição)"
                     placeholder="Email do cliente" 
                     className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
                     value={edit.email}
@@ -1086,6 +1088,7 @@ export default function AdminCobrancas() {
                 <div className="col-span-1">
                   <label className="block text-gray-300 mb-1 font-medium">Telefone</label>
                   <input 
+                    aria-label="Telefone do cliente (edição)"
                     placeholder="(11) 99999-9999" 
                     className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
                     value={edit.telefone}
@@ -1096,6 +1099,7 @@ export default function AdminCobrancas() {
                 <div className="col-span-1">
                   <label className="block text-gray-300 mb-1 font-medium">Telegram</label>
                   <input 
+                    aria-label="Telegram do cliente (edição)"
                     placeholder="@usuario" 
                     className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
                     value={edit.telegram}
@@ -1106,6 +1110,7 @@ export default function AdminCobrancas() {
                 <div className="col-span-1">
                   <label className="block text-gray-300 mb-1 font-medium">WhatsApp</label>
                   <input 
+                    aria-label="WhatsApp do cliente (edição)"
                     placeholder="+55 11 99999-9999" 
                     className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
                     value={edit.whatsapp}
@@ -1207,6 +1212,7 @@ export default function AdminCobrancas() {
                 <div>
                   <label className="block text-gray-300 mb-1 font-medium">Data de Renovação</label>
                   <input 
+                    aria-label="Data de renovação"
                     type="date"
                     className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
                     value={edit.renewalDate}
@@ -1217,6 +1223,7 @@ export default function AdminCobrancas() {
                 <div>
                   <label className="block text-gray-300 mb-1 font-medium">Número de Dispositivos</label>
                   <input 
+                    aria-label="Número de dispositivos"
                     type="number" 
                     min={1} 
                     className="w-full bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
@@ -1236,6 +1243,7 @@ export default function AdminCobrancas() {
                       -
                     </button>
                     <input 
+                      aria-label="Créditos"
                       type="number" 
                       min={0} 
                       className="w-16 bg-[#23272f] border border-gray-700 text-white rounded px-3 py-2"
@@ -1259,7 +1267,7 @@ export default function AdminCobrancas() {
             <div className="bg-[#1f2937] border border-gray-700 rounded-lg p-4 mb-4">
               <span className="block text-white font-semibold mb-2">Informações Adicionais</span>
               <div className="flex items-center gap-2 mb-2">
-                <input type="checkbox" className="accent-green-500" />
+                <input aria-label="Notificações via WhatsApp" type="checkbox" className="accent-green-500" />
                 <span className="text-gray-300 text-sm">Notificações via WhatsApp</span>
               </div>
               <div>
@@ -1362,15 +1370,15 @@ export default function AdminCobrancas() {
               <label className="block text-gray-300 mb-2">Incluir</label>
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
-                  <input type="checkbox" defaultChecked className="accent-purple-500" />
+                  <input aria-label="Incluir métricas de conversão" type="checkbox" defaultChecked className="accent-purple-500" />
                   <span className="text-gray-300">Métricas de conversão</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <input type="checkbox" defaultChecked className="accent-purple-500" />
+                  <input aria-label="Incluir performance por gateway" type="checkbox" defaultChecked className="accent-purple-500" />
                   <span className="text-gray-300">Performance por gateway</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <input type="checkbox" className="accent-purple-500" />
+                  <input aria-label="Incluir análise de tendências" type="checkbox" className="accent-purple-500" />
                   <span className="text-gray-300">Análise de tendências</span>
                 </div>
               </div>
@@ -1430,15 +1438,15 @@ export default function AdminCobrancas() {
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="text-gray-300">Tentativas máximas</span>
-                  <input type="number" min="1" max="10" defaultValue="3" className="w-20 bg-[#23272f] border border-gray-700 text-white rounded px-2 py-1" />
+                  <input aria-label="Tentativas máximas" type="number" min="1" max="10" defaultValue="3" className="w-20 bg-[#23272f] border border-gray-700 text-white rounded px-2 py-1" />
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-gray-300">Intervalo entre tentativas (dias)</span>
-                  <input type="number" min="1" max="30" defaultValue="7" className="w-20 bg-[#23272f] border border-gray-700 text-white rounded px-2 py-1" />
+                  <input aria-label="Intervalo entre tentativas (dias)" type="number" min="1" max="30" defaultValue="7" className="w-20 bg-[#23272f] border border-gray-700 text-white rounded px-2 py-1" />
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-gray-300">Multa por atraso (%)</span>
-                  <input type="number" min="0" max="20" defaultValue="2" className="w-20 bg-[#23272f] border border-gray-700 text-white rounded px-2 py-1" />
+                  <input aria-label="Multa por atraso (porcentagem)" type="number" min="0" max="20" defaultValue="2" className="w-20 bg-[#23272f] border border-gray-700 text-white rounded px-2 py-1" />
                 </div>
               </div>
             </div>
@@ -1482,6 +1490,7 @@ function VencimentoDatePicker() {
       <PopoverTrigger asChild>
         <div className="flex gap-2">
           <input
+            aria-label="Selecionar data de vencimento"
             readOnly
             value={date ? formatDate(date) : ""}
             placeholder="Selecione a data"
@@ -1489,6 +1498,7 @@ function VencimentoDatePicker() {
             onClick={() => setOpen(true)}
           />
           <input
+            aria-label="Selecionar hora"
             type="time"
             value={time}
             onChange={handleTimeChange}
